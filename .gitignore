@@ -1,0 +1,79 @@
+# Maven target directory (compiled files)
+target/
+bin/
+
+# Eclipse specific files
+.project
+.classpath
+.settings/
+
+# IntelliJ IDEA specific files
+.idea/
+*.iml
+*.iws
+
+# Tomcat work and temp files
+logs/
+work/
+temp/
+
+# Ignore compiled Java classes
+*.class
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore environment-specific files
+.env
+
+# Ignore build and deployment files
+*.war
+*.ear
+
+# Ignore servlet container output
+*.log
+
+# Ignore JetBrains cache
+out/
+
+# Ignore local server configuration files
+servers/
+
+# Ignore generated Javadoc
+doc/
+
+# NetBeans specific (if ever used)
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# VSCode settings (if used)
+.vscode/
+
+# MacOS system file
+Icon?
+
+# Windows system files
+ehthumbs.db
+desktop.ini
+
+# Eclipse IDE additional files
+.metadata/
+.recommenders/
+.loadpath
+.factorypath
+.externalToolBuilders/
+*.launch
+
+# Eclipse local history
+.history/
+
+# Eclipse annotation processing
+.apt_generated/
+.apt_generated_tests/
+
+.target/
