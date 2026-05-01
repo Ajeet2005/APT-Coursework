@@ -15,7 +15,7 @@
                 <p class="muted">By <a href="<%= ctx %>/artist?id=${artwork.artistId}">${artwork.artistName}</a></p>
                 <p>${artwork.description}</p>
                 <c:if test="${artwork.price != null}">
-                    <p class="price"><fmt:formatNumber value="${artwork.price}" type="currency" currencySymbol="$"/></p>
+                    <p class="price">Rs.&nbsp;<fmt:formatNumber value="${artwork.price}" type="number" maxFractionDigits="0" groupingUsed="true"/></p>
                 </c:if>
                 <a class="btn btn-primary" href="<%= ctx %>/gallery">Back to Gallery</a>
             </div>

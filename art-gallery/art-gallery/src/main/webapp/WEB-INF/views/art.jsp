@@ -19,7 +19,7 @@
                         <h3>${art.title}</h3>
                         <p class="muted">${art.artistName} &middot; ${art.categoryName}</p>
                         <c:if test="${art.price != null}">
-                            <p class="price"><fmt:formatNumber value="${art.price}" type="currency" currencySymbol="$"/></p>
+                            <p class="price">Rs.&nbsp;<fmt:formatNumber value="${art.price}" type="number" maxFractionDigits="0" groupingUsed="true"/></p>
                         </c:if>
                     </div>
                 </a>

@@ -18,7 +18,7 @@
         </c:choose>
     </p>
     <div class="botanical-trust">
-        <span>&#10004; Free worldwide shipping over $1,000</span>
+        <span>&#10004; Free shipping across Nepal over Rs. 1,00,000</span>
         <span>&#10004; 30-day return guarantee</span>
         <span>&#10004; Certificate of authenticity</span>
     </div>
@@ -77,7 +77,7 @@
                             <c:choose>
                                 <c:when test="${not empty art.price}">
                                     <span class="price">
-                                        <fmt:formatNumber value="${art.price}" type="currency" currencySymbol="$" maxFractionDigits="0"/>
+                                        Rs.&nbsp;<fmt:formatNumber value="${art.price}" type="number" maxFractionDigits="0" groupingUsed="true"/>
                                     </span>
                                 </c:when>
                                 <c:otherwise>
