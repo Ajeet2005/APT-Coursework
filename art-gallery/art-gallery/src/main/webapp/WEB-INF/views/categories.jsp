@@ -12,7 +12,11 @@
     <c:choose>
         <c:when test="${not empty categories}">
             <c:forEach var="cat" items="${categories}">
-                <a class="category-card" href="<%= ctx %>/categories?id=${cat.id}">
+                <c:set var="catHref" value="${pageContext.request.contextPath}/categories?id=${cat.id}" />
+                <c:if test="${cat.name eq 'Botanical'}">
+                    <c:set var="catHref" value="${pageContext.request.contextPath}/botanical" />
+                </c:if>
+                <a class="category-card" href="${catHref}">
                     <div class="category-image">
                         <img src="${cat.coverImage}" alt="${cat.name}">
                     </div>

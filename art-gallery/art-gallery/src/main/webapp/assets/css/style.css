@@ -743,3 +743,336 @@ p  { margin: 0 0 1em; color: var(--ink); }
     }
 }
 
+
+/* =========================================================
+   Botanical SHOP page — e-commerce product listing
+   ========================================================= */
+.botanical-hero {
+    background:
+        radial-gradient(1200px 400px at 80% -20%, rgba(155, 109, 255, 0.18), transparent 60%),
+        radial-gradient(800px 300px at 0% 0%, rgba(255, 180, 220, 0.10), transparent 60%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.botanical-trust {
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px 28px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.62);
+    letter-spacing: 0.02em;
+}
+
+.botanical-trust span {
+    white-space: nowrap;
+}
+
+/* ---------- shop toolbar ---------- */
+.shop-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 18px clamp(20px, 6vw, 80px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+}
+
+.shop-toolbar-left strong {
+    color: #f5edff;
+    font-weight: 600;
+}
+
+.shop-toolbar-right select {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f5edff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin-left: 8px;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* ---------- product grid ---------- */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 28px;
+    padding: 32px clamp(20px, 6vw, 80px) 80px;
+}
+
+.product-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.4);
+    border-color: rgba(155, 109, 255, 0.45);
+}
+
+.product-image {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: #1a1424;
+}
+
+.product-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease, filter 0.6s ease;
+    filter: saturate(1.05);
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.05);
+    filter: saturate(1.2);
+}
+
+/* ---------- badges ---------- */
+.badge {
+    position: absolute;
+    top: 12px;
+    padding: 6px 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    z-index: 2;
+    backdrop-filter: blur(6px);
+}
+
+.badge-featured {
+    left: 12px;
+    background: rgba(155, 109, 255, 0.92);
+    color: #fff;
+}
+
+.badge-bestseller {
+    right: 12px;
+    background: rgba(255, 196, 62, 0.95);
+    color: #2b1f00;
+}
+
+/* ---------- wishlist heart ---------- */
+.btn-wishlist {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    backdrop-filter: blur(8px);
+    z-index: 2;
+}
+
+.btn-wishlist:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.08);
+}
+
+.btn-wishlist.saved {
+    color: #ff6f9c;
+    background: rgba(255, 111, 156, 0.15);
+    border-color: rgba(255, 111, 156, 0.5);
+}
+
+/* ---------- product body ---------- */
+.product-body {
+    padding: 18px 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.product-artist {
+    margin: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.product-title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.45rem;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.product-title a {
+    color: #f5edff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.product-title a:hover {
+    color: #c8a6ff;
+}
+
+.product-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.product-rating .stars {
+    color: #ffc43e;
+    letter-spacing: 1px;
+    font-size: 0.95rem;
+}
+
+.product-blurb {
+    margin: 4px 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.7);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ---------- price + stock ---------- */
+.product-price-row {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.product-price-row .price {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.product-price-row .stock {
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.stock.in-stock {
+    color: #7ee19a;
+    background: rgba(126, 225, 154, 0.12);
+    border: 1px solid rgba(126, 225, 154, 0.3);
+}
+
+/* ---------- actions ---------- */
+.product-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+}
+
+.btn-cart {
+    flex: 1;
+    border: none;
+    cursor: pointer;
+    padding: 11px 14px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border-radius: 10px;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-cart.added {
+    background: #5fc684 !important;
+    color: #0e1f14 !important;
+    transform: scale(0.98);
+}
+
+.btn-view {
+    padding: 11px 14px;
+    font-size: 0.92rem;
+    border-radius: 10px;
+}
+
+/* ---------- empty state ---------- */
+.product-grid .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.55);
+    padding: 40px 20px;
+}
+
+/* ---------- toast ---------- */
+.cart-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translate(-50%, 30px);
+    background: #1f1530;
+    color: #f5edff;
+    padding: 12px 22px;
+    border-radius: 12px;
+    border: 1px solid rgba(155, 109, 255, 0.5);
+    font-size: 0.92rem;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+}
+
+.cart-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+@media (max-width: 640px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+    .product-actions {
+        flex-direction: column;
+    }
+    .product-price-row .price {
+        font-size: 1.4rem;
+    }
+}

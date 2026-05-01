@@ -66,7 +66,9 @@ INSERT INTO categories (name, description, cover_image) VALUES
  ('Landscape',  'Colour-forward landscapes — mountain, plain and street.',
                  '/art-gallery/assets/images/placeholder-3.jpg'),
  ('Portrait',   'Portraiture that celebrates texture and personality.',
-                 '/art-gallery/assets/images/placeholder-4.jpg');
+                 '/art-gallery/assets/images/placeholder-4.jpg'),
+ ('Botanical',  'Florals and still-life botanicals — petals, vines and herbarium studies in classical detail.',
+                 '/art-gallery/assets/images/botanical/Flowers-in-a-Vase-by-Jan-Van-Huysum-Famous-Flower-Painting-1.webp');
 
 INSERT INTO artists (name, bio, profile_image, country) VALUES
  ('Anika Sharma',
@@ -80,7 +82,22 @@ INSERT INTO artists (name, bio, profile_image, country) VALUES
   '/art-gallery/assets/images/artist-3.jpg', 'Nepal'),
  ('Luca Moretti',
   'Italian painter fascinated by Mediterranean colour.',
-  '/art-gallery/assets/images/artist-4.jpg', 'Italy');
+  '/art-gallery/assets/images/artist-4.jpg', 'Italy'),
+ ('Albrecht Durer',
+  'Renaissance master whose botanical studies treated weeds and wildflowers with unprecedented scientific care.',
+  '/art-gallery/assets/images/botanical/Famous-Flower-Paintings-Cowslips-by-Albrecht-Durer.webp', 'Germany'),
+ ('Jan Brueghel the Elder',
+  'Flemish painter known for richly detailed flower garlands and still-life bouquets.',
+  '/art-gallery/assets/images/botanical/Famous-Flower-Paintings-by-Jan-Brueghel.webp', 'Belgium'),
+ ('Martin Johnson Heade',
+  'American luminist who paired exotic orchids with hummingbirds in lush tropical scenes.',
+  '/art-gallery/assets/images/botanical/Fighting-Humming-Birds-With-Pink-Orchid-by-Martin-Johnson-Heade-Famous-Flower-Painting.webp', 'United States'),
+ ('Jan van Huysum',
+  'Dutch master of opulent flower-vase compositions in the late Baroque tradition.',
+  '/art-gallery/assets/images/botanical/Flowers-in-a-Vase-by-Jan-Van-Huysum-Famous-Flower-Painting-1.webp', 'Netherlands'),
+ ('Rachel Ruysch',
+  'Dutch Golden Age still-life painter celebrated for woodland-floor floral arrangements.',
+  '/art-gallery/assets/images/botanical/Still-Life-of-Flowers-on-Woodland-Ground-by-Rachel-Ruysch-Famous-Flower-Painting.webp', 'Netherlands');
 
 INSERT INTO artworks (title, description, image_url, price, category_id, artist_id, featured) VALUES
  ('Monsoon Bloom',      'A burst of acrylic marigold over indigo.',
@@ -106,4 +123,26 @@ INSERT INTO artworks (title, description, image_url, price, category_id, artist_
  ('Tangerine Dream',    'Large-format acrylic.',
    '/art-gallery/assets/images/placeholder-1.jpg', 890.00, 1, 1, 0),
  ('Untitled 07',        'Mixed media, small study.',
-   '/art-gallery/assets/images/placeholder-2.jpg', 220.00, 2, 2, 0);
+   '/art-gallery/assets/images/placeholder-2.jpg', 220.00, 2, 2, 0),
+
+ -- Botanical (category id 5)
+ ('Cowslips',
+  'Albrecht Durer''s study of cowslips — a foundational work of Renaissance botanical observation.',
+  '/art-gallery/assets/images/botanical/Famous-Flower-Paintings-Cowslips-by-Albrecht-Durer.webp',
+  1200.00, 5, 5, 1),
+ ('Flower Garland',
+  'Jan Brueghel the Elder''s richly composed flower bouquet, a Flemish still-life classic.',
+  '/art-gallery/assets/images/botanical/Famous-Flower-Paintings-by-Jan-Brueghel.webp',
+  1450.00, 5, 6, 1),
+ ('Hummingbirds with Pink Orchid',
+  'Martin Johnson Heade pairs fighting hummingbirds with a pink orchid in a tropical setting.',
+  '/art-gallery/assets/images/botanical/Fighting-Humming-Birds-With-Pink-Orchid-by-Martin-Johnson-Heade-Famous-Flower-Painting.webp',
+  1320.00, 5, 7, 0),
+ ('Flowers in a Vase',
+  'Jan van Huysum''s opulent late-Baroque vase of flowers, jewel-bright and luminous.',
+  '/art-gallery/assets/images/botanical/Flowers-in-a-Vase-by-Jan-Van-Huysum-Famous-Flower-Painting-1.webp',
+  1680.00, 5, 8, 1),
+ ('Still Life on Woodland Ground',
+  'Rachel Ruysch''s woodland-floor floral still life — Dutch Golden Age botanical painting at its finest.',
+  '/art-gallery/assets/images/botanical/Still-Life-of-Flowers-on-Woodland-Ground-by-Rachel-Ruysch-Famous-Flower-Painting.webp',
+  1550.00, 5, 9, 0);
