@@ -16,6 +16,9 @@
                 <c:if test="${cat.name eq 'Botanical'}">
                     <c:set var="catHref" value="${pageContext.request.contextPath}/botanical" />
                 </c:if>
+                <c:if test="${cat.name eq 'Gesture'}">
+                    <c:set var="catHref" value="${pageContext.request.contextPath}/gesture" />
+                </c:if>
                 <a class="category-card" href="${catHref}">
                     <div class="category-image">
                         <img src="${cat.coverImage}" alt="${cat.name}">

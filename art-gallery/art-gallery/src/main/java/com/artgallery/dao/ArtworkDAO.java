@@ -41,6 +41,58 @@ public class ArtworkDAO {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    /**
+     * Search + filter. All parameters optional — pass null or 0 to skip a filter.
+     * @param q          free-text search across title, description, artist name
+     * @param categoryId 0 / null = any category
+     * @param sort       "featured" (default), "price_asc", "price_desc", "newest"
+     */
+    public List<Artwork> search(String q, Integer categoryId, String sort) {
+        StringBuilder sql = new StringBuilder(BASE_SQL);
+        List<Object> params = new ArrayList<>();
+        List<String> conditions = new ArrayList<>();
+
+        if (q != null && !q.isBlank()) {
+            conditions.add("(a.title LIKE ? OR a.description LIKE ? OR ar.name LIKE ? OR c.name LIKE ?)");
+            String like = "%" + q.trim() + "%";
+            params.add(like);
+            params.add(like);
+            params.add(like);
+            params.add(like);
+        }
+        if (categoryId != null && categoryId > 0) {
+            conditions.add("a.category_id = ?");
+            params.add(categoryId);
+        }
+
+        if (!conditions.isEmpty()) {
+            sql.append("WHERE ").append(String.join(" AND ", conditions)).append(" ");
+        }
+
+        String orderBy;
+        if ("price_asc".equals(sort))      orderBy = "ORDER BY a.price ASC";
+        else if ("price_desc".equals(sort)) orderBy = "ORDER BY a.price DESC";
+        else if ("newest".equals(sort))     orderBy = "ORDER BY a.id DESC";
+        else                                orderBy = "ORDER BY a.featured DESC, a.id DESC"; // featured default
+        sql.append(orderBy);
+
+        List<Artwork> list = new ArrayList<>();
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                Object p = params.get(i);
+                if (p instanceof Integer) ps.setInt(i + 1, (Integer) p);
+                else ps.setString(i + 1, (String) p);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(map(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     private List<Artwork> query(String sql, Integer param) {
         List<Artwork> list = new ArrayList<>();
         try (Connection c = DBConnection.getConnection();

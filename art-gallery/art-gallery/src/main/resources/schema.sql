@@ -68,7 +68,9 @@ INSERT INTO categories (name, description, cover_image) VALUES
  ('Portrait',   'Portraiture that celebrates texture and personality.',
                  '/art-gallery/assets/images/placeholder-4.jpg'),
  ('Botanical',  'Florals and still-life botanicals — petals, vines and herbarium studies in classical detail.',
-                 '/art-gallery/assets/images/botanical/Flowers-in-a-Vase-by-Jan-Van-Huysum-Famous-Flower-Painting-1.webp');
+                 '/art-gallery/assets/images/botanical/Flowers-in-a-Vase-by-Jan-Van-Huysum-Famous-Flower-Painting-1.webp'),
+ ('Gesture',    'Quick figure studies and life-drawing pieces — capturing movement, posture and expression in a single breath.',
+                 '/art-gallery/assets/images/gesture/384554027b97b51617d5168521a56bf6.jpg');
 
 INSERT INTO artists (name, bio, profile_image, country) VALUES
  ('Anika Sharma',
@@ -97,7 +99,22 @@ INSERT INTO artists (name, bio, profile_image, country) VALUES
   '/art-gallery/assets/images/botanical/Flowers-in-a-Vase-by-Jan-Van-Huysum-Famous-Flower-Painting-1.webp', 'Netherlands'),
  ('Rachel Ruysch',
   'Dutch Golden Age still-life painter celebrated for woodland-floor floral arrangements.',
-  '/art-gallery/assets/images/botanical/Still-Life-of-Flowers-on-Woodland-Ground-by-Rachel-Ruysch-Famous-Flower-Painting.webp', 'Netherlands');
+  '/art-gallery/assets/images/botanical/Still-Life-of-Flowers-on-Woodland-Ground-by-Rachel-Ruysch-Famous-Flower-Painting.webp', 'Netherlands'),
+ ('Egon Schiele',
+  'Austrian Expressionist whose taut, angular figure studies redefined gesture drawing in the early 20th century.',
+  '/art-gallery/assets/images/gesture/384554027b97b51617d5168521a56bf6.jpg', 'Austria'),
+ ('Edgar Degas',
+  'French Impressionist celebrated for his rapid pastel and pencil studies of dancers and bathers in motion.',
+  '/art-gallery/assets/images/gesture/d0393fce770cb800176835915be548cd.jpg', 'France'),
+ ('Auguste Rodin',
+  'French sculptor whose ink-and-watercolour gesture sketches captured the human body in fluid movement.',
+  '/art-gallery/assets/images/gesture/d35d02035a23d2ff3bcc4de3eb6b1a7d.jpg', 'France'),
+ ('Kathe Kollwitz',
+  'German printmaker whose charcoal figure studies carry stark emotional weight and bold gestural lines.',
+  '/art-gallery/assets/images/gesture/f20d1ab0d509292808e33f6ef68f1fad.jpg', 'Germany'),
+ ('Jenny Saville',
+  'British contemporary painter whose large-scale gestural figure work bridges classical drawing and modern flesh.',
+  '/art-gallery/assets/images/gesture/fa0afd5cd201b416416d21cae52f58ae.jpg', 'United Kingdom');
 
 INSERT INTO artworks (title, description, image_url, price, category_id, artist_id, featured) VALUES
  ('Monsoon Bloom',      'A burst of acrylic marigold over indigo.',
@@ -145,4 +162,26 @@ INSERT INTO artworks (title, description, image_url, price, category_id, artist_
  ('Still Life on Woodland Ground',
   'Rachel Ruysch''s woodland-floor floral still life — Dutch Golden Age botanical painting at its finest.',
   '/art-gallery/assets/images/botanical/Still-Life-of-Flowers-on-Woodland-Ground-by-Rachel-Ruysch-Famous-Flower-Painting.webp',
-  15500.00, 5, 9, 0);
+  15500.00, 5, 9, 0),
+
+ -- Gesture (category id 6)
+ ('Seated Figure Study',
+  'Egon Schiele''s sharp, expressive line capturing tension and emotion in a single seated pose.',
+  '/art-gallery/assets/images/gesture/384554027b97b51617d5168521a56bf6.jpg',
+  9800.00, 6, 10, 1),
+ ('Dancer in Movement',
+  'Edgar Degas''s rapid pastel sketch of a ballerina mid-step — a study of grace in motion.',
+  '/art-gallery/assets/images/gesture/d0393fce770cb800176835915be548cd.jpg',
+  11500.00, 6, 11, 1),
+ ('Reclining Nude',
+  'Auguste Rodin''s fluid ink-and-wash gesture drawing — the body rendered in a single sweeping line.',
+  '/art-gallery/assets/images/gesture/d35d02035a23d2ff3bcc4de3eb6b1a7d.jpg',
+  10200.00, 6, 12, 0),
+ ('Figure in Charcoal',
+  'Kathe Kollwitz''s heavy, mournful charcoal study — gesture drawing as social commentary.',
+  '/art-gallery/assets/images/gesture/f20d1ab0d509292808e33f6ef68f1fad.jpg',
+  8900.00, 6, 13, 1),
+ ('Standing Pose, No. 5',
+  'Jenny Saville''s contemporary large-scale figure study — bridging anatomical precision and gestural energy.',
+  '/art-gallery/assets/images/gesture/fa0afd5cd201b416416d21cae52f58ae.jpg',
+  13400.00, 6, 14, 0);
