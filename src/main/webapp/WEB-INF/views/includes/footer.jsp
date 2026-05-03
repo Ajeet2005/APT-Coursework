@@ -17,7 +17,8 @@
         </div>
         <div class="footer-contact">
             <h4>Visit</h4>
-            <p>123 Artisan Lane<br>Kathmandu, Nepal</p>
+            <p>Street no. 18<br>
+                <br>Lakeside-Pokhara, Nepal</p>
             <p>hello@galleryartisans.example</p>
         </div>
     </div>
