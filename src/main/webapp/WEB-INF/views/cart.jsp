@@ -17,7 +17,7 @@
                 <c:forEach var="item" items="${cartItems}">
                     <article class="cart-row">
                         <a class="cart-thumb" href="<%= ctx %>/art?id=${item.artworkId}">
-                            <img src="${item.imageUrl}" alt="${item.title}">
+                            <img src="<%= ctx %>/${item.imageUrl}" alt="${item.title}">
                         </a>
 
                         <div class="cart-info">

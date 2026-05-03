@@ -7,7 +7,7 @@
     <c:when test="${artwork != null}">
         <section class="art-detail">
             <div class="art-detail-img">
-                <img src="${artwork.imageUrl}" alt="${artwork.title}">
+                <img src="<%= ctx %>/${artwork.imageUrl}" alt="${artwork.title}">
             </div>
             <div class="art-detail-body">
                 <span class="eyebrow">${artwork.categoryName}</span>

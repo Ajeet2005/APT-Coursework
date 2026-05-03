@@ -14,7 +14,7 @@
             <c:forEach var="ar" items="${artists}">
                 <a class="artist-card" href="<%= ctx %>/artist?id=${ar.id}">
                     <div class="artist-portrait">
-                        <img src="${ar.profileImage}" alt="${ar.name}">
+                        <img src="<%= ctx %>/${ar.profileImage}" alt="${ar.name}">
                     </div>
                     <h3>${ar.name}</h3>
                     <p class="muted">${ar.country}</p>
@@ -30,7 +30,7 @@
 <c:if test="${not empty selectedArtist}">
     <section class="artist-detail">
         <div class="artist-detail-portrait">
-            <img src="${selectedArtist.profileImage}" alt="${selectedArtist.name}">
+            <img src="<%= ctx %>/${selectedArtist.profileImage}" alt="${selectedArtist.name}">
         </div>
         <div class="artist-detail-body">
             <span class="eyebrow">${selectedArtist.country}</span>
@@ -44,7 +44,7 @@
     <section class="art-grid">
         <c:forEach var="art" items="${artworks}">
             <a class="art-card" href="<%= ctx %>/art?id=${art.id}">
-                <img src="${art.imageUrl}" alt="${art.title}">
+                <img src="<%= ctx %>/${art.imageUrl}" alt="${art.title}">
                 <div class="art-card-body">
                     <h3>${art.title}</h3>
                     <p class="muted">${art.categoryName}</p>

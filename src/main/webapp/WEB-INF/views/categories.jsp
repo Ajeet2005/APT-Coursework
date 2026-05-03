@@ -19,9 +19,18 @@
                 <c:if test="${cat.name eq 'Gesture'}">
                     <c:set var="catHref" value="${pageContext.request.contextPath}/gesture" />
                 </c:if>
+                <c:if test="${cat.name eq 'Portrait'}">
+                    <c:set var="catHref" value="${pageContext.request.contextPath}/portrait" />
+                </c:if>
+                <c:if test="${cat.name eq 'Still Life'}">
+                    <c:set var="catHref" value="${pageContext.request.contextPath}/stilllife" />
+                </c:if>
+                <c:if test="${cat.name eq 'Landscape'}">
+                    <c:set var="catHref" value="${pageContext.request.contextPath}/landscape" />
+                </c:if>
                 <a class="category-card" href="${catHref}">
                     <div class="category-image">
-                        <img src="${cat.coverImage}" alt="${cat.name}">
+                        <img src="<%= ctx %>/${cat.coverImage}" alt="${cat.name}">
                     </div>
                     <div class="category-body">
                         <h3>${cat.name}</h3>
@@ -45,7 +54,7 @@
     <section class="art-grid">
         <c:forEach var="art" items="${artworks}">
             <a class="art-card" href="<%= ctx %>/art?id=${art.id}">
-                <img src="${art.imageUrl}" alt="${art.title}">
+                <img src="<%= ctx %>/${art.imageUrl}" alt="${art.title}">
                 <div class="art-card-body">
                     <h3>${art.title}</h3>
                     <p>${art.artistName}</p>

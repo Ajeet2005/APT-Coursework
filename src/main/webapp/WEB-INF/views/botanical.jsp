@@ -53,7 +53,7 @@
                             <span class="badge badge-bestseller">Bestseller</span>
                         </c:if>
                         <a href="<%= ctx %>/art?id=${art.id}" class="product-image-link">
-                            <img src="${art.imageUrl}" alt="${art.title}" loading="lazy">
+                            <img src="<%= ctx %>/${art.imageUrl}" alt="${art.title}" loading="lazy">
                         </a>
                         <button type="button" class="btn-wishlist" aria-label="Save for later" onclick="toggleWishlist(this)">
                             <span class="heart">&#9825;</span>

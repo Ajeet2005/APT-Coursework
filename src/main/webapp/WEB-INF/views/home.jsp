@@ -11,7 +11,7 @@
             (acrylic pouring, brush strokes, gallery b-roll, etc.).
             The <video> tag auto-plays muted on loop.
         -->
-        <video autoplay muted loop playsinline poster="<%= ctx %>/assets/images/hero-poster.jpg">
+        <video autoplay muted loop playsinline poster="<%= ctx %>/assets/images/botanical/Flowers-in-a-Vase-by-Jan-Van-Huysum-Famous-Flower-Painting-1.webp">
             <source src="<%= ctx %>/assets/videos/hero.mp4" type="video/mp4">
         </video>
         <div class="hero-overlay"></div>
@@ -46,7 +46,7 @@
                 <c:when test="${not empty featured}">
                     <c:forEach var="art" items="${featured}" varStatus="loop">
                         <figure class="slide" data-index="${loop.index}">
-                            <img src="${art.imageUrl}" alt="${art.title}">
+                            <img src="<%= ctx %>/${art.imageUrl}" alt="${art.title}">
                             <figcaption>
                                 <h3>${art.title}</h3>
                                 <p>${art.artistName}</p>
@@ -57,8 +57,15 @@
                 <c:otherwise>
                     <!-- Placeholder slides so the slideshow still demos before DB is connected -->
                     <c:forEach var="i" begin="1" end="5">
+                        <c:choose>
+                            <c:when test="${i == 1}"><c:set var="ph" value="Portrait/239cf4bb986b78c100681a1599acefa4.jpg"/></c:when>
+                            <c:when test="${i == 2}"><c:set var="ph" value="Portrait/25a09476d9b32d44ff78055c67d28fcd.jpg"/></c:when>
+                            <c:when test="${i == 3}"><c:set var="ph" value="Portrait/12a612e740abd1dc969138f5c597b87b.jpg"/></c:when>
+                            <c:when test="${i == 4}"><c:set var="ph" value="Portrait/12ea0489b373da12a4208b90bdfd7c28.jpg"/></c:when>
+                            <c:otherwise><c:set var="ph" value="Portrait/085f7607b37fc18506186c62ea86b18d.jpg"/></c:otherwise>
+                        </c:choose>
                         <figure class="slide" data-index="${i - 1}">
-                            <img src="<%= ctx %>/assets/images/placeholder-${i}.jpg" alt="Placeholder painting ${i}">
+                            <img src="<%= ctx %>/assets/images/${ph}" alt="Placeholder painting ${i}">
                             <figcaption>
                                 <h3>Untitled #${i}</h3>
                                 <p>Gallery Artisan&rsquo;s</p>
@@ -85,7 +92,7 @@
                 <c:forEach var="art" items="${latest}" varStatus="loop">
                     <c:if test="${loop.index < 8}">
                         <a class="mosaic-item m-${loop.index % 8}" href="<%= ctx %>/art?id=${art.id}">
-                            <img src="${art.imageUrl}" alt="${art.title}">
+                            <img src="<%= ctx %>/${art.imageUrl}" alt="${art.title}">
                             <span class="mosaic-caption">
                                 <strong>${art.title}</strong>
                                 <em>${art.artistName}</em>
@@ -96,8 +103,16 @@
             </c:when>
             <c:otherwise>
                 <c:forEach var="i" begin="1" end="8">
+                    <c:set var="phIdx" value="${((i-1) % 5) + 1}"/>
+                    <c:choose>
+                        <c:when test="${phIdx == 1}"><c:set var="ph" value="Portrait/239cf4bb986b78c100681a1599acefa4.jpg"/></c:when>
+                        <c:when test="${phIdx == 2}"><c:set var="ph" value="Portrait/25a09476d9b32d44ff78055c67d28fcd.jpg"/></c:when>
+                        <c:when test="${phIdx == 3}"><c:set var="ph" value="Portrait/12a612e740abd1dc969138f5c597b87b.jpg"/></c:when>
+                        <c:when test="${phIdx == 4}"><c:set var="ph" value="Portrait/12ea0489b373da12a4208b90bdfd7c28.jpg"/></c:when>
+                        <c:otherwise><c:set var="ph" value="Portrait/085f7607b37fc18506186c62ea86b18d.jpg"/></c:otherwise>
+                    </c:choose>
                     <a class="mosaic-item m-${(i - 1) % 8}" href="<%= ctx %>/gallery">
-                        <img src="<%= ctx %>/assets/images/placeholder-${((i-1) % 5) + 1}.jpg" alt="Placeholder ${i}">
+                        <img src="<%= ctx %>/assets/images/${ph}" alt="Placeholder ${i}">
                         <span class="mosaic-caption">
                             <strong>Untitled ${i}</strong>
                             <em>Gallery Artisan&rsquo;s</em>
@@ -144,7 +159,7 @@
 
     <div class="newsletter-strip">
         <!-- gallery wall strip image -->
-        <img src="<%= ctx %>/assets/images/gallery-wall.jpg" alt="Gallery wall">
+        <img src="<%= ctx %>/assets/images/Portrait/45db64917a2e555246d8b7021f7cb08b.jpg" alt="Gallery wall">
     </div>
 </section>
 

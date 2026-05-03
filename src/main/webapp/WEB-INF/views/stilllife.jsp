@@ -1,19 +1,19 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<c:set var="pageTitle" value="Gesture Shop &mdash; Gallery Artisan&rsquo;s" scope="request"/>
+<c:set var="pageTitle" value="Still Life Shop &mdash; Gallery Artisan&rsquo;s" scope="request"/>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 
 <section class="page-hero botanical-hero">
-    <span class="eyebrow">Shop &middot; Figure &amp; Movement</span>
-    <h1>Gesture Collection</h1>
+    <span class="eyebrow">Shop &middot; Quiet Objects</span>
+    <h1>Still Life Collection</h1>
     <p>
         <c:choose>
             <c:when test="${not empty category and not empty category.description}">
                 ${category.description}
             </c:when>
             <c:otherwise>
-                Quick figure studies and life-drawing pieces &mdash; capturing movement, posture and expression in a single breath.
+                Bowls, glass and fruit at quiet rest &mdash; masterworks of arrangement, light and patience.
             </c:otherwise>
         </c:choose>
     </p>
@@ -109,7 +109,7 @@
             </c:forEach>
         </c:when>
         <c:otherwise>
-            <p class="empty">No products yet &mdash; once your database has artworks in the Gesture category they&rsquo;ll appear here.</p>
+            <p class="empty">No products yet &mdash; once your database has artworks in the Still Life category they&rsquo;ll appear here.</p>
         </c:otherwise>
     </c:choose>
 </section>
