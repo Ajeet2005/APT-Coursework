@@ -91,7 +91,16 @@
                             <button type="button" class="btn btn-primary btn-cart"
                                     data-id="${art.id}" data-title="${art.title}"
                                     onclick="addToCart(this)">
-                                Add to Cart
+                                <svg class="btn-cart-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2.5 3h2.5l1.6 3H22l-2.4 8.4a1.6 1.6 0 0 1-1.55 1.1H9.05a1.6 1.6 0 0 1-1.55-1.2L4.7 4.5"/>
+                                    <line x1="13" y1="8.5" x2="13" y2="12.5"/>
+                                    <line x1="11" y1="10.5" x2="15" y2="10.5"/>
+                                    <circle cx="9"  cy="20" r="1.5"/>
+                                    <circle cx="17" cy="20" r="1.5"/>
+                                </svg>
+                                <span>Add to Cart</span>
                             </button>
                             <a class="btn btn-ghost btn-view" href="<%= ctx %>/art?id=${art.id}">Quick view</a>
                         </div>
@@ -109,19 +118,49 @@
 
 <script>
     (function () {
-        var cartCount = 0;
         var toast = document.getElementById('cart-toast');
+        var ctx = '<%= ctx %>';
 
         window.addToCart = function (btn) {
-            cartCount += 1;
-            var title = btn.getAttribute('data-title') || 'Item';
-            btn.classList.add('added');
-            btn.textContent = 'Added ✓';
-            showToast('"' + title + '" added to cart — ' + cartCount + ' item' + (cartCount === 1 ? '' : 's'));
-            setTimeout(function () {
-                btn.classList.remove('added');
-                btn.textContent = 'Add to Cart';
-            }, 1800);
+            var artworkId = btn.getAttribute('data-id');
+            var title     = btn.getAttribute('data-title') || 'Item';
+            if (!artworkId) return;
+
+            btn.disabled = true;
+
+            var body = new URLSearchParams();
+            body.append('action', 'add');
+            body.append('artworkId', artworkId);
+
+            fetch(ctx + '/cart', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: body.toString()
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data && data.ok) {
+                    btn.classList.add('added');
+                    btn.textContent = 'Added ✓';
+                    updateCartBadge(data.count);
+                    showToast('"' + title + '" added to cart');
+                } else {
+                    showToast('Could not add to cart');
+                }
+            })
+            .catch(function () {
+                showToast('Network error — try again');
+            })
+            .finally(function () {
+                setTimeout(function () {
+                    btn.classList.remove('added');
+                    btn.textContent = 'Add to Cart';
+                    btn.disabled = false;
+                }, 1500);
+            });
         };
 
         window.toggleWishlist = function (btn) {
@@ -134,6 +173,13 @@
                 heart.innerHTML = '&#9825;';
             }
         };
+
+        function updateCartBadge(n) {
+            var badge = document.querySelector('[data-cart-badge]');
+            if (!badge) return;
+            badge.textContent = n;
+            badge.classList.toggle('has-items', n > 0);
+        }
 
         function showToast(msg) {
             if (!toast) return;

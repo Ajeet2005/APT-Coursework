@@ -9,6 +9,8 @@ CREATE DATABASE IF NOT EXISTS art_gallery
 USE art_gallery;
 
 -- ---------- categories ----------
+DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS carts;
 DROP TABLE IF EXISTS artworks;
 DROP TABLE IF EXISTS artists;
 DROP TABLE IF EXISTS categories;
@@ -51,6 +53,25 @@ CREATE TABLE subscribers (
     last_name  VARCHAR(80),
     email      VARCHAR(200) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ---------- carts (one per browser session) ----------
+CREATE TABLE carts (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ---------- cart_items (artworks added to a cart) ----------
+CREATE TABLE cart_items (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    cart_id    INT NOT NULL,
+    artwork_id INT NOT NULL,
+    quantity   INT NOT NULL DEFAULT 1,
+    added_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_cart_item_cart    FOREIGN KEY (cart_id)    REFERENCES carts(id)    ON DELETE CASCADE,
+    CONSTRAINT fk_cart_item_artwork FOREIGN KEY (artwork_id) REFERENCES artworks(id) ON DELETE CASCADE,
+    UNIQUE KEY ux_cart_artwork (cart_id, artwork_id)
 ) ENGINE=InnoDB;
 
 -- =============================================================
