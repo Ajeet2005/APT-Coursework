@@ -15,6 +15,26 @@ DROP TABLE IF EXISTS artworks;
 DROP TABLE IF EXISTS artists;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS subscribers;
+DROP TABLE IF EXISTS users;
+
+
+-- ---------- users / authentication ----------
+CREATE TABLE users (
+    id            INT          NOT NULL AUTO_INCREMENT,
+    full_name     VARCHAR(120) NOT NULL,
+    email         VARCHAR(200) NOT NULL,
+    password_hash VARCHAR(60)  NOT NULL,
+    role          ENUM('user','admin') NOT NULL DEFAULT 'user',
+    created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_users_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Seed auth users.
+-- Both accounts use password: password
+INSERT INTO users (full_name, email, password_hash, role) VALUES
+('Gallery Admin', 'admin@artgallery.com', '$2a$12$An0z0/8pUslVOqwXD8QRB.mdq6L1LCcA.zVXP5vzOnkWzRXcGP4nK', 'admin'),
+('Test User',     'user@artgallery.com',  '$2a$12$7OTu69pfuEHdtOeNsXymv.qIcWE5DSQ.ZE3irkuuqhvKGdE2mGCkG',  'user');
 
 CREATE TABLE categories (
     id          INT AUTO_INCREMENT PRIMARY KEY,
