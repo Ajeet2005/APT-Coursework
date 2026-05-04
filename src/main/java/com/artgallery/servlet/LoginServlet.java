@@ -8,6 +8,8 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Handles GET /login  → show the login page
@@ -26,6 +28,7 @@ import java.sql.SQLException;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
+    private static final Logger LOG = Logger.getLogger(LoginServlet.class.getName());
     private final UserDAO userDAO = new UserDAO();
 
     // ── GET ──────────────────────────────────────────────────────────────────
@@ -52,7 +55,7 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String email    = trim(req.getParameter("email"));
+        String email    = trim(req.getParameter("email")).toLowerCase();
         String password = req.getParameter("password");
 
         // Basic presence validation
@@ -63,9 +66,11 @@ public class LoginServlet extends HttpServlet {
         }
 
         try {
+            LOG.info("Login attempt for email: " + email);
             User user = userDAO.login(email, password);
 
             if (user == null) {
+                LOG.info("Login failed for email: " + email + " — invalid credentials");
                 // Wrong email or password — don't say which (security best practice)
                 req.setAttribute("error", "Invalid email or password.");
                 req.setAttribute("emailValue", email); // pre-fill email field
@@ -73,17 +78,20 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
-            // ── Success: create a new session (invalidate old to prevent fixation) ──
-            HttpSession oldSession = req.getSession(false);
-            if (oldSession != null) oldSession.invalidate();
+            LOG.info("Login successful for: " + user.getEmail() + " (role: " + user.getRole() + ")");
 
+            // ── Save redirect target BEFORE invalidating old session ──
+            HttpSession oldSession = req.getSession(false);
+            String redirectAfterLogin = null;
+            if (oldSession != null) {
+                redirectAfterLogin = (String) oldSession.getAttribute("redirectAfterLogin");
+                oldSession.invalidate();
+            }
+
+            // ── Create a fresh session (prevents session fixation attacks) ──
             HttpSession newSession = req.getSession(true);
             newSession.setAttribute("loggedInUser", user);
             newSession.setMaxInactiveInterval(30 * 60); // 30 minutes
-
-            // Check if AuthFilter saved a "redirect after login" target
-            String redirectAfterLogin = (String) newSession.getAttribute("redirectAfterLogin");
-            newSession.removeAttribute("redirectAfterLogin");
 
             if (redirectAfterLogin != null && !redirectAfterLogin.isEmpty()) {
                 resp.sendRedirect(redirectAfterLogin);
@@ -94,6 +102,7 @@ public class LoginServlet extends HttpServlet {
             }
 
         } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "Database error during login for email: " + email, e);
             throw new ServletException("Database error during login", e);
         }
     }

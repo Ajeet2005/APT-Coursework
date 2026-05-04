@@ -6,6 +6,8 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Data Access Object for the `users` table.
@@ -21,6 +23,8 @@ import java.time.LocalDateTime;
  *   time, preventing timing-attack leaks.
  */
 public class UserDAO {
+
+    private static final Logger LOG = Logger.getLogger(UserDAO.class.getName());
 
     // ── Register (INSERT) ────────────────────────────────────────────────────
 
@@ -58,6 +62,9 @@ public class UserDAO {
         if (!"user".equalsIgnoreCase(role) && !"admin".equalsIgnoreCase(role)) {
             role = "user";
         }
+
+        // Normalize email to lowercase for consistent lookups
+        email = email.toLowerCase().trim();
 
         String sql = "INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)";
 
@@ -98,24 +105,37 @@ public class UserDAO {
      */
     public User login(String email, String plainPassword) throws SQLException {
 
+        // Normalize email to lowercase for case-insensitive comparison
+        email = email.toLowerCase().trim();
+
         String sql = "SELECT id, full_name, email, password_hash, role, created_at " +
-                     "FROM users WHERE email = ?";
+                     "FROM users WHERE LOWER(email) = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, email);
+            LOG.info("Looking up user by email: " + email);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String storedHash = rs.getString("password_hash");
+                    LOG.info("User found in database: " + rs.getString("email") + " (id=" + rs.getInt("id") + ")");
 
                     // BCrypt constant-time comparison — prevents timing attacks
                     if (BCrypt.checkpw(plainPassword, storedHash)) {
+                        LOG.info("Password verified successfully for: " + email);
                         return mapRow(rs);
+                    } else {
+                        LOG.info("Password mismatch for: " + email);
                     }
+                } else {
+                    LOG.info("No user found with email: " + email);
                 }
             }
+        } catch (SQLException e) {
+            LOG.log(Level.SEVERE, "Database error during login lookup for: " + email, e);
+            throw e;
         }
         // Return null for wrong email OR wrong password (don't reveal which)
         return null;
@@ -151,7 +171,8 @@ public class UserDAO {
 
     /** Check if an email is already registered (used for real-time validation). */
     public boolean emailExists(String email) throws SQLException {
-        String sql = "SELECT 1 FROM users WHERE email = ?";
+        email = email.toLowerCase().trim();
+        String sql = "SELECT 1 FROM users WHERE LOWER(email) = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);

@@ -37,7 +37,7 @@ public class RegisterServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String fullName        = trim(req.getParameter("fullName"));
-        String email           = trim(req.getParameter("email"));
+        String email           = trim(req.getParameter("email")).toLowerCase();
         String password        = req.getParameter("password");
         String confirmPassword = req.getParameter("confirmPassword");
         String role            = trim(req.getParameter("role"));
