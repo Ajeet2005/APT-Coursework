@@ -270,45 +270,7 @@
             margin: 0 auto 28px;
         }
 
-        /* Role selector tabs */
-        .role-tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 28px;
-            border: 1px solid var(--clr-border);
-            border-radius: 10px;
-            overflow: hidden;
-            width: 100%;
-        }
-        .role-tab {
-            flex: 1;
-            padding: 11px 16px;
-            text-align: center;
-            font-size: 0.78rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            cursor: pointer;
-            color: var(--clr-muted);
-            background: transparent;
-            border: none;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            transition: background var(--transition), color var(--transition);
-        }
-        .role-tab.selected {
-            background: var(--clr-accent);
-            color: var(--clr-bg);
-        }
-        .role-tab:not(.selected):hover {
-            background: rgba(255,255,255,0.04);
-            color: var(--clr-text);
-        }
 
-        /* Admin tab uses purple when selected */
-        #tabAdmin.selected {
-            background: var(--clr-purple);
-            color: #fff;
-        }
 
         /* Form fields */
         .field { margin-bottom: 20px; width: 100%; }
@@ -383,14 +345,7 @@
         }
         .btn-primary:active { transform: scale(0.985); }
 
-        /* Admin submit uses purple */
-        .btn-primary.admin-mode {
-            background: var(--clr-purple);
-        }
-        .btn-primary.admin-mode:hover {
-            background: var(--clr-purple2);
-            box-shadow: 0 4px 20px rgba(155,89,182,0.35);
-        }
+
 
         /* Footer link */
         .form-footer {
@@ -508,20 +463,12 @@
 
         <div class="form-header">
             <h1>Welcome back</h1>
-            <p>Sign in to continue your art journey</p>
+            <p>Sign in with your registered credentials to continue</p>
         </div>
 
         <div class="ornament"></div>
 
-        <!-- Role selector -->
-        <div class="role-tabs" role="tablist" aria-label="Login as">
-            <button type="button" class="role-tab selected" id="tabUser"
-                    role="tab" aria-selected="true"
-                    onclick="selectRole('user')">User</button>
-            <button type="button" class="role-tab" id="tabAdmin"
-                    role="tab" aria-selected="false"
-                    onclick="selectRole('admin')">Admin</button>
-        </div>
+
 
         <!-- Error message -->
         <c:if test="${not empty error}">
@@ -538,7 +485,7 @@
         <!-- Login form -->
         <form action="${pageContext.request.contextPath}/login" method="post"
               style="width:100%" id="loginForm" autocomplete="on" novalidate>
-            <input type="hidden" name="role" id="roleInput" value="user">
+
 
             <div class="field">
                 <label for="email">Email Address</label>
@@ -555,7 +502,7 @@
                        required autocomplete="current-password">
             </div>
 
-            <button type="submit" class="btn-primary" id="submitBtn">Login</button>
+            <button type="submit" class="btn-primary" id="submitBtn">Sign In</button>
         </form>
 
         <div class="form-footer">
@@ -567,37 +514,6 @@
 </div>
 
 <script>
-    // ── Role tab toggle ──────────────────────────────────────────────────────
-    var currentRole = 'user';
-
-    function selectRole(role) {
-        currentRole = role;
-        document.getElementById('roleInput').value = role;
-
-        var tabUser  = document.getElementById('tabUser');
-        var tabAdmin = document.getElementById('tabAdmin');
-        var submitBtn = document.getElementById('submitBtn');
-
-        if (role === 'user') {
-            tabUser.classList.add('selected');
-            tabUser.setAttribute('aria-selected', 'true');
-            tabAdmin.classList.remove('selected');
-            tabAdmin.setAttribute('aria-selected', 'false');
-            submitBtn.classList.remove('admin-mode');
-        } else {
-            tabAdmin.classList.add('selected');
-            tabAdmin.setAttribute('aria-selected', 'true');
-            tabUser.classList.remove('selected');
-            tabUser.setAttribute('aria-selected', 'false');
-            submitBtn.classList.add('admin-mode');
-        }
-    }
-
-    // Pre-select role if an error was returned (keep it consistent)
-    (function() {
-        var roleVal = document.getElementById('roleInput').value;
-        if (roleVal === 'admin') selectRole('admin');
-    })();
 
     // ── Slideshow ────────────────────────────────────────────────────────────
     var slides    = document.querySelectorAll('.slide');

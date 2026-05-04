@@ -65,7 +65,7 @@ public class RegisterServlet extends HttpServlet {
 
         try {
             if (userDAO.emailExists(email)) {
-                fwd(req, resp, "An account with that email already exists. Try logging in.", fullName, email, role);
+                fwd(req, resp, "An account with that email already exists. Please use the Login page to sign in with your existing credentials.", fullName, email, role);
                 return;
             }
 
