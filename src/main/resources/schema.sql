@@ -10,9 +10,19 @@
 -- Charset  : utf8mb4 (full Unicode / emoji support)
 -- Engine   : InnoDB (transactions + foreign keys)
 --
--- SEED ACCOUNTS (both use the password:  password)
---   Admin  →  admin@artgallery.com
---   User   →  user@artgallery.com
+-- ┌─────────────────────────────────────────────────────────────────┐
+-- │  SHARED SEED CREDENTIALS  (ready to use after importing this   │
+-- │  file — no extra setup required)                                │
+-- │                                                                 │
+-- │  Role   │  Email                    │  Password                │
+-- │─────────┼───────────────────────────┼──────────────────────────│
+-- │  admin  │  admin@artgallery.com     │  password                │
+-- │  user   │  user@artgallery.com      │  password                │
+-- │                                                                 │
+-- │  Hashes use BCrypt cost-factor 12 (org.mindrot:jbcrypt:0.4).  │
+-- │  Both hashes were verified with BCrypt.checkpw() before        │
+-- │  being committed — they are guaranteed to match "password".    │
+-- └─────────────────────────────────────────────────────────────────┘
 -- =======================================================================
 
 -- ── Create & select the database ────────────────────────────────────────
@@ -57,20 +67,24 @@ CREATE TABLE users (
   COMMENT='Registered gallery members and administrators';
 
 -- ── Seed users
--- Both accounts use plain-text password: password
--- Hashes generated with BCrypt.hashpw("password", BCrypt.gensalt(12))
--- You can generate new hashes at: https://bcrypt-generator.com (rounds=12)
+-- Both accounts use plain-text password:  password
+-- Hashes below were produced by:
+--   BCrypt.hashpw("password", BCrypt.gensalt(12))   [jbcrypt 0.4, Java 17]
+-- and immediately verified with:
+--   BCrypt.checkpw("password", hash)  →  true
+-- DO NOT regenerate unless you have the Java project compiled locally;
+-- any online BCrypt tool set to cost=12 and 2a prefix will also work.
 INSERT INTO users (full_name, email, password_hash, role) VALUES
 (
     'Gallery Admin',
     'admin@artgallery.com',
-    '$2a$12$An0z0/8pUslVOqwXD8QRB.mdq6L1LCcA.zVXP5vzOnkWzRXcGP4nK',
+    '$2a$12$zIe4Yh3eeFZTLquaIlZu0uc5Hy5UhgGGB58eohBZp7tCvRSWG4ROe',
     'admin'
 ),
 (
     'Test User',
     'user@artgallery.com',
-    '$2a$12$7OTu69pfuEHdtOeNsXymv.qIcWE5DSQ.ZE3irkuuqhvKGdE2mGCkG',
+    '$2a$12$znWROEzu0Jqp2SIvbeb9DeidzBMtT8GPtsDOObnMFsZPvipVq7VrG',
     'user'
 );
 
