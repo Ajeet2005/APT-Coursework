@@ -1078,14 +1078,19 @@ p  { margin: 0 0 1em; color: var(--ink); }
 }
 
 /* =========================================================
-   Search bar — unified pill (used on /art page)
+   Search bar — refined unified pill (used on /art page)
    ========================================================= */
 :root {
     --search-h: 60px;
     --search-radius: 999px;
-    --search-line: rgba(255, 255, 255, 0.08);
-    --search-line-hover: rgba(155, 109, 255, 0.35);
-    --search-line-focus: rgba(155, 109, 255, 0.7);
+    --search-line: rgba(255, 255, 255, 0.07);
+    --search-line-hover: rgba(155, 109, 255, 0.4);
+    --search-line-focus: rgba(155, 109, 255, 0.75);
+    --search-bg: linear-gradient(135deg,
+        rgba(36, 26, 54, 0.55) 0%,
+        rgba(26, 19, 38, 0.55) 50%,
+        rgba(36, 26, 54, 0.55) 100%);
+    --easing: cubic-bezier(0.32, 0.72, 0.27, 1);
 }
 
 .search-bar {
@@ -1100,32 +1105,44 @@ p  { margin: 0 0 1em; color: var(--ink); }
     display: flex;
     align-items: stretch;
     height: var(--search-h);
-    background:
-        linear-gradient(135deg,
-            rgba(155, 109, 255, 0.05) 0%,
-            rgba(255, 255, 255, 0.025) 50%,
-            rgba(155, 109, 255, 0.04) 100%);
+    background: var(--search-bg);
     border: 1px solid var(--search-line);
     border-radius: var(--search-radius);
     overflow: hidden;
     position: relative;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+                0 8px 24px -12px rgba(0, 0, 0, 0.5);
+    transition: border-color 0.35s var(--easing),
+                box-shadow 0.35s var(--easing),
+                transform 0.35s var(--easing);
 }
 
 .search-bar-inner:hover {
     border-color: var(--search-line-hover);
-    box-shadow: 0 14px 40px -16px rgba(155, 109, 255, 0.35);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+                0 14px 40px -16px rgba(155, 109, 255, 0.4);
+    transform: translateY(-1px);
 }
 
 .search-bar-inner:focus-within {
     border-color: var(--search-line-focus);
     box-shadow: 0 0 0 4px rgba(155, 109, 255, 0.18),
-                0 18px 48px -16px rgba(155, 109, 255, 0.5);
+                0 18px 48px -16px rgba(155, 109, 255, 0.55);
+    transform: translateY(-1px);
 }
 
-/* subtle vertical dividers between sections */
-.search-bar-inner > * + * {
-    border-left: 1px solid var(--search-line);
+/* hairline divider between sections */
+.search-bar-inner > * + *::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 25%;
+    height: 50%;
+    width: 1px;
+    background: var(--search-line);
+    pointer-events: none;
 }
 
 /* ---------- search input section ---------- */
@@ -1135,29 +1152,34 @@ p  { margin: 0 0 1em; color: var(--ink); }
     display: flex;
     align-items: center;
     min-width: 220px;
-    padding: 0 8px 0 20px;
+    padding: 0 8px 0 22px;
 }
 
 .search-input-wrap input[type="search"] {
     width: 100%;
     height: 100%;
-    padding: 0 32px 0 30px;
+    padding: 0 38px 0 32px;
     background: transparent;
     color: #f5edff;
     border: none;
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 1.02rem;
     font-weight: 400;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.005em;
     outline: none;
+    caret-color: #c8a6ff;
 }
 
 .search-input-wrap input[type="search"]::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 400;
+    color: rgba(255, 255, 255, 0.38);
+    font-weight: 300;
+    transition: color 0.3s ease, transform 0.3s ease;
 }
 
-/* hide native X */
+.search-input-wrap:focus-within input[type="search"]::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
 .search-input-wrap input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 .search-input-wrap input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
 
@@ -1166,17 +1188,18 @@ p  { margin: 0 0 1em; color: var(--ink); }
     height: 20px;
     color: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
-    transition: color 0.3s ease, transform 0.3s ease;
+    transition: color 0.35s var(--easing), transform 0.35s var(--easing);
 }
 
-.search-input-wrap:focus-within .search-icon {
+.search-input-wrap:focus-within .search-icon,
+.search-bar-inner:hover .search-icon {
     color: #c8a6ff;
-    transform: scale(1.08);
+    transform: scale(1.1);
 }
 
-.search-clear {
+.search-clear-inline {
     position: absolute;
-    right: 16px;
+    right: 14px;
     width: 26px;
     height: 26px;
     display: inline-flex;
@@ -1185,62 +1208,53 @@ p  { margin: 0 0 1em; color: var(--ink); }
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.08);
     color: rgba(255, 255, 255, 0.85);
-    text-decoration: none;
-    font-size: 1.05rem;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
     line-height: 1;
-    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    padding: 0;
+    transition: background 0.2s ease, transform 0.3s var(--easing), color 0.2s ease;
 }
 
-.search-clear:hover {
-    background: rgba(255, 111, 156, 0.35);
+.search-clear-inline:hover {
+    background: rgba(255, 111, 156, 0.4);
     color: #fff;
-    transform: scale(1.1) rotate(90deg);
+    transform: scale(1.12) rotate(90deg);
 }
 
-/* ---------- filter selects (flush, transparent) ---------- */
+/* ---------- filter selects with SVG chevron ---------- */
+.filter-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
 .filter-select {
     height: 100%;
-    padding: 0 36px 0 22px;
+    padding: 0 38px 0 22px;
     background: transparent;
     color: #f5edff;
     border: none;
     font-family: inherit;
-    font-size: 0.92rem;
+    font-size: 0.93rem;
     font-weight: 500;
     min-width: 170px;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background-color 0.25s ease, color 0.25s ease;
 
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    /* chevron */
-    background-image:
-        linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.55) 50%),
-        linear-gradient(135deg, rgba(255, 255, 255, 0.55) 50%, transparent 50%);
-    background-position:
-        calc(100% - 20px) 50%,
-        calc(100% - 15px) 50%;
-    background-size: 6px 6px, 6px 6px;
-    background-repeat: no-repeat;
 }
 
 .filter-select:hover {
     background-color: rgba(255, 255, 255, 0.04);
-    background-image:
-        linear-gradient(45deg, transparent 50%, #c8a6ff 50%),
-        linear-gradient(135deg, #c8a6ff 50%, transparent 50%);
-    background-position:
-        calc(100% - 20px) 50%,
-        calc(100% - 15px) 50%;
-    background-size: 6px 6px, 6px 6px;
-    background-repeat: no-repeat;
     color: #fff;
 }
 
 .filter-select:focus {
     outline: none;
-    background-color: rgba(155, 109, 255, 0.08);
+    background-color: rgba(155, 109, 255, 0.1);
 }
 
 .filter-select option {
@@ -1250,6 +1264,23 @@ p  { margin: 0 0 1em; color: var(--ink); }
     padding: 10px;
 }
 
+.filter-chevron {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: rgba(255, 255, 255, 0.55);
+    pointer-events: none;
+    transition: color 0.25s ease, transform 0.35s var(--easing);
+}
+
+.filter-select-wrap:hover .filter-chevron {
+    color: #c8a6ff;
+    transform: translateY(-50%) translateY(2px);
+}
+
 /* ---------- search button (right end of pill) ---------- */
 .btn-search {
     height: 100%;
@@ -1257,11 +1288,11 @@ p  { margin: 0 0 1em; color: var(--ink); }
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 0 28px;
-    background: linear-gradient(135deg, #b58aff 0%, #7a3bff 60%, #5e25d8 100%);
+    padding: 0 30px;
+    background:
+        linear-gradient(135deg, #b58aff 0%, #7a3bff 60%, #5e25d8 100%);
     color: #fff;
     border: none;
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
     font-family: inherit;
     font-size: 0.95rem;
     font-weight: 600;
@@ -1270,29 +1301,35 @@ p  { margin: 0 0 1em; color: var(--ink); }
     white-space: nowrap;
     position: relative;
     overflow: hidden;
-    transition: filter 0.25s ease, padding 0.3s ease;
+    transition: filter 0.25s ease, padding 0.35s var(--easing);
 }
 
+/* shimmer */
 .btn-search::before {
     content: "";
     position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.18) 0%,
-        rgba(255, 255, 255, 0) 60%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    top: 0;
+    left: -60%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(110deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.22) 50%,
+        transparent 100%);
+    transform: skewX(-20deg);
+    transition: left 0.6s var(--easing);
 }
 
 .btn-search:hover {
-    filter: brightness(1.08);
-    padding: 0 32px;
+    filter: brightness(1.1);
+    padding: 0 34px;
 }
 
-.btn-search:hover::before { opacity: 1; }
+.btn-search:hover::before { left: 130%; }
 
 .btn-search:active {
     filter: brightness(0.95);
+    padding: 0 30px;
 }
 
 .btn-search-icon {
@@ -1301,6 +1338,11 @@ p  { margin: 0 0 1em; color: var(--ink); }
     flex-shrink: 0;
     position: relative;
     z-index: 1;
+    transition: transform 0.4s var(--easing);
+}
+
+.btn-search:hover .btn-search-icon {
+    transform: rotate(-12deg) scale(1.1);
 }
 
 .btn-search > span:not(.btn-search-icon) {
@@ -1308,71 +1350,136 @@ p  { margin: 0 0 1em; color: var(--ink); }
     z-index: 1;
 }
 
-/* ---------- reset link (sits below the bar, subtle) ---------- */
-.btn-reset {
-    display: inline-flex;
+/* ---------- search hint chips ---------- */
+.search-hint {
+    margin: 12px 4px 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
-    margin: 12px 0 0;
-    padding: 6px 0;
-    font-family: inherit;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
+    gap: 8px;
+}
+
+.search-hint a {
+    color: rgba(200, 166, 255, 0.85);
     text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s ease;
+    padding: 3px 11px;
+    border-radius: 999px;
+    background: rgba(155, 109, 255, 0.08);
+    border: 1px solid rgba(155, 109, 255, 0.2);
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.btn-reset::before {
-    content: "↻";
-    font-size: 0.95rem;
-    transition: transform 0.4s ease;
+.search-hint a:hover {
+    background: rgba(155, 109, 255, 0.18);
+    color: #fff;
+    border-color: rgba(155, 109, 255, 0.5);
+    transform: translateY(-1px);
 }
 
-.btn-reset:hover {
-    color: #ff6f9c;
-}
-
-.btn-reset:hover::before {
-    transform: rotate(-180deg);
-}
-
-/* ---------- result count + active filter chip ---------- */
+/* ---------- result count + active filter pills ---------- */
 .search-summary {
     max-width: 1280px;
     margin: 0 auto;
     padding: 22px clamp(20px, 6vw, 80px) 4px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.72);
     font-size: 0.96rem;
     line-height: 1.5;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 14px;
 }
 
-.search-summary strong {
+.search-summary .result-count strong {
     color: #f5edff;
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-right: 2px;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-right: 4px;
 }
 
-.search-summary em {
-    color: #c8a6ff;
-    font-style: normal;
-    font-weight: 500;
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
 }
 
-.search-summary .chip {
-    display: inline-block;
-    padding: 3px 12px;
-    margin-left: 6px;
-    background: rgba(155, 109, 255, 0.18);
-    border: 1px solid rgba(155, 109, 255, 0.4);
+.filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px 5px 14px;
+    background: rgba(155, 109, 255, 0.13);
+    border: 1px solid rgba(155, 109, 255, 0.35);
     border-radius: 999px;
-    font-size: 0.82rem;
+    color: #f5edff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.filter-pill-label {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.filter-pill-value {
     font-weight: 500;
     color: #f5edff;
-    letter-spacing: 0.02em;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.filter-pill-x {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+    line-height: 1;
+    margin-left: 2px;
+    transition: color 0.2s ease;
+}
+
+.filter-pill:hover {
+    background: rgba(255, 111, 156, 0.18);
+    border-color: rgba(255, 111, 156, 0.5);
+    transform: translateY(-1px);
+}
+
+.filter-pill:hover .filter-pill-x {
+    color: #ff6f9c;
+}
+
+.filter-clear-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.85rem;
+    text-decoration: none;
+    margin-left: 4px;
+    padding: 6px 4px;
+    transition: color 0.2s ease;
+}
+
+.filter-clear-all::before {
+    content: "↻";
+    font-size: 0.95rem;
+    transition: transform 0.4s var(--easing);
+}
+
+.filter-clear-all:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.filter-clear-all:hover::before {
+    transform: rotate(-180deg);
 }
 
 /* ---------- responsive ---------- */
@@ -1383,28 +1490,34 @@ p  { margin: 0 0 1em; color: var(--ink); }
         border-radius: 24px;
     }
 
-    .search-bar-inner > * + * {
-        border-left: none;
-        border-top: 1px solid var(--search-line);
+    .search-bar-inner > * + *::before {
+        left: 25%;
+        top: 0;
+        right: 25%;
+        height: 1px;
+        width: 50%;
+    }
+
+    .search-input-wrap,
+    .filter-select-wrap,
+    .btn-search {
+        width: 100%;
+        min-width: 0;
     }
 
     .search-input-wrap,
     .filter-select,
     .btn-search {
-        width: 100%;
         height: 56px;
-        min-width: 0;
-        padding: 0 20px;
     }
 
     .search-input-wrap input[type="search"] {
-        padding: 0 32px 0 12px;
+        padding: 0 38px 0 14px;
     }
 
     .filter-select {
-        background-position:
-            calc(100% - 24px) 50%,
-            calc(100% - 19px) 50%;
+        width: 100%;
+        padding: 0 38px 0 22px;
     }
 
     .btn-search {
@@ -1412,8 +1525,10 @@ p  { margin: 0 0 1em; color: var(--ink); }
         font-size: 1rem;
     }
 
-    .btn-search:hover {
-        padding: 0;
+    .btn-search:hover { padding: 0; }
+
+    .search-summary {
+        padding-bottom: 12px;
     }
 }
 
@@ -1776,4 +1891,207 @@ p  { margin: 0 0 1em; color: var(--ink); }
 .cart-empty p {
     color: rgba(255, 255, 255, 0.6);
     margin-bottom: 22px;
+}
+
+/* =========================================================
+   Global UX polish — page entrance, focus, scroll, cards
+   ========================================================= */
+
+/* Smooth page entrance — fade up sections on first paint */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.site-main > section,
+.site-main > form,
+.site-main > div {
+    animation: fadeUp 0.55s cubic-bezier(0.32, 0.72, 0.27, 1) backwards;
+}
+.site-main > *:nth-child(1) { animation-delay: 0.00s; }
+.site-main > *:nth-child(2) { animation-delay: 0.06s; }
+.site-main > *:nth-child(3) { animation-delay: 0.12s; }
+.site-main > *:nth-child(4) { animation-delay: 0.18s; }
+.site-main > *:nth-child(5) { animation-delay: 0.22s; }
+
+/* Honour reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .site-main > section,
+    .site-main > form,
+    .site-main > div {
+        animation: none !important;
+    }
+}
+
+/* Smooth scrolling everywhere */
+html { scroll-behavior: smooth; }
+
+/* Custom selection — subtle purple */
+::selection {
+    background: rgba(155, 109, 255, 0.35);
+    color: #fff;
+}
+
+/* Refined focus ring — applies to all interactive elements */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid rgba(155, 109, 255, 0.7);
+    outline-offset: 3px;
+    border-radius: 4px;
+    transition: outline-offset 0.15s ease;
+}
+
+/* Don't double-up focus rings on already-styled elements */
+.search-input-wrap input[type="search"]:focus-visible,
+.filter-select:focus-visible,
+.btn-search:focus-visible {
+    outline: none;
+}
+
+/* Buttons get a subtle press-down feedback */
+button, .btn, .btn-primary, .btn-ghost {
+    transition: transform 0.15s cubic-bezier(0.32, 0.72, 0.27, 1),
+                background 0.2s ease,
+                color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+button:active:not(:disabled),
+.btn:active:not(:disabled),
+.btn-primary:active:not(:disabled),
+.btn-ghost:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+/* Polished scrollbar (Webkit) */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(155, 109, 255, 0.25);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(155, 109, 255, 0.45);
+    background-clip: padding-box;
+}
+
+/* Refined link hover globally (excluding already-styled ones) */
+a {
+    transition: color 0.2s ease;
+}
+
+/* Refined image loading — subtle shimmer placeholder */
+.product-card img,
+.botanical-card img,
+.cart-thumb img,
+.art-card img,
+.wall-item img,
+.mosaic-item img {
+    background:
+        linear-gradient(110deg,
+            rgba(255, 255, 255, 0.02) 25%,
+            rgba(155, 109, 255, 0.08) 50%,
+            rgba(255, 255, 255, 0.02) 75%);
+    background-size: 200% 100%;
+    animation: imgShimmer 2.2s ease-in-out infinite;
+}
+.product-card img[src],
+.botanical-card img[src],
+.cart-thumb img[src],
+.art-card img[src],
+.wall-item img[src],
+.mosaic-item img[src] {
+    animation: none;
+    background: none;
+}
+
+@keyframes imgShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Lift product cards a touch more responsively */
+.product-card,
+.botanical-card,
+.art-card,
+.category-card {
+    will-change: transform;
+}
+
+/* Page hero copy fade-in */
+.page-hero h1,
+.page-hero p,
+.page-hero .eyebrow,
+.botanical-trust {
+    animation: fadeUp 0.6s cubic-bezier(0.32, 0.72, 0.27, 1) backwards;
+}
+.page-hero .eyebrow      { animation-delay: 0.05s; }
+.page-hero h1            { animation-delay: 0.10s; }
+.page-hero p             { animation-delay: 0.18s; }
+.botanical-trust         { animation-delay: 0.26s; }
+
+/* Form field micro-interaction — subtle scale on focus inside cards */
+input:focus,
+select:focus,
+textarea:focus {
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Better button cursor */
+button:not(:disabled),
+.btn,
+.cart-link,
+[role="button"] { cursor: pointer; }
+
+button:disabled { cursor: not-allowed; opacity: 0.6; }
+
+/* Refined nav active underline */
+.primary-nav a {
+    transition: color 0.25s ease;
+}
+.primary-nav a::after {
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0.27, 1);
+    transform-origin: left;
+}
+.primary-nav a:not(.active)::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -4px;
+    height: 2px;
+    background: var(--purple);
+    border-radius: 2px;
+    transform: scaleX(0);
+}
+.primary-nav a:hover::after {
+    transform: scaleX(0.6);
+    background: var(--purple-soft);
+}
+
+/* Quiet "no results" state */
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Toast — slightly more elegant entrance */
+.cart-toast {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0.27, 1),
+                transform 0.35s cubic-bezier(0.32, 0.72, 0.27, 1);
 }
