@@ -27,6 +27,8 @@
             --clr-muted:     #7a7086;
             --clr-error:     #e07070;
             --clr-success:   #7abf7a;
+            --clr-purple:    #9b59b6;
+            --clr-purple2:   #c39bd3;
             --clr-input-bg:  rgba(255,255,255,0.04);
             --transition:    0.35s cubic-bezier(.4,0,.2,1);
         }
@@ -241,6 +243,54 @@
         }
         .btn-primary:active { transform: scale(0.985); }
 
+        /* Admin submit uses purple */
+        .btn-primary.admin-mode {
+            background: var(--clr-purple);
+        }
+        .btn-primary.admin-mode:hover {
+            background: var(--clr-purple2);
+            box-shadow: 0 4px 20px rgba(155,89,182,0.35);
+        }
+
+        /* Role selector tabs */
+        .role-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 24px;
+            border: 1px solid var(--clr-border);
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .role-tab {
+            flex: 1;
+            padding: 11px 16px;
+            text-align: center;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            color: var(--clr-muted);
+            background: transparent;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: background var(--transition), color var(--transition);
+        }
+        .role-tab.selected {
+            background: var(--clr-accent);
+            color: var(--clr-bg);
+        }
+        .role-tab:not(.selected):hover {
+            background: rgba(255,255,255,0.04);
+            color: var(--clr-text);
+        }
+        /* Admin tab uses purple when selected */
+        #tabAdmin.selected {
+            background: var(--clr-purple);
+            color: #fff;
+        }
+
         .form-footer {
             margin-top: 24px; text-align: center;
             font-size: 0.85rem; color: var(--clr-muted);
@@ -355,6 +405,16 @@
 
         <div class="ornament"></div>
 
+        <!-- Role selector -->
+        <div class="role-tabs" role="tablist" aria-label="Register as">
+            <button type="button" class="role-tab selected" id="tabUser"
+                    role="tab" aria-selected="true"
+                    onclick="selectRole('user')">User</button>
+            <button type="button" class="role-tab" id="tabAdmin"
+                    role="tab" aria-selected="false"
+                    onclick="selectRole('admin')">Admin</button>
+        </div>
+
         <!-- Error message -->
         <c:if test="${not empty error}">
             <div class="error-banner" role="alert">
@@ -369,6 +429,7 @@
 
         <form action="${pageContext.request.contextPath}/register" method="post"
               style="width:100%" id="regForm" novalidate>
+            <input type="hidden" name="role" id="roleInput" value="${not empty roleValue ? roleValue : 'user'}">
 
             <div class="field">
                 <label for="fullName">Full Name</label>
@@ -410,7 +471,7 @@
                        required autocomplete="new-password">
             </div>
 
-            <button type="submit" class="btn-primary">Sign Up</button>
+            <button type="submit" class="btn-primary" id="submitBtn">Sign Up</button>
         </form>
 
         <div class="form-footer">
@@ -430,6 +491,38 @@
 </div>
 
 <script>
+    // ── Role tab toggle ──────────────────────────────────────────────────────
+    var currentRole = 'user';
+
+    function selectRole(role) {
+        currentRole = role;
+        document.getElementById('roleInput').value = role;
+
+        var tabUser   = document.getElementById('tabUser');
+        var tabAdmin  = document.getElementById('tabAdmin');
+        var submitBtn = document.getElementById('submitBtn');
+
+        if (role === 'user') {
+            tabUser.classList.add('selected');
+            tabUser.setAttribute('aria-selected', 'true');
+            tabAdmin.classList.remove('selected');
+            tabAdmin.setAttribute('aria-selected', 'false');
+            submitBtn.classList.remove('admin-mode');
+        } else {
+            tabAdmin.classList.add('selected');
+            tabAdmin.setAttribute('aria-selected', 'true');
+            tabUser.classList.remove('selected');
+            tabUser.setAttribute('aria-selected', 'false');
+            submitBtn.classList.add('admin-mode');
+        }
+    }
+
+    // Pre-select role if preserved from a validation error
+    (function() {
+        var roleVal = document.getElementById('roleInput').value;
+        if (roleVal === 'admin') selectRole('admin');
+    })();
+
     // ── Slideshow ────────────────────────────────────────────────────────────
     var slides   = document.querySelectorAll('.slide');
     var dotWrap  = document.getElementById('dotContainer');

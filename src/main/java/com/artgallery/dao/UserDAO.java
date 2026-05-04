@@ -35,11 +35,31 @@ public class UserDAO {
      */
     public User register(String fullName, String email, String plainPassword)
             throws SQLException {
+        return registerWithRole(fullName, email, plainPassword, "user");
+    }
+
+    /**
+     * Creates a new user account with a specified role.
+     *
+     * @param fullName       display name
+     * @param email          must be unique
+     * @param plainPassword  raw password typed by the user — hashed before storing
+     * @param role           "user" or "admin"
+     * @return the newly created User, or null if the email already exists
+     * @throws SQLException on any other DB error
+     */
+    public User registerWithRole(String fullName, String email, String plainPassword, String role)
+            throws SQLException {
 
         // Hash with BCrypt work-factor 12 (≈ 250 ms on modern hardware — good balance)
         String hash = BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
 
-        String sql = "INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, 'user')";
+        // Validate role — only allow 'user' or 'admin'
+        if (!"user".equalsIgnoreCase(role) && !"admin".equalsIgnoreCase(role)) {
+            role = "user";
+        }
+
+        String sql = "INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -47,6 +67,7 @@ public class UserDAO {
             ps.setString(1, fullName);
             ps.setString(2, email);
             ps.setString(3, hash);
+            ps.setString(4, role.toLowerCase());
 
             ps.executeUpdate();
 
