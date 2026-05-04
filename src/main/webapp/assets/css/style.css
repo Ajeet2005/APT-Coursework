@@ -2095,3 +2095,248 @@ button:disabled { cursor: not-allowed; opacity: 0.6; }
     transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0.27, 1),
                 transform 0.35s cubic-bezier(0.32, 0.72, 0.27, 1);
 }
+
+/* =========================================================
+   AUTH — Cart icon, Person Avatar, Dropdown, Flash Banner
+   ========================================================= */
+
+/* Nav actions group (cart + avatar sit side by side) */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* ── Cart icon ─────────────────────────────────────────── */
+.cart-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: var(--muted);
+    transition: color 0.25s ease;
+    padding: 6px;
+    border-radius: 8px;
+}
+.cart-link:hover { color: var(--ink); }
+.cart-link.active { color: var(--ink); }
+
+.cart-icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+.cart-badge {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: transparent;
+    line-height: 17px;
+    text-align: center;
+    transition: background 0.2s, color 0.2s;
+}
+.cart-badge.has-items {
+    background: var(--purple);
+    color: #fff;
+}
+
+/* ── Person Avatar Icon ─────────────────────────────────── */
+.auth-avatar-wrap {
+    position: relative;
+}
+
+.auth-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    text-decoration: none;
+    outline: none;
+    flex-shrink: 0;
+}
+
+/* Guest (not logged in) — purple border circle with person SVG */
+.auth-avatar--guest {
+    border: 2px solid rgba(155, 89, 182, 0.7);
+    background: rgba(155, 89, 182, 0.08);
+    color: rgba(155, 89, 182, 0.85);
+    padding: 0;
+}
+.auth-avatar--guest:hover {
+    border-color: #9b59b6;
+    background: rgba(155, 89, 182, 0.18);
+    color: #c39bd3;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.15);
+}
+.auth-avatar--guest .avatar-svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* Logged-in user — initials inside purple circle */
+.auth-avatar--user {
+    background: linear-gradient(135deg, #7a3bff 0%, #9b59b6 100%);
+    border: 2px solid rgba(155, 89, 182, 0.6);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0;
+    border: none;
+}
+.auth-avatar--user:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.3),
+                0 4px 16px rgba(122, 59, 255, 0.35);
+}
+
+/* Admin — slightly different purple tone */
+.auth-avatar--admin {
+    background: linear-gradient(135deg, #4b1d9f 0%, #7a3bff 100%);
+}
+
+.avatar-initials {
+    display: block;
+    line-height: 1;
+}
+
+/* ── Auth Dropdown ──────────────────────────────────────── */
+.auth-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 200px;
+    background: #1a1326;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(155, 89, 182, 0.15);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 100;
+}
+.auth-dropdown.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.auth-dropdown-header {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.auth-dropdown-name {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #f4f1fb;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.auth-dropdown-role {
+    display: block;
+    font-size: 0.72rem;
+    color: rgba(155, 89, 182, 0.9);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+.auth-dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.auth-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    font-size: 0.875rem;
+    color: rgba(244, 241, 251, 0.8);
+    text-decoration: none;
+    transition: background 0.18s, color 0.18s;
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    background: none;
+    font-family: inherit;
+    text-align: left;
+}
+.auth-dropdown-item:hover {
+    background: rgba(122, 59, 255, 0.12);
+    color: #f4f1fb;
+}
+.auth-dropdown-item svg { flex-shrink: 0; opacity: 0.7; }
+.auth-dropdown-item:hover svg { opacity: 1; }
+
+.auth-dropdown-item--logout {
+    color: rgba(244, 241, 251, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 2px;
+}
+.auth-dropdown-item--logout:hover {
+    background: rgba(224, 112, 112, 0.1);
+    color: #e07070;
+}
+
+/* ── Flash Banner (shown once after register/login actions) ─ */
+.flash-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: rgba(122, 191, 122, 0.1);
+    border-bottom: 1px solid rgba(122, 191, 122, 0.25);
+    font-size: 0.875rem;
+    color: #a8dba8;
+    animation: slideDown 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    position: relative;
+    z-index: 40;
+}
+.flash-banner span { flex: 1; }
+.flash-banner button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 1.1rem;
+    opacity: 0.5;
+    line-height: 1;
+    padding: 0 4px;
+    transition: opacity 0.2s;
+}
+.flash-banner button:hover { opacity: 1; }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive adjustments ─────────────────────────────── */
+@media (max-width: 620px) {
+    .nav-actions { gap: 6px; }
+    .auth-avatar { width: 34px; height: 34px; }
+    .auth-dropdown { right: -8px; min-width: 180px; }
+    .flash-banner { padding: 10px 16px; font-size: 0.8rem; }
+}
+

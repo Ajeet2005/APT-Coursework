@@ -140,15 +140,28 @@
                 },
                 body: body.toString()
             })
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
+            .then(function (r) {
+                return r.json().then(function(data) {
+                    return { status: r.status, data: data };
+                });
+            })
+            .then(function (result) {
+                var data = result.data;
+                if (result.status === 401 || (data && data.requiresLogin)) {
+                    // Not logged in — redirect to login page
+                    showToast('Please sign in to add items to your cart');
+                    setTimeout(function () {
+                        window.location.href = data.loginUrl || (ctx + '/login');
+                    }, 1200);
+                    return;
+                }
                 if (data && data.ok) {
                     btn.classList.add('added');
-                    btn.textContent = 'Added ✓';
+                    btn.querySelector('span') ? btn.querySelector('span').textContent = 'Added ✓' : btn.textContent = 'Added ✓';
                     updateCartBadge(data.count);
                     showToast('"' + title + '" added to cart');
                 } else {
-                    showToast('Could not add to cart');
+                    showToast('Could not add to cart — please try again');
                 }
             })
             .catch(function () {
@@ -157,7 +170,8 @@
             .finally(function () {
                 setTimeout(function () {
                     btn.classList.remove('added');
-                    btn.textContent = 'Add to Cart';
+                    var span = btn.querySelector('span');
+                    if (span) span.textContent = 'Add to Cart';
                     btn.disabled = false;
                 }, 1500);
             });
