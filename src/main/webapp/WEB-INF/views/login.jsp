@@ -413,7 +413,7 @@
                     }
 
 
-
+                    /* Footer link */
                     /* Footer link */
                     .form-footer {
                         margin-top: 28px;
