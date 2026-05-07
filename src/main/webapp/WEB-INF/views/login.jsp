@@ -377,6 +377,26 @@
         }
         .back-home:hover { color: var(--clr-accent); }
         .back-home svg { width: 14px; height: 14px; }
+        /* Remember Me checkbox */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .remember-me input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--clr-accent);
+            cursor: pointer;
+        }
+        .remember-me span {
+            font-size: 0.85rem;
+            color: var(--clr-muted);
+        }
+
     </style>
 </head>
 <body>
@@ -483,6 +503,21 @@
         </c:if>
 
         <!-- Login form -->
+        <%
+            String rememberedEmail = "";
+            String rememberMeChecked = "";
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if ("rememberedEmail".equals(c.getName())) {
+                        rememberedEmail = c.getValue();
+                    }
+                    if ("rememberMe".equals(c.getName()) && "true".equals(c.getValue())) {
+                        rememberMeChecked = "checked";
+                    }
+                }
+            }
+        %>
         <form action="${pageContext.request.contextPath}/login" method="post"
               style="width:100%" id="loginForm" autocomplete="on" novalidate>
 
@@ -490,7 +525,7 @@
             <div class="field">
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email"
-                       value="${emailValue}"
+                       value="<%= (request.getAttribute("emailValue") != null) ? request.getAttribute("emailValue") : rememberedEmail %>"
                        placeholder="you@example.com"
                        required autocomplete="email">
             </div>
@@ -501,6 +536,11 @@
                        placeholder="••••••••"
                        required autocomplete="current-password">
             </div>
+
+            <label class="remember-me">
+                <input type="checkbox" name="rememberMe" <%= rememberMeChecked %>>
+                <span>Remember me for 30 days</span>
+            </label>
 
             <button type="submit" class="btn-primary" id="submitBtn">Sign In</button>
         </form>
