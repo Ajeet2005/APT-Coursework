@@ -80,6 +80,32 @@ public class LoginServlet extends HttpServlet {
 
             LOG.info("Login successful for: " + user.getEmail() + " (role: " + user.getRole() + ")");
 
+            // ── Remember Me Logic (Cookies) ──
+            String rememberMe = req.getParameter("rememberMe");
+            if ("on".equals(rememberMe) || "true".equals(rememberMe)) {
+                // Save email and rememberMe status for 30 days
+                Cookie emailCookie = new Cookie("rememberedEmail", user.getEmail());
+                emailCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
+                emailCookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+                resp.addCookie(emailCookie);
+
+                Cookie statusCookie = new Cookie("rememberMe", "true");
+                statusCookie.setMaxAge(30 * 24 * 60 * 60);
+                statusCookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+                resp.addCookie(statusCookie);
+            } else {
+                // Clear cookies if not checked
+                Cookie emailCookie = new Cookie("rememberedEmail", "");
+                emailCookie.setMaxAge(0);
+                emailCookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+                resp.addCookie(emailCookie);
+
+                Cookie statusCookie = new Cookie("rememberMe", "");
+                statusCookie.setMaxAge(0);
+                statusCookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+                resp.addCookie(statusCookie);
+            }
+
             // ── Save redirect target BEFORE invalidating old session ──
             HttpSession oldSession = req.getSession(false);
             String redirectAfterLogin = null;

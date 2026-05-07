@@ -596,8 +596,7 @@
 
                                 <div class="field">
                                     <label for="email">Email Address</label>
-                                    <input type="email" id="email" name="email" value="<%= (request.getAttribute("
-                                        emailValue") !=null) ? request.getAttribute("emailValue") : rememberedEmail %>"
+                                    <input type="email" id="email" name="email" value="<%= (request.getAttribute("emailValue") != null) ? request.getAttribute("emailValue") : rememberedEmail %>"
                                     placeholder="you@example.com"
                                     required autocomplete="email">
                                 </div>
