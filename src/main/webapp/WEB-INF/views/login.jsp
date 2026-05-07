@@ -556,7 +556,7 @@
                         <a class="back-home" href="<%= ctx %>/home">
                             <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 1L3 7l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                                    stroke-linejoin="round"></path>
                             </svg>
                             Back to Gallery
                         </a>
@@ -589,7 +589,8 @@
                             cookies=request.getCookies(); if (cookies !=null) { for (Cookie c : cookies) { if
                             ("rememberedEmail".equals(c.getName())) { rememberedEmail=c.getValue(); } if
                             ("rememberMe".equals(c.getName()) && "true" .equals(c.getValue())) {
-                            rememberMeChecked="checked" ; } } } %>
+                            rememberMeChecked="checked" ; } } }
+                            Object emailValue;%>
                             <form action="${pageContext.request.contextPath}/login" method="post" style="width:100%"
                                 id="loginForm" autocomplete="on" novalidate>
 

@@ -5,7 +5,6 @@ import com.artgallery.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -25,6 +24,7 @@ import java.util.logging.Logger;
  *   User u = (User) session.getAttribute("loggedInUser");
  *   if (u == null) { /* not logged in *\/ }
  */
+
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
@@ -107,5 +107,6 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
-    private String trim(String s) { return s == null ? "" : s.trim(); }
+    private String trim(String s) { return s == null ? "" : s.trim();
+    }
 }
