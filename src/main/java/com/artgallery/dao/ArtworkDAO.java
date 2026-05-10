@@ -121,4 +121,95 @@ public class ArtworkDAO {
         a.setArtistName(rs.getString("artist_name"));
         return a;
     }
+
+    public long countAll() {
+        String sql = "SELECT COUNT(*) FROM artworks";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getLong(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Artwork> findRecent(int limit) {
+        String sql = BASE_SQL + "ORDER BY a.id DESC LIMIT ?";
+        List<Artwork> list = new ArrayList<>();
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(map(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public java.util.Map<String, Integer> countByCategory() {
+        java.util.Map<String, Integer> map = new java.util.LinkedHashMap<>();
+        String sql = "SELECT c.name, COUNT(a.id) " +
+                     "FROM categories c " +
+                     "LEFT JOIN artworks a ON c.id = a.category_id " +
+                     "GROUP BY c.id, c.name " +
+                     "ORDER BY c.name";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String catName = rs.getString(1);
+                if (catName == null) catName = "Uncategorized";
+                map.put(catName, rs.getInt(2));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    public void insert(Artwork a) throws SQLException {
+        String sql = "INSERT INTO artworks (title, description, image_url, price, category_id, artist_id, featured) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, a.getTitle());
+            ps.setString(2, a.getDescription());
+            ps.setString(3, a.getImageUrl());
+            ps.setBigDecimal(4, a.getPrice());
+            ps.setInt(5, a.getCategoryId());
+            ps.setInt(6, a.getArtistId());
+            ps.setBoolean(7, a.isFeatured());
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) a.setId(keys.getInt(1));
+            }
+        }
+    }
+
+    public void update(Artwork a) throws SQLException {
+        String sql = "UPDATE artworks SET title=?, description=?, image_url=?, price=?, category_id=?, artist_id=?, featured=? WHERE id=?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, a.getTitle());
+            ps.setString(2, a.getDescription());
+            ps.setString(3, a.getImageUrl());
+            ps.setBigDecimal(4, a.getPrice());
+            ps.setInt(5, a.getCategoryId());
+            ps.setInt(6, a.getArtistId());
+            ps.setBoolean(7, a.isFeatured());
+            ps.setInt(8, a.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM artworks WHERE id=?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
 }

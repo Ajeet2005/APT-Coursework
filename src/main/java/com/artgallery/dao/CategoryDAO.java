@@ -49,4 +49,39 @@ public class CategoryDAO {
                 rs.getString("cover_image")
         );
     }
+
+    public void insert(Category c) throws SQLException {
+        String sql = "INSERT INTO categories (name, description, cover_image) VALUES (?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, c.getName());
+            ps.setString(2, c.getDescription());
+            ps.setString(3, c.getCoverImage());
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) c.setId(keys.getInt(1));
+            }
+        }
+    }
+
+    public void update(Category c) throws SQLException {
+        String sql = "UPDATE categories SET name=?, description=?, cover_image=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, c.getName());
+            ps.setString(2, c.getDescription());
+            ps.setString(3, c.getCoverImage());
+            ps.setInt(4, c.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM categories WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
 }

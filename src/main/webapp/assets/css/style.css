@@ -2340,3 +2340,341 @@ button:disabled { cursor: not-allowed; opacity: 0.6; }
     .flash-banner { padding: 10px 16px; font-size: 0.8rem; }
 }
 
+
+
+/* =========================================================
+   ADMIN DASHBOARD
+   ========================================================= */
+
+.adm-wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* ── Metric Cards ──────────────────────────────────────── */
+.adm-cards {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.adm-card {
+    flex: 1;
+    min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 20px 18px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.adm-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(122, 59, 255, 0.18);
+}
+
+.adm-card-icon {
+    font-size: 26px;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.adm-card-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 6px;
+}
+
+.adm-card-metric {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+    margin: 0;
+}
+
+/* ── Charts Row ────────────────────────────────────────── */
+.adm-charts {
+    display: flex;
+    gap: 20px;
+}
+
+.adm-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 22px 20px;
+    flex: 1;
+    min-width: 0;
+}
+
+.adm-panel-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 2px;
+}
+
+.adm-panel-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0 0 4px;
+}
+
+.adm-chart-wrap {
+    position: relative;
+    height: 270px;
+    width: 100%;
+    margin-top: 16px;
+}
+
+/* ── Bottom Row ────────────────────────────────────────── */
+.adm-bottom {
+    display: flex;
+    gap: 20px;
+}
+
+/* Quick Actions */
+.adm-actions { flex: 1; }
+
+.adm-action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.adm-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 18px 8px;
+    background: var(--bg-alt, #120d1c);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    font-size: 0.82rem;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.adm-action-btn span {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.adm-action-btn:hover {
+    background: rgba(122, 59, 255, 0.12);
+    border-color: var(--purple);
+    transform: translateY(-2px);
+    color: var(--ink);
+}
+
+/* Recent Artworks */
+.adm-recent {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.adm-recent-list {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0;
+}
+
+.adm-recent-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.adm-recent-list li:last-child { border-bottom: none; }
+
+.adm-recent-title {
+    font-size: 0.875rem;
+    color: var(--ink);
+    font-weight: 500;
+}
+
+.adm-recent-meta {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.adm-recent-empty {
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: none !important;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 960px) {
+    .adm-charts { flex-direction: column; }
+    .adm-bottom { flex-direction: column; }
+    .adm-recent { width: 100%; }
+}
+
+@media (max-width: 600px) {
+    .adm-wrap { padding: 24px 16px 48px; }
+    .adm-cards { flex-direction: column; }
+    .adm-action-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Management Tables ────────────────────────────────── */
+.adm-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.adm-table-wrap {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.adm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    color: var(--ink);
+}
+
+.adm-table th, 
+.adm-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+}
+
+.adm-table th {
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.adm-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.adm-table-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.edit-link, .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--muted);
+    transition: color 0.2s;
+    text-decoration: none;
+    padding: 0;
+}
+
+.edit-link:hover { color: var(--purple); }
+.delete-btn:hover { color: #ff4d4d; }
+
+.back-link {
+    color: var(--purple-soft);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* ── Management Forms ─────────────────────────────────── */
+.adm-form {
+    max-width: 600px;
+    margin-top: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    font-family: inherit;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-group.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group.checkbox label {
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 2rem;
+}
+
+/* Clickable Cards */
+a.adm-card {
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+a.adm-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--purple);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* ==================== ADMIN STATUS BADGES ==================== */
+.status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.status-badge.pending   { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+.status-badge.paid      { background: rgba(13, 202, 240, 0.2); color: #0dcaf0; }
+.status-badge.shipped   { background: rgba(13, 110, 253, 0.2); color: #0d6efd; }
+.status-badge.completed { background: rgba(25, 135, 84, 0.2); color: #198754; }
+.status-badge.cancelled { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+
