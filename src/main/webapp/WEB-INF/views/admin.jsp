@@ -9,54 +9,311 @@
     <p>Welcome, <%= currentUser.getFullName() %>. You are signed in as an administrator.</p>
 </section>
 
-<section style="max-width: 900px; margin: 48px auto; padding: 0 24px;">
+<section class="adm-wrap">
 
-    <div style="background: rgba(155,89,182,0.08); border: 1px solid rgba(155,89,182,0.25);
-                border-radius: 12px; padding: 36px 40px; text-align: center;">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"
-             style="margin-bottom: 16px; opacity: 0.7;">
-            <circle cx="24" cy="24" r="22" stroke="#9b59b6" stroke-width="2"/>
-            <path d="M24 12v10l6 4" stroke="#9b59b6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400;
-                   color: #e8e0d5; margin-bottom: 10px;">
-            Dashboard Coming Soon
-        </h2>
-        <p style="color: #7a7086; font-size: 0.95rem; line-height: 1.6; max-width: 500px; margin: 0 auto;">
-            The admin dashboard is under construction. You'll be able to manage artworks,
-            categories, artists, orders, and user accounts from here.
-        </p>
-    </div>
+    <c:choose>
+        <%-- ── DASHBOARD VIEW ──────────────────────────────────────────────── --%>
+        <c:when test="${view == 'dashboard'}">
+            <%-- Metric Cards --%>
+            <div class="adm-cards">
+                <a href="${pageContext.request.contextPath}/admin/artworks" class="adm-card">
+                    <div class="adm-card-icon">&#128444;</div>
+                    <p class="adm-card-label">Total Artworks</p>
+                    <p class="adm-card-metric">${not empty totalArtworks ? totalArtworks : '—'}</p>
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/artists" class="adm-card">
+                    <div class="adm-card-icon">&#127912;</div>
+                    <p class="adm-card-label">Total Artists</p>
+                    <p class="adm-card-metric">${not empty totalArtists ? totalArtists : '—'}</p>
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/users" class="adm-card">
+                    <div class="adm-card-icon">&#128101;</div>
+                    <p class="adm-card-label">Registered Users</p>
+                    <p class="adm-card-metric">${not empty totalUsers ? totalUsers : '—'}</p>
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/orders" class="adm-card">
+                    <div class="adm-card-icon">&#128230;</div>
+                    <p class="adm-card-label">Total Orders</p>
+                    <p class="adm-card-metric">${not empty totalOrders ? totalOrders : '—'}</p>
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/subscribers" class="adm-card">
+                    <div class="adm-card-icon">&#128140;</div>
+                    <p class="adm-card-label">Subscribers</p>
+                    <p class="adm-card-metric">${not empty totalSubscribers ? totalSubscribers : '—'}</p>
+                </a>
+            </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px; margin-top: 32px;">
+            <%-- Charts --%>
+            <div class="adm-charts">
+                <div class="adm-panel">
+                    <h3 class="adm-panel-title">Artworks by Category</h3>
+                    <p class="adm-panel-sub">Distribution across gallery categories</p>
+                    <div class="adm-chart-wrap"><canvas id="categoryChart"></canvas></div>
+                </div>
+                <div class="adm-panel">
+                    <h3 class="adm-panel-title">Monthly Orders</h3>
+                    <p class="adm-panel-sub">Order volume over the last 6 months</p>
+                    <div class="adm-chart-wrap"><canvas id="ordersChart"></canvas></div>
+                </div>
+            </div>
 
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-                    border-radius: 10px; padding: 28px 24px; text-align: center;">
-            <div style="font-size: 2rem; margin-bottom: 8px;">&#128444;</div>
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem;
-                       color: #e8e0d5; margin-bottom: 4px;">Artworks</h3>
-            <p style="font-size: 0.78rem; color: #7a7086;">Manage gallery inventory</p>
-        </div>
+            <%-- Bottom Panel --%>
+            <div class="adm-bottom">
+                <div class="adm-panel adm-actions">
+                    <h3 class="adm-panel-title">Quick Actions</h3>
+                    <div class="adm-action-grid">
+                        <a href="${pageContext.request.contextPath}/admin/artworks?action=add" class="adm-action-btn"><span>&#128444;</span>Add Artwork</a>
+                        <a href="${pageContext.request.contextPath}/admin/artists?action=add" class="adm-action-btn"><span>&#127912;</span>Add Artist</a>
+                        <a href="${pageContext.request.contextPath}/admin/categories?action=add" class="adm-action-btn"><span>&#128193;</span>Add Category</a>
+                        <a href="${pageContext.request.contextPath}/admin/users" class="adm-action-btn"><span>&#128101;</span>View Users</a>
+                        <a href="${pageContext.request.contextPath}/admin/orders" class="adm-action-btn"><span>&#128230;</span>View Orders</a>
+                        <a href="${pageContext.request.contextPath}/admin/subscribers" class="adm-action-btn"><span>&#128140;</span>Subscribers</a>
+                    </div>
+                </div>
+                <div class="adm-panel adm-recent">
+                    <h3 class="adm-panel-title">Recent Artworks</h3>
+                    <ul class="adm-recent-list">
+                        <c:choose>
+                            <c:when test="${not empty recentArtworks}">
+                                <c:forEach var="art" items="${recentArtworks}">
+                                    <li><span class="adm-recent-title">${art.title}</span><span class="adm-recent-meta">${art.artistName}</span></li>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise><li class="adm-recent-empty">No artworks yet.</li></c:otherwise>
+                        </c:choose>
+                    </ul>
+                </div>
+            </div>
+        </c:when>
 
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-                    border-radius: 10px; padding: 28px 24px; text-align: center;">
-            <div style="font-size: 2rem; margin-bottom: 8px;">&#128101;</div>
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem;
-                       color: #e8e0d5; margin-bottom: 4px;">Users</h3>
-            <p style="font-size: 0.78rem; color: #7a7086;">Manage accounts & roles</p>
-        </div>
+        <%-- ── LIST VIEWS ────────────────────────────────────────────────── --%>
+        <c:when test="${view == 'artworks' || view == 'artists' || view == 'users' || view == 'subscribers' || view == 'categories' || view == 'orders'}">
+            <div class="adm-panel">
+                <div class="adm-panel-header">
+                    <h3 class="adm-panel-title">Manage ${view}</h3>
+                    <c:if test="${view != 'users' && view != 'subscribers' && view != 'orders'}">
+                        <a href="${pageContext.request.contextPath}/admin/${view}?action=add" class="btn-primary small">Add New</a>
+                    </c:if>
+                </div>
+                <div class="adm-table-wrap">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>${view == 'orders' ? 'Customer' : 'Name/Title'}</th>
+                                <c:if test="${view == 'artworks'}"><th>Price</th><th>Category</th></c:if>
+                                <c:if test="${view == 'users'}"><th>Email</th><th>Role</th></c:if>
+                                <c:if test="${view == 'subscribers'}"><th>Email</th></c:if>
+                                <c:if test="${view == 'orders'}"><th>Amount</th><th>Status</th><th>Date</th></c:if>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="item" items="${items}">
+                                <tr>
+                                    <td>${item.id}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${view == 'artworks'}">${item.title}</c:when>
+                                            <c:when test="${view == 'subscribers'}">${item.firstName} ${item.lastName}</c:when>
+                                            <c:when test="${view == 'users'}">${item.fullName}</c:when>
+                                            <c:when test="${view == 'orders'}">${item.userFullName}</c:when>
+                                            <c:otherwise>${item.name}</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <c:if test="${view == 'artworks'}"><td>$${item.price}</td><td>${item.categoryName}</td></c:if>
+                                    <c:if test="${view == 'users'}"><td>${item.email}</td><td>${item.role}</td></c:if>
+                                    <c:if test="${view == 'subscribers'}"><td>${item.email}</td></c:if>
+                                    <c:if test="${view == 'orders'}">
+                                        <td>$${item.totalAmount}</td>
+                                        <td><span class="status-badge ${item.status}">${item.status}</span></td>
+                                        <td>${item.createdAt}</td>
+                                    </c:if>
+                                    <td class="adm-table-actions">
+                                        <c:if test="${view != 'users' && view != 'subscribers' && view != 'orders'}">
+                                            <a href="${pageContext.request.contextPath}/admin/${view}?action=edit&id=${item.id}" class="edit-link">&#9998;</a>
+                                        </c:if>
+                                        <c:if test="${view == 'orders'}">
+                                            <a href="${pageContext.request.contextPath}/admin/orders?action=view&id=${item.id}" class="edit-link" style="margin-right: 0.5rem; font-size: 1.1rem;" title="View Detail">&#128065;</a>
+                                        </c:if>
+                                        <c:if test="${view != 'orders'}">
+                                            <form action="${pageContext.request.contextPath}/admin/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                                                <input type="hidden" name="type" value="${view == 'artworks' ? 'artwork' : (view == 'artists' ? 'artist' : (view == 'users' ? 'user' : (view == 'subscribers' ? 'subscriber' : 'category')))}">
+                                                <input type="hidden" name="id" value="${item.id}">
+                                                <button type="submit" class="delete-btn">&#128465;</button>
+                                            </form>
+                                        </c:if>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:2rem;"><a href="${pageContext.request.contextPath}/admin" class="back-link">&larr; Back to Dashboard</a></div>
+            </div>
+        </c:when>
 
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-                    border-radius: 10px; padding: 28px 24px; text-align: center;">
-            <div style="font-size: 2rem; margin-bottom: 8px;">&#128230;</div>
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem;
-                       color: #e8e0d5; margin-bottom: 4px;">Orders</h3>
-            <p style="font-size: 0.78rem; color: #7a7086;">Track purchases & shipping</p>
-        </div>
+        <%-- ── ORDER DETAIL VIEW ────────────────────────────────────────── --%>
+        <c:when test="${view == 'order_detail'}">
+            <div class="adm-panel">
+                <div class="adm-panel-header">
+                    <h3 class="adm-panel-title">Order #${order.id} Details</h3>
+                    <span class="status-badge ${order.status}">${order.status}</span>
+                </div>
+                <div class="order-info-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1.5rem 0;">
+                    <div>
+                        <p><strong>Customer:</strong> ${order.userFullName}</p>
+                        <p><strong>Date:</strong> ${order.createdAt}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p><strong>Total Amount:</strong> <span style="font-size: 1.5rem; color: var(--purple-soft);">$${order.totalAmount}</span></p>
+                    </div>
+                </div>
+                
+                <h4 style="margin: 2rem 0 1rem; font-family: var(--font-sans); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--muted);">Order Items</h4>
+                <div class="adm-table-wrap">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>Artwork ID</th>
+                                <th>Artwork Title</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="oi" items="${order.items}">
+                                <tr>
+                                    <td>${oi.artworkId}</td>
+                                    <td>${oi.artworkTitle}</td>
+                                    <td>${oi.quantity}</td>
+                                    <td>$${oi.price}</td>
+                                    <td>$${oi.price * oi.quantity}</td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:2rem;"><a href="${pageContext.request.contextPath}/admin/orders" class="back-link">&larr; Back to Orders List</a></div>
+            </div>
+        </c:when>
 
-    </div>
+        <%-- ── FORM VIEWS ────────────────────────────────────────────────── --%>
+        <c:when test="${view == 'artwork_form' || view == 'artist_form' || view == 'category_form'}">
+            <div class="adm-panel">
+                <h3 class="adm-panel-title">${not empty item ? 'Edit' : 'Add'} ${view == 'artwork_form' ? 'Artwork' : (view == 'artist_form' ? 'Artist' : 'Category')}</h3>
+                <form action="${pageContext.request.contextPath}/admin/${view == 'artwork_form' ? 'artworks' : (view == 'artist_form' ? 'artists' : 'categories')}" method="POST" class="adm-form">
+                    <input type="hidden" name="id" value="${item.id}">
+                    
+                    <c:if test="${view == 'artwork_form'}">
+                        <div class="form-group"><label>Title</label><input type="text" name="title" value="${item.title}" required></div>
+                        <div class="form-group"><label>Description</label><textarea name="description" required>${item.description}</textarea></div>
+                        <div class="form-group"><label>Image URL</label><input type="text" name="image_url" value="${item.imageUrl}" required></div>
+                        <div class="form-group"><label>Price</label><input type="number" step="0.01" name="price" value="${item.price}" required></div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select name="category_id" required>
+                                <c:forEach var="cat" items="${categories}">
+                                    <option value="${cat.id}" ${item.categoryId == cat.id ? 'selected' : ''}>${cat.name}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Artist</label>
+                            <select name="artist_id" required>
+                                <c:forEach var="art" items="${artists}">
+                                    <option value="${art.id}" ${item.artistId == art.id ? 'selected' : ''}>${art.name}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                        <div class="form-group checkbox"><label><input type="checkbox" name="featured" ${item.featured ? 'checked' : ''}> Featured</label></div>
+                    </c:if>
+
+                    <c:if test="${view == 'artist_form'}">
+                        <div class="form-group"><label>Name</label><input type="text" name="name" value="${item.name}" required></div>
+                        <div class="form-group"><label>Bio</label><textarea name="bio" required>${item.bio}</textarea></div>
+                        <div class="form-group"><label>Profile Image URL</label><input type="text" name="profile_image" value="${item.profileImage}" required></div>
+                        <div class="form-group"><label>Country</label><input type="text" name="country" value="${item.country}" required></div>
+                    </c:if>
+
+                    <c:if test="${view == 'category_form'}">
+                        <div class="form-group"><label>Name</label><input type="text" name="name" value="${item.name}" required></div>
+                        <div class="form-group"><label>Description</label><textarea name="description" required>${item.description}</textarea></div>
+                        <div class="form-group"><label>Cover Image URL</label><input type="text" name="cover_image" value="${item.coverImage}" required></div>
+                    </c:if>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                        <a href="${pageContext.request.contextPath}/admin/${view == 'artwork_form' ? 'artworks' : (view == 'artist_form' ? 'artists' : 'categories')}" class="btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </c:when>
+    </c:choose>
 
 </section>
+
+<%-- Chart.js --%>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const purple     = '#7a3bff';
+    const purpleSoft = '#c9b6ff';
+    const line       = 'rgba(255,255,255,0.08)';
+    const ink        = '#f4f1fb';
+    const muted      = '#a89ebe';
+
+    /* Artworks by Category — Doughnut */
+    const catCtx = document.getElementById('categoryChart');
+    const catLabels = ${not empty categoryLabels ? categoryLabels : '["Portrait","Landscape","Botanical","Still Life","Gesture","Gallery"]'};
+    const catData   = ${not empty categoryData   ? categoryData   : '[12,19,7,5,10,8]'};
+    new Chart(catCtx, {
+        type: 'doughnut',
+        data: {
+            labels: catLabels,
+            datasets: [{
+                data: catData,
+                backgroundColor: ['#7a3bff','#9d5cf6','#c9b6ff','#4b1d9f','#5b21b6','#6d28d9'],
+                borderColor: '#0b0910',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right', labels: { color: ink, padding: 14, font: { size: 12 } } }
+            }
+        }
+    });
+
+    /* Monthly Orders — Bar */
+    const ordCtx = document.getElementById('ordersChart');
+    const monthLabels = ${not empty monthLabels ? monthLabels : '["Dec","Jan","Feb","Mar","Apr","May"]'};
+    const ordersData  = ${not empty ordersData  ? ordersData  : '[4,7,5,12,9,15]'};
+    new Chart(ordCtx, {
+        type: 'bar',
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: 'Orders',
+                data: ordersData,
+                backgroundColor: 'rgba(122,59,255,0.55)',
+                borderColor: purpleSoft,
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: ink } } },
+            scales: {
+                x: { ticks: { color: muted }, grid: { color: line } },
+                y: { beginAtZero: true, ticks: { color: muted }, grid: { color: line } }
+            }
+        }
+    });
+</script>
 
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>

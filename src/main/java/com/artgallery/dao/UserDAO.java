@@ -181,4 +181,51 @@ public class UserDAO {
             }
         }
     }
+
+    /** Counts total users in the database */
+    public long countAll() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+        }
+        return 0;
+    }
+
+    public java.util.List<User> findAll() throws SQLException {
+        java.util.List<User> list = new java.util.ArrayList<>();
+        String sql = "SELECT id, full_name, email, password_hash, role, created_at FROM users ORDER BY id DESC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        }
+        return list;
+    }
+
+    public void update(User u) throws SQLException {
+        String sql = "UPDATE users SET full_name=?, email=?, role=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, u.getFullName());
+            ps.setString(2, u.getEmail().toLowerCase().trim());
+            ps.setString(3, u.getRole().toLowerCase());
+            ps.setInt(4, u.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM users WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
 }

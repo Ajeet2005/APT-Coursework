@@ -28,4 +28,43 @@ public class SubscriberDAO {
             return false;
         }
     }
+
+    public long countAll() {
+        String sql = "SELECT COUNT(*) FROM subscribers";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getLong(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public java.util.List<Subscriber> findAll() throws SQLException {
+        java.util.List<Subscriber> list = new java.util.ArrayList<>();
+        String sql = "SELECT id, first_name, last_name, email FROM subscribers ORDER BY id DESC";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Subscriber s = new Subscriber();
+                s.setId(rs.getInt("id"));
+                s.setFirstName(rs.getString("first_name"));
+                s.setLastName(rs.getString("last_name"));
+                s.setEmail(rs.getString("email"));
+                list.add(s);
+            }
+        }
+        return list;
+    }
+
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM subscribers WHERE id=?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
 }
