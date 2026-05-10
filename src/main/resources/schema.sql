@@ -212,80 +212,77 @@ INSERT INTO categories (id, name, description, cover_image) VALUES
 
 -- ── Artists ─────────────────────────────────────────────────────────────
 INSERT INTO artists (name, bio, profile_image, country) VALUES
-('Anika Sharma',
- 'Anika is an acrylic painter known for saturated palettes and layered brushwork.',
- 'assets/images/portraits/8a843573553fc6e692350b9e84881223.jpg', 'Nepal'),
 
 ('Rohan Verma',
  'Rohan works between abstraction and portraiture, exploring colour as emotion.',
- 'assets/images/portraits/912px-1665_Girl_with_a_Pearl_Earring.jpg', 'India'),
+ 'assets/images/Artists/rohan.png', 'India'),
 
 ('Maya Thapa',
  'A landscape painter capturing the Himalayas in lush acrylic strokes.',
- 'assets/images/portraits/Van_Gogh_Self_Portrait_600x600.jpg', 'Nepal'),
+ 'assets/images/Artists/maya.jpg', 'Nepal'),
 
 ('Luca Moretti',
  'Italian painter fascinated by Mediterranean colour.',
- 'assets/images/portraits/man-sheet-music-1633-portrait-600nw-2637337371.webp', 'Italy'),
+ 'assets/images/Artists/Luca.jpg', 'Italy'),
 
 ('Albrecht Dürer',
  'Renaissance master whose botanical studies treated weeds and wildflowers with unprecedented scientific care.',
- 'assets/images/botanical/Famous-Flower-Paintings-Cowslips-by-Albrecht-Durer.webp', 'Germany'),
+ 'assets/images/Artists/Albrech.jpg', 'Germany'),
 
 ('Jan Brueghel the Elder',
  'Flemish painter known for richly detailed flower garlands and still-life bouquets.',
- 'assets/images/botanical/Famous-Flower-Paintings-by-Jan-Brueghel.webp', 'Belgium'),
+ 'assets/images/Artists/Jan.jpg', 'Belgium'),
 
 ('Martin Johnson Heade',
  'American luminist who paired exotic orchids with hummingbirds in lush tropical scenes.',
- 'assets/images/botanical/Fighting-Humming-Birds-With-Pink-Orchid-by-Martin-Johnson-Heade-Famous-Flower-Painting.webp',
+ 'assets/images/Artists/Martin-johnson-heade.jpg',
  'United States'),
 
 ('Jan van Huysum',
  'Dutch master of opulent flower-vase compositions in the late Baroque tradition.',
- 'assets/images/botanical/Flowers-in-a-Vase-by-Jan-Van-Huysum-Famous-Flower-Painting-1.webp', 'Netherlands'),
+ 'assets/images/Artists/Jan_van_Huysum.jpg', 'Netherlands'),
 
 ('Rachel Ruysch',
  'Dutch Golden Age still-life painter celebrated for woodland-floor floral arrangements.',
- 'assets/images/botanical/Still-Life-of-Flowers-on-Woodland-Ground-by-Rachel-Ruysch-Famous-Flower-Painting.webp',
+ 'assets/images/Artists/Rachel_Ruysch.jpg',
  'Netherlands'),
 
 ('Egon Schiele',
  'Austrian Expressionist whose taut, angular figure studies redefined gesture drawing in the early 20th century.',
- 'assets/images/gesture/384554027b97b51617d5168521a56bf6.jpg', 'Austria'),
+ 'assets/images/Artists/Egon_Schiele_photo.jpg', 'Austria'),
 
 ('Edgar Degas',
  'French Impressionist celebrated for his rapid pastel and pencil studies of dancers and bathers in motion.',
- 'assets/images/gesture/d0393fce770cb800176835915be548cd.jpg', 'France'),
+ 'assets/images/Artists/edgar-degas.jpg', 'France'),
 
 ('Auguste Rodin',
  'French sculptor whose ink-and-watercolour gesture sketches captured the human body in fluid movement.',
- 'assets/images/gesture/d35d02035a23d2ff3bcc4de3eb6b1a7d.jpg', 'France'),
+ 'assets/images/Artists/Auguste_Rodin.jpg', 'France'),
 
 ('Käthe Kollwitz',
  'German printmaker whose charcoal figure studies carry stark emotional weight and bold gestural lines.',
- 'assets/images/gesture/f20d1ab0d509292808e33f6ef68f1fad.jpg', 'Germany'),
+ 'assets/images/Artists/Kathe_Kollwit.jpg', 'Germany'),
 
 ('Jenny Saville',
  'British contemporary painter whose large-scale gestural figure work bridges classical drawing and modern flesh.',
- 'assets/images/gesture/fa0afd5cd201b416416d21cae52f58ae.jpg', 'United Kingdom'),
+ 'assets/images/Artists/fa0afd5cd201b416416d21cae52f58ae.jpg', 'United Kingdom'),
 
 ('Pieter Claesz',
  'Dutch Golden Age master of vanitas still life — skulls, candles and pewter rendered with sober precision.',
- 'assets/images/stilllife/Pieter_Claesz_-_Vanitas_Still_Life_-_943_-_Mauritshuis.jpg', 'Netherlands'),
+ 'assets/images/Artists/Pieter.jpg', 'Netherlands'),
 
 ('Floris van Schooten',
  'Dutch still-life painter known for breakfast tables — bread, butter, cheese and glass in soft northern light.',
- 'assets/images/stilllife/Still-Life-with-Glass-Cheese-Butter-and-Cake-Floris-Gerritsz-Van-Schooten-Oil-Painting.jpg',
+ 'assets/images/Artists/Floris.png',
  'Netherlands'),
 
 ('Claude Monet',
  'French Impressionist whose late still-life works captured fruit and flowers in shimmering brushwork.',
- 'assets/images/stilllife/Still-life-with-melon-by-one-of-the-famous-still-life-artists-Claude-Monet.webp', 'France'),
+ 'assets/images/Artists/Claude_Monet_1899_Nadar_crop.jpg', 'France'),
 
 ('Vincent van Gogh',
  'Post-Impressionist Dutch painter whose swirling, emotional landscapes redefined modern art.',
- 'assets/images/landscape/Van-Gogh.-Starry-Night-469x376_480x480.jpg', 'Netherlands');
+ 'assets/images/Artists/Vincent.png', 'Netherlands');
 
 -- ── Artworks (prices in Nepali Rupees) ──────────────────────────────────
 INSERT INTO artworks (id, title, description, image_url, price, category_id, artist_id, featured) VALUES
