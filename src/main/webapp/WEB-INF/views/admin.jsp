@@ -31,6 +31,7 @@
                     <p class="adm-card-label">Registered Users</p>
                     <p class="adm-card-metric">${not empty totalUsers ? totalUsers : '—'}</p>
                 </a>
+                /*testing*/
                 <a href="${pageContext.request.contextPath}/admin/orders" class="adm-card">
                     <div class="adm-card-icon">&#128230;</div>
                     <p class="adm-card-label">Total Orders</p>
