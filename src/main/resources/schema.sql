@@ -15,7 +15,7 @@
 -- │                                                                 │
 -- │    users       1 ── *   carts                                   │
 -- │    users       1 ── 1   orders        (UNIQUE user_id)          │
--- │    carts       1 ── *   cart_artworks                           │
+-- │    artworks    1 ── *   carts                                   │
 -- │    categories  1 ── *   artworks                                │
 -- │    orders      1 ── *   order_items                             │
 -- │    artworks    1 ── *   order_items                             │
@@ -40,16 +40,16 @@ USE art_gallery;
 -- ── Drop tables in reverse dependency order (safe re-run) ───────────────
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS order_item_artworks;   -- legacy from previous schema iteration
+DROP TABLE IF EXISTS order_item_artworks;   -- legacy
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS cart_artworks;
-DROP TABLE IF EXISTS cart_items;        -- legacy name from old schema
+DROP TABLE IF EXISTS cart_items;             -- legacy name
 DROP TABLE IF EXISTS carts;
 DROP TABLE IF EXISTS artworks;
 DROP TABLE IF EXISTS artists;
 DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS subscribers;
+DROP TABLE IF EXISTS subscribers;            -- legacy
 DROP TABLE IF EXISTS users;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -131,54 +131,27 @@ CREATE TABLE artworks (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =======================================================================
--- TABLE: subscribers  (newsletter sign-ups)
--- =======================================================================
-CREATE TABLE subscribers (
-    id         INT          NOT NULL AUTO_INCREMENT,
-    first_name VARCHAR(80)  NOT NULL,
-    last_name  VARCHAR(80)           DEFAULT NULL,
-    email      VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uq_subscriber_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- =======================================================================
--- TABLE: carts            (users 1 ── * carts)
--- session_id is kept so anonymous browsers can still have a cart.
--- user_id is nullable; it gets filled in once the visitor logs in.
--- No UNIQUE on user_id  →  one user can own many carts over time.
+-- TABLE: carts            (users 1 ── * carts,  artworks 1 ── * carts)
+-- Merged structure: each row is ONE cart entry — i.e. a single artwork
+-- placed in a session's/user's cart with a quantity. No separate parent
+-- "cart" row; the session_id (and user_id once they log in) groups the
+-- rows that belong to the same visitor.
 -- =======================================================================
 CREATE TABLE carts (
     id         INT          NOT NULL AUTO_INCREMENT,
     session_id VARCHAR(128) NOT NULL,
     user_id    INT                   DEFAULT NULL,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    artwork_id INT          NOT NULL,
+    quantity   INT          NOT NULL DEFAULT 1,
+    added_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_cart_session (session_id),
-    INDEX idx_cart_user (user_id),
+    UNIQUE KEY uq_cart_session_artwork (session_id, artwork_id),
+    INDEX idx_cart_user    (user_id),
+    INDEX idx_cart_session (session_id),
+    INDEX idx_cart_artwork (artwork_id),
     CONSTRAINT fk_cart_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- =======================================================================
--- TABLE: cart_artworks    (carts 1 ── * cart_artworks)
--- Replaces the old cart_items table — each row is one (cart, artwork)
--- link with a quantity.
--- =======================================================================
-CREATE TABLE cart_artworks (
-    id         INT       NOT NULL AUTO_INCREMENT,
-    cart_id    INT       NOT NULL,
-    artwork_id INT       NOT NULL,
-    quantity   INT       NOT NULL DEFAULT 1,
-    added_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uq_cart_artwork (cart_id, artwork_id),
-    INDEX idx_cart_artworks_cart    (cart_id),
-    INDEX idx_cart_artworks_artwork (artwork_id),
-    CONSTRAINT fk_cart_artwork_cart
-        FOREIGN KEY (cart_id)    REFERENCES carts(id)    ON DELETE CASCADE,
-    CONSTRAINT fk_cart_artwork_artwork
+        FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE SET NULL,
+    CONSTRAINT fk_cart_artwork
         FOREIGN KEY (artwork_id) REFERENCES artworks(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -468,8 +441,6 @@ INSERT INTO order_items (order_id, artwork_id, quantity, price) VALUES
 -- SELECT 'categories'          AS tbl, COUNT(*) AS rows FROM categories;
 -- SELECT 'artists'             AS tbl, COUNT(*) AS rows FROM artists;
 -- SELECT 'artworks'            AS tbl, COUNT(*) AS rows FROM artworks;
--- SELECT 'subscribers'         AS tbl, COUNT(*) AS rows FROM subscribers;
 -- SELECT 'carts'               AS tbl, COUNT(*) AS rows FROM carts;
--- SELECT 'cart_artworks'       AS tbl, COUNT(*) AS rows FROM cart_artworks;
 -- SELECT 'orders'              AS tbl, COUNT(*) AS rows FROM orders;
 -- SELECT 'order_items'         AS tbl, COUNT(*) AS rows FROM order_items;

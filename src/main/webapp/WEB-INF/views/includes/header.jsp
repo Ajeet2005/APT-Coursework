@@ -49,27 +49,6 @@
 
         <div class="nav-actions">
 
-            <%-- ─── Cart icon ─────────────────────────────────────────────── --%>
-            <a href="<%= ctx %>/cart"
-               class="cart-link <%= "cart".equals(active) ? "active" : "" %>"
-               aria-label="View cart">
-                <svg class="cart-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2.5 3h2.5l1.6 3H22l-2.4 8.4a1.6 1.6 0 0 1-1.55 1.1H9.05a1.6 1.6 0 0 1-1.55-1.2L4.7 4.5"/>
-                    <line x1="13" y1="8.5" x2="13" y2="12.5"/>
-                    <line x1="11" y1="10.5" x2="15" y2="10.5"/>
-                    <circle cx="9"  cy="20" r="1.5"/>
-                    <circle cx="17" cy="20" r="1.5"/>
-                </svg>
-                <%
-                    Integer cartItemCount = (Integer) request.getAttribute("cartItemCount");
-                    if (cartItemCount == null) cartItemCount = 0;
-                %>
-                <span class="cart-badge <%= cartItemCount > 0 ? "has-items" : "" %>"
-                      data-cart-badge><%= cartItemCount %></span>
-            </a>
-
             <%-- ─── Person / Auth icon ──────────────────────────────────────── --%>
             <div class="auth-avatar-wrap" id="authAvatarWrap">
                 <% if (!loggedIn) { %>

@@ -37,11 +37,6 @@
                     <p class="adm-card-label">Total Orders</p>
                     <p class="adm-card-metric">${not empty totalOrders ? totalOrders : '—'}</p>
                 </a>
-                <a href="${pageContext.request.contextPath}/admin/subscribers" class="adm-card">
-                    <div class="adm-card-icon">&#128140;</div>
-                    <p class="adm-card-label">Subscribers</p>
-                    <p class="adm-card-metric">${not empty totalSubscribers ? totalSubscribers : '—'}</p>
-                </a>
             </div>
 
             <%-- Charts --%>
@@ -68,7 +63,6 @@
                         <a href="${pageContext.request.contextPath}/admin/categories?action=add" class="adm-action-btn"><span>&#128193;</span>Add Category</a>
                         <a href="${pageContext.request.contextPath}/admin/users" class="adm-action-btn"><span>&#128101;</span>View Users</a>
                         <a href="${pageContext.request.contextPath}/admin/orders" class="adm-action-btn"><span>&#128230;</span>View Orders</a>
-                        <a href="${pageContext.request.contextPath}/admin/subscribers" class="adm-action-btn"><span>&#128140;</span>Subscribers</a>
                     </div>
                 </div>
                 <div class="adm-panel adm-recent">
@@ -88,11 +82,11 @@
         </c:when>
 
         <%-- ── LIST VIEWS ────────────────────────────────────────────────── --%>
-        <c:when test="${view == 'artworks' || view == 'artists' || view == 'users' || view == 'subscribers' || view == 'categories' || view == 'orders'}">
+        <c:when test="${view == 'artworks' || view == 'artists' || view == 'users' || view == 'categories' || view == 'orders'}">
             <div class="adm-panel">
                 <div class="adm-panel-header">
                     <h3 class="adm-panel-title">Manage ${view}</h3>
-                    <c:if test="${view != 'users' && view != 'subscribers' && view != 'orders'}">
+                    <c:if test="${view != 'users' && view != 'orders'}">
                         <a href="${pageContext.request.contextPath}/admin/${view}?action=add" class="btn-primary small">Add New</a>
                     </c:if>
                 </div>
@@ -104,7 +98,6 @@
                                 <th>${view == 'orders' ? 'Customer' : 'Name/Title'}</th>
                                 <c:if test="${view == 'artworks'}"><th>Price</th><th>Category</th></c:if>
                                 <c:if test="${view == 'users'}"><th>Email</th><th>Role</th></c:if>
-                                <c:if test="${view == 'subscribers'}"><th>Email</th></c:if>
                                 <c:if test="${view == 'orders'}"><th>Amount</th><th>Status</th><th>Date</th></c:if>
                                 <th>Actions</th>
                             </tr>
@@ -116,7 +109,6 @@
                                     <td>
                                         <c:choose>
                                             <c:when test="${view == 'artworks'}">${item.title}</c:when>
-                                            <c:when test="${view == 'subscribers'}">${item.firstName} ${item.lastName}</c:when>
                                             <c:when test="${view == 'users'}">${item.fullName}</c:when>
                                             <c:when test="${view == 'orders'}">${item.userFullName}</c:when>
                                             <c:otherwise>${item.name}</c:otherwise>
@@ -124,14 +116,13 @@
                                     </td>
                                     <c:if test="${view == 'artworks'}"><td>$${item.price}</td><td>${item.categoryName}</td></c:if>
                                     <c:if test="${view == 'users'}"><td>${item.email}</td><td>${item.role}</td></c:if>
-                                    <c:if test="${view == 'subscribers'}"><td>${item.email}</td></c:if>
                                     <c:if test="${view == 'orders'}">
                                         <td>$${item.totalAmount}</td>
                                         <td><span class="status-badge ${item.status}">${item.status}</span></td>
                                         <td>${item.createdAt}</td>
                                     </c:if>
                                     <td class="adm-table-actions">
-                                        <c:if test="${view != 'users' && view != 'subscribers' && view != 'orders'}">
+                                        <c:if test="${view != 'users' && view != 'orders'}">
                                             <a href="${pageContext.request.contextPath}/admin/${view}?action=edit&id=${item.id}" class="edit-link">&#9998;</a>
                                         </c:if>
                                         <c:if test="${view == 'orders'}">
@@ -139,7 +130,7 @@
                                         </c:if>
                                         <c:if test="${view != 'orders'}">
                                             <form action="${pageContext.request.contextPath}/admin/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
-                                                <input type="hidden" name="type" value="${view == 'artworks' ? 'artwork' : (view == 'artists' ? 'artist' : (view == 'users' ? 'user' : (view == 'subscribers' ? 'subscriber' : 'category')))}">
+                                                <input type="hidden" name="type" value="${view == 'artworks' ? 'artwork' : (view == 'artists' ? 'artist' : (view == 'users' ? 'user' : 'category'))}">
                                                 <input type="hidden" name="id" value="${item.id}">
                                                 <button type="submit" class="delete-btn">&#128465;</button>
                                             </form>

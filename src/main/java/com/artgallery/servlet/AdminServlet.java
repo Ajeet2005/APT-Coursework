@@ -3,12 +3,10 @@ package com.artgallery.servlet;
 import com.artgallery.dao.ArtworkDAO;
 import com.artgallery.dao.ArtistDAO;
 import com.artgallery.dao.UserDAO;
-import com.artgallery.dao.SubscriberDAO;
 import com.artgallery.model.Artwork;
 import com.artgallery.model.User;
 import com.artgallery.model.Artist;
 import com.artgallery.model.Category;
-import com.artgallery.model.Subscriber;
 import com.artgallery.model.Order;
 import com.artgallery.model.OrderItem;
 import com.artgallery.dao.CategoryDAO;
@@ -36,7 +34,6 @@ public class AdminServlet extends HttpServlet {
     private ArtworkDAO artworkDAO;
     private ArtistDAO artistDAO;
     private UserDAO userDAO;
-    private SubscriberDAO subscriberDAO;
     private CategoryDAO categoryDAO;
     private OrderDAO orderDAO;
 
@@ -45,7 +42,6 @@ public class AdminServlet extends HttpServlet {
         artworkDAO = new ArtworkDAO();
         artistDAO = new ArtistDAO();
         userDAO = new UserDAO();
-        subscriberDAO = new SubscriberDAO();
         categoryDAO = new CategoryDAO();
         orderDAO = new OrderDAO();
     }
@@ -71,8 +67,6 @@ public class AdminServlet extends HttpServlet {
             handleArtists(req, resp);
         } else if (pathInfo.startsWith("/users")) {
             handleUsers(req, resp);
-        } else if (pathInfo.startsWith("/subscribers")) {
-            handleSubscribers(req, resp);
         } else if (pathInfo.startsWith("/categories")) {
             handleCategories(req, resp);
         } else if (pathInfo.startsWith("/orders")) {
@@ -88,7 +82,6 @@ public class AdminServlet extends HttpServlet {
             req.setAttribute("totalArtworks", artworkDAO.countAll());
             req.setAttribute("totalArtists", artistDAO.countAll());
             req.setAttribute("totalUsers", userDAO.countAll());
-            req.setAttribute("totalSubscribers", subscriberDAO.countAll());
             req.setAttribute("totalOrders", orderDAO.countAll());
 
             List<Artwork> recent = artworkDAO.findRecent(5);
@@ -193,18 +186,6 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-    private void handleSubscribers(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        try {
-            req.setAttribute("items", subscriberDAO.findAll());
-            req.setAttribute("view", "subscribers");
-            req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            resp.sendRedirect(req.getContextPath() + "/admin");
-        }
-    }
-
     private void handleCategories(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         try {
@@ -284,8 +265,6 @@ public class AdminServlet extends HttpServlet {
                     redirectPath = "/admin/artists";
                 else if ("user".equals(type))
                     redirectPath = "/admin/users";
-                else if ("subscriber".equals(type))
-                    redirectPath = "/admin/subscribers";
                 else if ("category".equals(type))
                     redirectPath = "/admin/categories";
             }
@@ -358,9 +337,6 @@ public class AdminServlet extends HttpServlet {
                 break;
             case "user":
                 userDAO.delete(id);
-                break;
-            case "subscriber":
-                subscriberDAO.delete(id);
                 break;
             case "category":
                 categoryDAO.delete(id);

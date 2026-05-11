@@ -1,6 +1,5 @@
 package com.artgallery.servlet;
 
-import com.artgallery.dao.CartDAO;
 import com.artgallery.dao.UserDAO;
 import com.artgallery.model.User;
 import jakarta.servlet.ServletException;
@@ -31,7 +30,6 @@ public class LoginServlet extends HttpServlet {
 
     private static final Logger LOG = Logger.getLogger(LoginServlet.class.getName());
     private final UserDAO userDAO = new UserDAO();
-    private final CartDAO cartDAO = new CartDAO();
 
     // ── GET ──────────────────────────────────────────────────────────────────
 
@@ -94,11 +92,6 @@ public class LoginServlet extends HttpServlet {
             HttpSession newSession = req.getSession(true);
             newSession.setAttribute("loggedInUser", user);
             newSession.setMaxInactiveInterval(30 * 60); // 30 minutes
-
-            // Link this session's cart to the now-logged-in user so the
-            // carts table reflects the users 1 ── * carts relationship.
-            int cartId = cartDAO.getOrCreateCart(newSession.getId());
-            cartDAO.linkCartToUser(cartId, user.getId());
 
             if (redirectAfterLogin != null && !redirectAfterLogin.isEmpty()) {
                 resp.sendRedirect(redirectAfterLogin);
