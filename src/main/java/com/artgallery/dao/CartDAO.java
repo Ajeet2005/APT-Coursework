@@ -12,8 +12,11 @@ import java.util.List;
  * DAO for the shopping cart.
  *
  * Each browser session gets one row in `carts` (keyed on JSESSIONID).
- * Adding the same artwork twice increments quantity instead of creating
- * a duplicate row (enforced by the UNIQUE KEY on cart_items).
+ * Once the visitor logs in, the same cart row is linked to their user_id
+ * (one user can own many carts over time — no UNIQUE on user_id).
+ *
+ * Cart contents live in `cart_artworks` (one row per (cart, artwork) pair
+ * with a quantity).
  */
 public class CartDAO {
 
@@ -23,7 +26,6 @@ public class CartDAO {
      */
     public int getOrCreateCart(String sessionId) {
         try (Connection c = DBConnection.getConnection()) {
-            // Try to find existing
             try (PreparedStatement ps = c.prepareStatement(
                     "SELECT id FROM carts WHERE session_id = ?")) {
                 ps.setString(1, sessionId);
@@ -31,7 +33,6 @@ public class CartDAO {
                     if (rs.next()) return rs.getInt("id");
                 }
             }
-            // Insert new
             try (PreparedStatement ps = c.prepareStatement(
                     "INSERT INTO carts (session_id) VALUES (?)",
                     Statement.RETURN_GENERATED_KEYS)) {
@@ -48,11 +49,27 @@ public class CartDAO {
     }
 
     /**
+     * Attach this session's cart to the given user_id (called from LoginServlet
+     * once the user authenticates). Idempotent.
+     */
+    public void linkCartToUser(int cartId, int userId) {
+        String sql = "UPDATE carts SET user_id = ? WHERE id = ?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, cartId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Add an artwork to the cart. If the artwork already exists in this cart,
-     * its quantity is incremented by 1 (using ON DUPLICATE KEY UPDATE).
+     * its quantity is incremented by 1.
      */
     public void addItem(int cartId, int artworkId) {
-        String sql = "INSERT INTO cart_items (cart_id, artwork_id, quantity) VALUES (?, ?, 1) " +
+        String sql = "INSERT INTO cart_artworks (cart_id, artwork_id, quantity) VALUES (?, ?, 1) " +
                      "ON DUPLICATE KEY UPDATE quantity = quantity + 1";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -64,9 +81,8 @@ public class CartDAO {
         }
     }
 
-    /** Remove one artwork (the whole row) from the cart. */
     public void removeItem(int cartId, int artworkId) {
-        String sql = "DELETE FROM cart_items WHERE cart_id = ? AND artwork_id = ?";
+        String sql = "DELETE FROM cart_artworks WHERE cart_id = ? AND artwork_id = ?";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, cartId);
@@ -77,13 +93,12 @@ public class CartDAO {
         }
     }
 
-    /** Set quantity for an existing item. Removes it if qty <= 0. */
     public void updateQuantity(int cartId, int artworkId, int qty) {
         if (qty <= 0) {
             removeItem(cartId, artworkId);
             return;
         }
-        String sql = "UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND artwork_id = ?";
+        String sql = "UPDATE cart_artworks SET quantity = ? WHERE cart_id = ? AND artwork_id = ?";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, qty);
@@ -95,9 +110,8 @@ public class CartDAO {
         }
     }
 
-    /** Empty the cart entirely. */
     public void clearCart(int cartId) {
-        String sql = "DELETE FROM cart_items WHERE cart_id = ?";
+        String sql = "DELETE FROM cart_artworks WHERE cart_id = ?";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, cartId);
@@ -107,16 +121,15 @@ public class CartDAO {
         }
     }
 
-    /** Return all items in this cart, with artwork data joined in. */
     public List<CartItem> getItems(int cartId) {
         String sql =
-                "SELECT ci.id, ci.cart_id, ci.artwork_id, ci.quantity, " +
+                "SELECT ca.id, ca.cart_id, ca.artwork_id, ca.quantity, " +
                 "       a.title, a.image_url, a.price, ar.name AS artist_name " +
-                "FROM cart_items ci " +
-                "JOIN artworks a   ON ci.artwork_id = a.id " +
+                "FROM cart_artworks ca " +
+                "JOIN artworks a   ON ca.artwork_id = a.id " +
                 "LEFT JOIN artists ar ON a.artist_id = ar.id " +
-                "WHERE ci.cart_id = ? " +
-                "ORDER BY ci.added_at DESC";
+                "WHERE ca.cart_id = ? " +
+                "ORDER BY ca.added_at DESC";
         List<CartItem> list = new ArrayList<>();
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -141,9 +154,8 @@ public class CartDAO {
         return list;
     }
 
-    /** Total number of pieces in the cart (sum of quantities) — for the header badge. */
     public int getItemCount(int cartId) {
-        String sql = "SELECT COALESCE(SUM(quantity), 0) AS total FROM cart_items WHERE cart_id = ?";
+        String sql = "SELECT COALESCE(SUM(quantity), 0) AS total FROM cart_artworks WHERE cart_id = ?";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, cartId);
@@ -156,11 +168,10 @@ public class CartDAO {
         return 0;
     }
 
-    /** Sum of all subtotals in the cart. */
     public BigDecimal getCartTotal(int cartId) {
-        String sql = "SELECT COALESCE(SUM(a.price * ci.quantity), 0) AS total " +
-                     "FROM cart_items ci JOIN artworks a ON ci.artwork_id = a.id " +
-                     "WHERE ci.cart_id = ?";
+        String sql = "SELECT COALESCE(SUM(a.price * ca.quantity), 0) AS total " +
+                     "FROM cart_artworks ca JOIN artworks a ON ca.artwork_id = a.id " +
+                     "WHERE ca.cart_id = ?";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, cartId);

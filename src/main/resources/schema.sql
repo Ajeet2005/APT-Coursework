@@ -11,17 +11,22 @@
 -- Engine   : InnoDB (transactions + foreign keys)
 --
 -- ┌─────────────────────────────────────────────────────────────────┐
--- │  SHARED SEED CREDENTIALS  (ready to use after importing this   │
--- │  file — no extra setup required)                                │
+-- │  FINAL ERD RELATIONSHIPS                                        │
 -- │                                                                 │
+-- │    users       1 ── *   carts                                   │
+-- │    users       1 ── 1   orders        (UNIQUE user_id)          │
+-- │    carts       1 ── *   cart_artworks                           │
+-- │    categories  1 ── *   artworks                                │
+-- │    orders      1 ── *   order_items                             │
+-- │    artworks    1 ── *   order_items                             │
+-- │                                                                 │
+-- │  SHARED SEED CREDENTIALS                                        │
 -- │  Role   │  Email                    │  Password                │
 -- │─────────┼───────────────────────────┼──────────────────────────│
 -- │  admin  │  admin@artgallery.com     │  password                │
 -- │  user   │  user@artgallery.com      │  password                │
 -- │                                                                 │
--- │  Hashes use BCrypt cost-factor 12 (org.mindrot:jbcrypt:0.4).  │
--- │  Both hashes were verified with BCrypt.checkpw() before        │
--- │  being committed — they are guaranteed to match "password".    │
+-- │  Hashes use BCrypt cost-factor 12 (org.mindrot:jbcrypt:0.4).    │
 -- └─────────────────────────────────────────────────────────────────┘
 -- =======================================================================
 
@@ -35,9 +40,11 @@ USE art_gallery;
 -- ── Drop tables in reverse dependency order (safe re-run) ───────────────
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS order_item_artworks;   -- legacy from previous schema iteration
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS cart_artworks;
+DROP TABLE IF EXISTS cart_items;        -- legacy name from old schema
 DROP TABLE IF EXISTS carts;
 DROP TABLE IF EXISTS artworks;
 DROP TABLE IF EXISTS artists;
@@ -49,17 +56,12 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- =======================================================================
 -- TABLE: users
--- Stores registered members and administrators.
--- Passwords are NEVER stored in plain text.
--- BCrypt.hashpw(plain, BCrypt.gensalt(12)) produces a 60-character hash
--- that already embeds a random 22-character salt, so two users can share
--- the same password and still have completely different stored hashes.
 -- =======================================================================
 CREATE TABLE users (
     id            INT          NOT NULL AUTO_INCREMENT,
     full_name     VARCHAR(120) NOT NULL,
     email         VARCHAR(255) NOT NULL,
-    password_hash VARCHAR(72)  NOT NULL COMMENT 'BCrypt hash (always 60 chars; 72 gives a safe margin)',
+    password_hash VARCHAR(72)  NOT NULL COMMENT 'BCrypt hash (60 chars; 72 = safe margin)',
     role          ENUM('user','admin') NOT NULL DEFAULT 'user',
     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -68,14 +70,6 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Registered gallery members and administrators';
 
--- ── Seed users
--- Both accounts use plain-text password:  password
--- Hashes below were produced by:
---   BCrypt.hashpw("password", BCrypt.gensalt(12))   [jbcrypt 0.4, Java 17]
--- and immediately verified with:
---   BCrypt.checkpw("password", hash)  →  true
--- DO NOT regenerate unless you have the Java project compiled locally;
--- any online BCrypt tool set to cost=12 and 2a prefix will also work.
 INSERT INTO users (full_name, email, password_hash, role) VALUES
 (
     'Gallery Admin',
@@ -91,8 +85,7 @@ INSERT INTO users (full_name, email, password_hash, role) VALUES
 );
 
 -- =======================================================================
--- TABLE: categories
--- Art genre / collection buckets.
+-- TABLE: categories       (categories 1 ── * artworks)
 -- =======================================================================
 CREATE TABLE categories (
     id          INT          NOT NULL AUTO_INCREMENT,
@@ -116,7 +109,7 @@ CREATE TABLE artists (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =======================================================================
--- TABLE: artworks
+-- TABLE: artworks         (categories 1 ── * artworks)
 -- =======================================================================
 CREATE TABLE artworks (
     id          INT             NOT NULL AUTO_INCREMENT,
@@ -151,23 +144,29 @@ CREATE TABLE subscribers (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =======================================================================
--- TABLE: carts
--- One cart per browser session (identified by HttpSession.getId()).
--- Anonymous carts are fine; the AuthFilter ensures only logged-in users
--- can actually reach the cart page or add items via AJAX.
+-- TABLE: carts            (users 1 ── * carts)
+-- session_id is kept so anonymous browsers can still have a cart.
+-- user_id is nullable; it gets filled in once the visitor logs in.
+-- No UNIQUE on user_id  →  one user can own many carts over time.
 -- =======================================================================
 CREATE TABLE carts (
     id         INT          NOT NULL AUTO_INCREMENT,
     session_id VARCHAR(128) NOT NULL,
+    user_id    INT                   DEFAULT NULL,
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_cart_session (session_id)
+    UNIQUE KEY uq_cart_session (session_id),
+    INDEX idx_cart_user (user_id),
+    CONSTRAINT fk_cart_user
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =======================================================================
--- TABLE: cart_items
+-- TABLE: cart_artworks    (carts 1 ── * cart_artworks)
+-- Replaces the old cart_items table — each row is one (cart, artwork)
+-- link with a quantity.
 -- =======================================================================
-CREATE TABLE cart_items (
+CREATE TABLE cart_artworks (
     id         INT       NOT NULL AUTO_INCREMENT,
     cart_id    INT       NOT NULL,
     artwork_id INT       NOT NULL,
@@ -175,16 +174,17 @@ CREATE TABLE cart_items (
     added_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_cart_artwork (cart_id, artwork_id),
-    INDEX idx_cart_items_cart    (cart_id),
-    INDEX idx_cart_items_artwork (artwork_id),
-    CONSTRAINT fk_cart_item_cart
+    INDEX idx_cart_artworks_cart    (cart_id),
+    INDEX idx_cart_artworks_artwork (artwork_id),
+    CONSTRAINT fk_cart_artwork_cart
         FOREIGN KEY (cart_id)    REFERENCES carts(id)    ON DELETE CASCADE,
-    CONSTRAINT fk_cart_item_artwork
+    CONSTRAINT fk_cart_artwork_artwork
         FOREIGN KEY (artwork_id) REFERENCES artworks(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =======================================================================
--- TABLE: orders
+-- TABLE: orders           (users 1 ── 1 orders)
+-- UNIQUE on user_id enforces exactly ONE order per user.
 -- =======================================================================
 CREATE TABLE orders (
     id           INT            NOT NULL AUTO_INCREMENT,
@@ -193,20 +193,22 @@ CREATE TABLE orders (
     status       ENUM('pending','paid','shipped','completed','cancelled') NOT NULL DEFAULT 'pending',
     created_at   TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    INDEX idx_orders_user (user_id),
+    UNIQUE KEY uq_orders_user (user_id),
     CONSTRAINT fk_orders_user
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =======================================================================
--- TABLE: order_items
+-- TABLE: order_items      (orders 1 ── * order_items)
+-- Each order_item references exactly ONE artwork.
+-- An artwork can appear in many order_items (across different orders).
 -- =======================================================================
 CREATE TABLE order_items (
     id         INT            NOT NULL AUTO_INCREMENT,
     order_id   INT            NOT NULL,
     artwork_id INT            NOT NULL,
     quantity   INT            NOT NULL DEFAULT 1,
-    price      DECIMAL(12, 2) NOT NULL COMMENT 'Price at the time of purchase',
+    price      DECIMAL(12, 2) NOT NULL COMMENT 'Unit price at the time of purchase',
     PRIMARY KEY (id),
     INDEX idx_order_items_order   (order_id),
     INDEX idx_order_items_artwork (artwork_id),
@@ -219,8 +221,6 @@ CREATE TABLE order_items (
 
 -- =======================================================================
 -- SEED DATA
--- Image paths are relative to webapp/  (i.e. served from context root).
--- Prices are in Nepali Rupees (NPR).
 -- =======================================================================
 
 -- ── Categories ──────────────────────────────────────────────────────────
@@ -246,7 +246,6 @@ INSERT INTO categories (id, name, description, cover_image) VALUES
  'assets/images/stilllife/Pieter_Claesz_-_Vanitas_Still_Life_-_943_-_Mauritshuis.jpg');
 
 -- ── Artists ─────────────────────────────────────────────────────────────
--- Explicit IDs so the artworks foreign keys below line up.
 INSERT INTO artists (id, name, bio, profile_image, country) VALUES
 (1, 'Leonardo Davinci',
  'Italian polymath of the High Renaissance who was active as a painter, draughtsman, engineer, scientist, theorist, sculptor, and architect.',
@@ -445,34 +444,32 @@ INSERT INTO artworks (id, title, description, image_url, price, category_id, art
 
 
 -- ── Orders ──────────────────────────────────────────────────────────────
+-- NOTE: only ONE order per user is allowed (UNIQUE user_id).
+-- The single order for the Test User (id=2) bundles every previously-
+-- separate purchase into one consolidated order made up of multiple
+-- order_items, each of which can contain multiple artworks.
 INSERT INTO orders (id, user_id, total_amount, status, created_at) VALUES
-(1, 2, 38600.00, 'completed', '2026-05-01 10:00:00'),
-(2, 2, 14500.00, 'shipped',   '2026-05-03 14:30:00'),
-(3, 2, 28000.00, 'pending',   '2026-05-05 09:15:00'),
-(4, 2, 12000.00, 'paid',      '2026-05-07 16:45:00');
+(1, 2, 93100.00, 'completed', '2026-05-01 10:00:00');
 
--- ── Order Items ────────────────────────────────────────────────────────
+-- ── Order items (orders 1 ── * order_items) ─────────────────────────────
+-- Five line items make up the single order for the Test User (total 93,100).
 INSERT INTO order_items (order_id, artwork_id, quantity, price) VALUES
-(1, 3, 1, 13800.00),
+(1, 3,  1, 13800.00),
 (1, 31, 1, 24800.00),
-(2, 14, 1, 14500.00),
-(3, 4, 1, 28000.00),
-(4, 13, 1, 12000.00);
+(1, 14, 1, 14500.00),
+(1, 13, 1, 12000.00),
+(1, 4,  1, 28000.00);
 
 
 -- =======================================================================
--- QUICK VERIFICATION QUERIES  (uncomment to check after import)
+-- QUICK VERIFICATION QUERIES (uncomment after import to check)
 -- =======================================================================
--- SELECT 'users'       AS tbl, COUNT(*) AS rows FROM users;
--- SELECT 'categories'  AS tbl, COUNT(*) AS rows FROM categories;
--- SELECT 'artists'     AS tbl, COUNT(*) AS rows FROM artists;
--- SELECT 'artworks'    AS tbl, COUNT(*) AS rows FROM artworks;
--- SELECT 'subscribers' AS tbl, COUNT(*) AS rows FROM subscribers;
--- SELECT 'carts'       AS tbl, COUNT(*) AS rows FROM carts;
--- SELECT 'cart_items'  AS tbl, COUNT(*) AS rows FROM cart_items;
--- SELECT 'orders'      AS tbl, COUNT(*) AS rows FROM orders;
--- SELECT 'order_items' AS tbl, COUNT(*) AS rows FROM order_items;
---
--- To test login credentials (verify BCrypt hash format):
--- SELECT id, full_name, email, LEFT(password_hash,7) AS hash_prefix, role FROM users;
--- Expected:  hash_prefix = '$2a$12'  for both seed accounts.
+-- SELECT 'users'               AS tbl, COUNT(*) AS rows FROM users;
+-- SELECT 'categories'          AS tbl, COUNT(*) AS rows FROM categories;
+-- SELECT 'artists'             AS tbl, COUNT(*) AS rows FROM artists;
+-- SELECT 'artworks'            AS tbl, COUNT(*) AS rows FROM artworks;
+-- SELECT 'subscribers'         AS tbl, COUNT(*) AS rows FROM subscribers;
+-- SELECT 'carts'               AS tbl, COUNT(*) AS rows FROM carts;
+-- SELECT 'cart_artworks'       AS tbl, COUNT(*) AS rows FROM cart_artworks;
+-- SELECT 'orders'              AS tbl, COUNT(*) AS rows FROM orders;
+-- SELECT 'order_items'         AS tbl, COUNT(*) AS rows FROM order_items;

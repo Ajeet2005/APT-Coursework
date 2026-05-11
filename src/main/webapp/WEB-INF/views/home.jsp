@@ -124,43 +124,4 @@
     </div>
 </section>
 
-<!-- ========== NEWSLETTER (matches the uploaded mockup) ========== -->
-<section class="newsletter" id="newsletter">
-    <div class="newsletter-card">
-        <span class="eyebrow">Newsletter</span>
-        <h2>Sign up for <span class="brand-mark">&#127963;</span> Gallery Artisan&rsquo;s Newsletter</h2>
-        <p>
-            Always stay informed about Gallery Artisan&rsquo;s latest dates, exhibitions and most exciting projects.
-            Sign up for the newsletter and become part of a vibrant community that celebrates art, creativity and inspiration.
-        </p>
-
-        <c:if test="${not empty newsletterSuccess}">
-            <div class="form-banner success">${newsletterSuccess}</div>
-        </c:if>
-        <c:if test="${not empty newsletterError}">
-            <div class="form-banner error">${newsletterError}</div>
-        </c:if>
-
-        <form class="newsletter-form" action="<%= ctx %>/newsletter" method="post">
-            <div class="field-row">
-                <input type="text" name="firstName" placeholder="First Name" required>
-                <input type="text" name="lastName" placeholder="Last Name">
-            </div>
-            <div class="field-row">
-                <input type="email" name="email" placeholder="Enter your email" required>
-                <button type="submit" class="btn btn-primary">Submit &rarr;</button>
-            </div>
-            <label class="consent">
-                <input type="checkbox" name="consent" value="1" required>
-                I Confirm The Privacy Policy
-            </label>
-        </form>
-    </div>
-
-    <div class="newsletter-strip">
-        <!-- gallery wall strip image -->
-        <img src="<%= ctx %>/assets/images/Portrait/45db64917a2e555246d8b7021f7cb08b.jpg" alt="Gallery wall">
-    </div>
-</section>
-
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>

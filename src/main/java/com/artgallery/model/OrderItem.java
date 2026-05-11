@@ -27,4 +27,9 @@ public class OrderItem {
 
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
+
+    public BigDecimal getSubtotal() {
+        if (price == null) return BigDecimal.ZERO;
+        return price.multiply(BigDecimal.valueOf(quantity));
+    }
 }

@@ -190,7 +190,7 @@
                                     <td>${oi.artworkTitle}</td>
                                     <td>${oi.quantity}</td>
                                     <td>$${oi.price}</td>
-                                    <td>$${oi.price * oi.quantity}</td>
+                                    <td>$${oi.subtotal}</td>
                                 </tr>
                             </c:forEach>
                         </tbody>
