@@ -5,97 +5,169 @@
    ============================================================ */
 
 (function () {
-    const root = document.querySelector('[data-slideshow]');
-    if (!root) return;
+    function initSlideshow() {
+        var root = document.querySelector('[data-slideshow]');
+        if (!root) return;
 
-    const track  = root.querySelector('.slide-track');
-    const slides = Array.from(root.querySelectorAll('.slide'));
-    const prev   = root.querySelector('.slide-arrow.prev');
-    const next   = root.querySelector('.slide-arrow.next');
-    if (!slides.length || !track) return;
+        var track  = root.querySelector('.slide-track');
+        var slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
+        var prev   = root.querySelector('.slide-arrow.prev');
+        var next   = root.querySelector('.slide-arrow.next');
+        if (!slides.length || !track) return;
 
-    let active = Math.floor(slides.length / 2); // start in the middle
-    let autoplay;
-    let currentX = 0;
+        var active = Math.floor(slides.length / 2); // start in the middle
+        var autoplay = null;
+        var INTERVAL = 4500;
+
+        function update() {
+            slides.forEach(function (s) { s.classList.remove('is-active'); });
+            var current = slides[active];
+            if (!current) return;
+
+            // Use offsetLeft/offsetWidth so the scale(1.05) transform on the
+            // active slide doesn't inflate our math.
+            var slideCenter    = current.offsetLeft + (current.offsetWidth / 2);
+            var viewportCenter = root.clientWidth / 2;
+            var x              = viewportCenter - slideCenter;
+
+            track.style.transform = 'translateX(' + x + 'px)';
+            current.classList.add('is-active');
+        }
+
+        function goTo(i) {
+            active = (i + slides.length) % slides.length;
+            update();
+        }
+        function nextSlide() { goTo(active + 1); }
+        function prevSlide() { goTo(active - 1); }
+
+        function startAutoplay() {
+            stopAutoplay();
+            autoplay = setInterval(nextSlide, INTERVAL);
+        }
+        function stopAutoplay() {
+            if (autoplay) { clearInterval(autoplay); autoplay = null; }
+        }
+        function restartAutoplay() {
+            stopAutoplay();
+            startAutoplay();
+        }
+
+        // Arrow + slide clicks
+        if (prev) prev.addEventListener('click', function (e) { e.preventDefault(); prevSlide(); restartAutoplay(); });
+        if (next) next.addEventListener('click', function (e) { e.preventDefault(); nextSlide(); restartAutoplay(); });
+
+        slides.forEach(function (slide, idx) {
+            slide.addEventListener('click', function () { goTo(idx); restartAutoplay(); });
+        });
+
+        // Keyboard
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowRight') { nextSlide(); restartAutoplay(); }
+            if (e.key === 'ArrowLeft')  { prevSlide(); restartAutoplay(); }
+        });
+
+        // Pause on hover, resume on leave
+        root.addEventListener('mouseenter', stopAutoplay);
+        root.addEventListener('mouseleave', startAutoplay);
+
+        // Pause when the tab is hidden (saves CPU + battery) and resume on return
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) stopAutoplay();
+            else                 startAutoplay();
+        });
+
+        // Recompute on resize
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(update, 80);
+        });
+
+        // ── Kick things off immediately ─────────────────────────────────────
+        // Don't wait for every image — start autoplay right away so the user
+        // sees movement. We'll re-run update() when each image finishes loading
+        // so the centering stays accurate as widths firm up.
+        update();
+        startAutoplay();
+
+        // Re-run update() whenever an image finishes loading (or fails).
+        // This keeps the active slide centered even if image dimensions only
+        // arrive after the initial paint.
+        var imgs = root.querySelectorAll('img');
+        imgs.forEach(function (img) {
+            if (img.complete) return;
+            img.addEventListener('load',  update, { once: true });
+            img.addEventListener('error', update, { once: true });
+        });
+
+        // Also re-center once everything is fully loaded as a final safety net.
+        if (document.readyState !== 'complete') {
+            window.addEventListener('load', update, { once: true });
+        }
+    }
+
+    // Run as soon as the DOM is ready (don't wait for images).
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlideshow);
+    } else {
+        initSlideshow();
+    }
+})();
+
+/* ============================================================
+   Scroll-to-top button — appears after the user scrolls down.
+   ============================================================ */
+(function () {
+    var btn = document.getElementById('scrollTop');
+    if (!btn) return;
+
+    var THRESHOLD = 400; // px from top before button appears
 
     function update() {
-        // Reset transform first so we measure the un-shifted layout positions.
-        // Using offsetLeft + offsetWidth avoids the scaled bounding box from
-        // .is-active { transform: scale(1.05) } and gives consistent math.
-        slides.forEach(s => s.classList.remove('is-active'));
-        const current = slides[active];
-
-        const slideCenter = current.offsetLeft + (current.offsetWidth / 2);
-        const viewportCenter = root.clientWidth / 2;
-        currentX = viewportCenter - slideCenter;
-
-        track.style.transform = `translateX(${currentX}px)`;
-
-        // Apply active class AFTER the transform update so the scale animation
-        // runs in parallel with the slide.
-        current.classList.add('is-active');
+        if (window.scrollY > THRESHOLD) btn.classList.add('visible');
+        else                            btn.classList.remove('visible');
     }
 
-    function goTo(i) {
-        active = (i + slides.length) % slides.length;
-        update();
-    }
-    function nextSlide() { goTo(active + 1); }
-    function prevSlide() { goTo(active - 1); }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
 
-    if (prev) prev.addEventListener('click', (e) => { e.preventDefault(); prevSlide(); restartAutoplay(); });
-    if (next) next.addEventListener('click', (e) => { e.preventDefault(); nextSlide(); restartAutoplay(); });
-
-    // Click a non-active slide to bring it to center.
-    slides.forEach((slide, idx) => {
-        slide.addEventListener('click', () => { goTo(idx); restartAutoplay(); });
+    btn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+})();
 
-    // Keyboard support
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') { nextSlide(); restartAutoplay(); }
-        if (e.key === 'ArrowLeft')  { prevSlide(); restartAutoplay(); }
-    });
+/* ============================================================
+   Reveal-on-scroll — auto-applies the .reveal class to top-level
+   page sections and fades them in as they enter the viewport.
+   No data-attributes needed in the HTML.
+   ============================================================ */
+(function () {
+    if (!('IntersectionObserver' in window)) return;
 
-    function startAutoplay() {
-        autoplay = setInterval(nextSlide, 4500);
-    }
-    function restartAutoplay() {
-        clearInterval(autoplay);
-        startAutoplay();
-    }
+    // Target the obvious top-level sections on every page.
+    var selectors = [
+        '.hero',
+        '.highlight-section',
+        '.mini-gallery',
+        '.section-head',
+        '.page-hero',
+        '.about-wrap',
+        '.cart-wrap'
+    ];
+    var nodes = document.querySelectorAll(selectors.join(','));
+    if (!nodes.length) return;
 
-    // Pause autoplay on hover.
-    root.addEventListener('mouseenter', () => clearInterval(autoplay));
-    root.addEventListener('mouseleave', () => startAutoplay());
+    nodes.forEach(function (n) { n.classList.add('reveal'); });
 
-    // Recompute on resize (slide widths change responsively).
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(update, 80);
-    });
-
-    // Initial layout — wait for images so widths are correct.
-    function init() {
-        update();
-        startAutoplay();
-    }
-
-    const imgs = root.querySelectorAll('img');
-    let pending = imgs.length;
-    if (pending === 0) {
-        requestAnimationFrame(init);
-    } else {
-        imgs.forEach(img => {
-            if (img.complete) {
-                if (--pending === 0) requestAnimationFrame(init);
-            } else {
-                img.addEventListener('load',  () => { if (--pending === 0) requestAnimationFrame(init); });
-                img.addEventListener('error', () => { if (--pending === 0) requestAnimationFrame(init); });
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                io.unobserve(entry.target);
             }
         });
-        // Fallback in case load events never fire.
-        setTimeout(() => { if (pending > 0) { pending = 0; requestAnimationFrame(init); } }, 1500);
-    }
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    nodes.forEach(function (n) { io.observe(n); });
 })();

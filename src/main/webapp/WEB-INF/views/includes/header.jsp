@@ -18,6 +18,12 @@
         initials += Character.toUpperCase(parts[0].charAt(0));
         if (parts.length > 1) initials += Character.toUpperCase(parts[parts.length - 1].charAt(0));
     }
+
+    // Cart count for badge
+    int cartCount = 0;
+    try {
+        cartCount = new com.artgallery.dao.CartDAO().countItems(session.getId());
+    } catch (Exception ignore) { /* fall back to 0 */ }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +32,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <c:set var="_defaultTitle">Gallery Artisan's</c:set>
     <title><c:out value="${not empty pageTitle ? pageTitle : _defaultTitle}" /></title>
+    <%-- Inline SVG favicon — gallery columns mark in purple --%>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%237a3bff'/><path d='M5 12L16 6l11 6v2H5z' fill='%23f4f1fb'/><rect x='7' y='14' width='2.5' height='9' fill='%23f4f1fb'/><rect x='12' y='14' width='2.5' height='9' fill='%23f4f1fb'/><rect x='17.5' y='14' width='2.5' height='9' fill='%23f4f1fb'/><rect x='22.5' y='14' width='2.5' height='9' fill='%23f4f1fb'/><rect x='5' y='24' width='22' height='2.5' fill='%23f4f1fb'/></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -61,6 +69,20 @@
         </nav>
 
         <div class="nav-actions">
+
+            <%-- ─── Cart icon with badge ────────────────────────────────────── --%>
+            <a href="<%= ctx %>/cart" class="nav-cart" aria-label="View cart">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M3 4 L6 4 L8 7 L21 7 L19 15 L9 15 L8 7"
+                          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 7 L12 15 M16 7 L16 15 M8.5 11 L20 11"
+                          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
+                    <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
+                </svg>
+                <span class="nav-cart-badge<%= cartCount > 0 ? " has-items" : "" %>"
+                      data-cart-badge><%= cartCount %></span>
+            </a>
 
             <%-- ─── Person / Auth icon ──────────────────────────────────────── --%>
             <div class="auth-avatar-wrap" id="authAvatarWrap">

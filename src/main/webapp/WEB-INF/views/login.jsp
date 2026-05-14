@@ -525,7 +525,7 @@
                            <%= rememberMeChecked %>>
                     <span>Remember me</span>
                 </label>
-                <a href="#" class="forgot-link">Forgot password?</a>
+                <a href="${pageContext.request.contextPath}/forgot-password" class="forgot-link">Forgot password?</a>
             </div>
 
             <button type="submit" class="btn-primary">Sign In</button>
