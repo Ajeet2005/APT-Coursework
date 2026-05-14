@@ -2678,6 +2678,118 @@ a.adm-card:hover {
 .status-badge.completed { background: rgba(25, 135, 84, 0.2); color: #198754; }
 .status-badge.cancelled { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
 
+/* ── Admin Button Variants ─────────────────────────────── */
+
+/* "Add New" compact button (btn-primary.small) */
+.btn-primary.small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.25rem;
+    background: linear-gradient(135deg, var(--purple) 0%, #5b21b6 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(122, 59, 255, 0.25);
+}
+.btn-primary.small:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(122, 59, 255, 0.4);
+    background: linear-gradient(135deg, #8b4dff 0%, #6929d0 100%);
+}
+.btn-primary.small:active {
+    transform: translateY(0);
+}
+
+/* "Cancel" / secondary button used in admin forms */
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+.btn-secondary:hover {
+    color: var(--ink);
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Font Awesome icon styling inside admin cards ──────── */
+.adm-card-icon i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 4px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(122, 59, 255, 0.2) 0%, rgba(91, 33, 182, 0.15) 100%);
+    color: var(--purple-soft);
+    font-size: 1.2rem;
+}
+
+/* Font Awesome icons inside quick-action buttons */
+.adm-action-btn span i {
+    color: var(--purple-soft);
+    font-size: 1.15rem;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.adm-action-btn:hover span i {
+    color: var(--purple);
+    transform: scale(1.1);
+}
+
+/* Font Awesome icons inside table action cells */
+.adm-table-actions .edit-link i,
+.adm-table-actions .delete-btn i {
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+/* Admin form submit btn-primary (standalone, not .small) */
+.adm-form .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--purple) 0%, #5b21b6 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(122, 59, 255, 0.25);
+}
+.adm-form .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(122, 59, 255, 0.4);
+    background: linear-gradient(135deg, #8b4dff 0%, #6929d0 100%);
+}
+
 /* =========================================================
    PROFILE PAGE — Edit profile with tabbed Account / Security
    ========================================================= */
