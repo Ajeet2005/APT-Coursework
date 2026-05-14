@@ -57,6 +57,17 @@ public class AuthFilter implements Filter {
             return;
         }
 
+        // ── Rule 2: Profile page — must be logged in ─────────────────────────
+        if (path.startsWith("/profile")) {
+            if (!loggedIn) {
+                saveRedirectTarget(session, req, requestURI);
+                resp.sendRedirect(contextPath + "/login");
+                return;
+            }
+            chain.doFilter(request, response);
+            return;
+        }
+
         // ── Default: public ──────────────────────────────────────────────────
         chain.doFilter(request, response);
     }

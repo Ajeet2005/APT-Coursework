@@ -29,6 +29,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css">
 </head>
 <body>
@@ -81,6 +82,14 @@
                             <span class="auth-dropdown-role"><%= isAdmin ? "Administrator" : "Member" %></span>
                         </div>
                         <div class="auth-dropdown-divider"></div>
+                        <% if (!isAdmin) { %>
+                        <a href="<%= ctx %>/profile" class="auth-dropdown-item" role="menuitem">
+                            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-8.793 8.793-3.536.707.707-3.536 8.793-8.793z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Edit Profile
+                        </a>
+                        <% } %>
                         <% if (isAdmin) { %>
                         <a href="<%= ctx %>/admin" class="auth-dropdown-item" role="menuitem">
                             <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">

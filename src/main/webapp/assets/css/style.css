@@ -2678,3 +2678,344 @@ a.adm-card:hover {
 .status-badge.completed { background: rgba(25, 135, 84, 0.2); color: #198754; }
 .status-badge.cancelled { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
 
+/* =========================================================
+   PROFILE PAGE — Edit profile with tabbed Account / Security
+   ========================================================= */
+
+.profile-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 1.5rem 6rem;
+}
+
+.profile-card {
+    background: linear-gradient(160deg, rgba(36, 26, 54, 0.7) 0%, rgba(18, 13, 28, 0.85) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    backdrop-filter: blur(20px);
+    box-shadow:
+        0 40px 80px -20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── Avatar Section ────────────────────────────────────── */
+.profile-avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple) 0%, #5b21b6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 8px 24px rgba(122, 59, 255, 0.35),
+        0 0 0 3px rgba(122, 59, 255, 0.2);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-avatar::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg, #7a3bff, #c9b6ff, #7a3bff);
+    z-index: -1;
+    animation: profile-avatar-glow 4s linear infinite;
+}
+
+@keyframes profile-avatar-glow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.profile-avatar-initials {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.profile-avatar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.profile-user-name {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.profile-user-role {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--purple-soft);
+    padding: 0.15rem 0.7rem;
+    background: rgba(122, 59, 255, 0.15);
+    border-radius: 999px;
+    width: fit-content;
+}
+
+/* ── Tabs ──────────────────────────────────────────────── */
+.profile-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius);
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.profile-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    border-radius: calc(var(--radius) - 2px);
+    transition: all 0.3s ease;
+}
+
+.profile-tab:hover {
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.profile-tab.active {
+    color: var(--ink);
+    background: rgba(122, 59, 255, 0.2);
+    box-shadow: 0 2px 12px rgba(122, 59, 255, 0.15);
+}
+
+.profile-tab svg {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.profile-tab.active svg {
+    opacity: 1;
+    color: var(--purple-soft);
+}
+
+/* ── Tab Content ──────────────────────────────────────── */
+.profile-tab-content {
+    display: none;
+    animation: profileFadeIn 0.35s ease;
+}
+
+.profile-tab-content.active {
+    display: block;
+}
+
+@keyframes profileFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Form Styles ──────────────────────────────────────── */
+.profile-form {
+    width: 100%;
+}
+
+.profile-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.profile-form-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+}
+
+.profile-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.profile-input-wrap svg {
+    position: absolute;
+    left: 14px;
+    color: var(--muted);
+    pointer-events: none;
+    transition: color 0.2s ease;
+    z-index: 1;
+}
+
+.profile-input-wrap input {
+    width: 100%;
+    padding: 14px 16px 14px 44px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.profile-input-wrap input::placeholder {
+    color: rgba(168, 158, 190, 0.5);
+}
+
+.profile-input-wrap input:hover {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.profile-input-wrap input:focus {
+    border-color: var(--purple);
+    background: rgba(122, 59, 255, 0.06);
+    box-shadow: 0 0 0 3px rgba(122, 59, 255, 0.12);
+}
+
+.profile-input-wrap:focus-within svg {
+    color: var(--purple-soft);
+}
+
+.profile-hint {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    opacity: 0.7;
+}
+
+.profile-security-note {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: rgba(122, 59, 255, 0.08);
+    border: 1px solid rgba(122, 59, 255, 0.15);
+    border-radius: var(--radius-sm);
+    line-height: 1.5;
+}
+
+/* ── Actions ──────────────────────────────────────────── */
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.profile-btn-update {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.9rem 2rem;
+    background: linear-gradient(135deg, var(--purple) 0%, #5b21b6 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(122, 59, 255, 0.3);
+}
+
+.profile-btn-update:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(122, 59, 255, 0.45);
+    background: linear-gradient(135deg, #8b4dff 0%, #6929d0 100%);
+}
+
+.profile-btn-update:active {
+    transform: translateY(0);
+}
+
+.profile-btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 1.5rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.profile-btn-cancel:hover {
+    color: var(--ink);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 640px) {
+    .profile-card {
+        padding: 1.5rem;
+        border-radius: var(--radius);
+    }
+
+    .profile-avatar-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .profile-avatar-info {
+        align-items: center;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .profile-btn-update,
+    .profile-btn-cancel {
+        width: 100%;
+    }
+
+    .profile-tabs {
+        flex-direction: column;
+    }
+}
+

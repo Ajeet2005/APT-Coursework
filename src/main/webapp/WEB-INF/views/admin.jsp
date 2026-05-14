@@ -17,23 +17,23 @@
             <%-- Metric Cards --%>
             <div class="adm-cards">
                 <a href="${pageContext.request.contextPath}/admin/artworks" class="adm-card">
-                    <div class="adm-card-icon">&#128444;</div>
+                    <div class="adm-card-icon"><i class="fa-solid fa-image"></i></div>
                     <p class="adm-card-label">Total Artworks</p>
                     <p class="adm-card-metric">${not empty totalArtworks ? totalArtworks : '—'}</p>
                 </a>
                 <a href="${pageContext.request.contextPath}/admin/artists" class="adm-card">
-                    <div class="adm-card-icon">&#127912;</div>
+                    <div class="adm-card-icon"><i class="fa-solid fa-palette"></i></div>
                     <p class="adm-card-label">Total Artists</p>
                     <p class="adm-card-metric">${not empty totalArtists ? totalArtists : '—'}</p>
                 </a>
                 <a href="${pageContext.request.contextPath}/admin/users" class="adm-card">
-                    <div class="adm-card-icon">&#128101;</div>
+                    <div class="adm-card-icon"><i class="fa-solid fa-users"></i></div>
                     <p class="adm-card-label">Registered Users</p>
                     <p class="adm-card-metric">${not empty totalUsers ? totalUsers : '—'}</p>
                 </a>
-                /*testing*/
+
                 <a href="${pageContext.request.contextPath}/admin/orders" class="adm-card">
-                    <div class="adm-card-icon">&#128230;</div>
+                    <div class="adm-card-icon"><i class="fa-solid fa-box-open"></i></div>
                     <p class="adm-card-label">Total Orders</p>
                     <p class="adm-card-metric">${not empty totalOrders ? totalOrders : '—'}</p>
                 </a>
@@ -58,11 +58,11 @@
                 <div class="adm-panel adm-actions">
                     <h3 class="adm-panel-title">Quick Actions</h3>
                     <div class="adm-action-grid">
-                        <a href="${pageContext.request.contextPath}/admin/artworks?action=add" class="adm-action-btn"><span>&#128444;</span>Add Artwork</a>
-                        <a href="${pageContext.request.contextPath}/admin/artists?action=add" class="adm-action-btn"><span>&#127912;</span>Add Artist</a>
-                        <a href="${pageContext.request.contextPath}/admin/categories?action=add" class="adm-action-btn"><span>&#128193;</span>Add Category</a>
-                        <a href="${pageContext.request.contextPath}/admin/users" class="adm-action-btn"><span>&#128101;</span>View Users</a>
-                        <a href="${pageContext.request.contextPath}/admin/orders" class="adm-action-btn"><span>&#128230;</span>View Orders</a>
+                        <a href="${pageContext.request.contextPath}/admin/artworks?action=add" class="adm-action-btn"><span><i class="fa-solid fa-image"></i></span>Add Artwork</a>
+                        <a href="${pageContext.request.contextPath}/admin/artists?action=add" class="adm-action-btn"><span><i class="fa-solid fa-palette"></i></span>Add Artist</a>
+                        <a href="${pageContext.request.contextPath}/admin/categories?action=add" class="adm-action-btn"><span><i class="fa-solid fa-folder-open"></i></span>Add Category</a>
+                        <a href="${pageContext.request.contextPath}/admin/users" class="adm-action-btn"><span><i class="fa-solid fa-users"></i></span>View Users</a>
+                        <a href="${pageContext.request.contextPath}/admin/orders" class="adm-action-btn"><span><i class="fa-solid fa-box-open"></i></span>View Orders</a>
                     </div>
                 </div>
                 <div class="adm-panel adm-recent">
@@ -123,16 +123,16 @@
                                     </c:if>
                                     <td class="adm-table-actions">
                                         <c:if test="${view != 'users' && view != 'orders'}">
-                                            <a href="${pageContext.request.contextPath}/admin/${view}?action=edit&id=${item.id}" class="edit-link">&#9998;</a>
+                                            <a href="${pageContext.request.contextPath}/admin/${view}?action=edit&id=${item.id}" class="edit-link"><i class="fa-solid fa-pen-to-square"></i></a>
                                         </c:if>
                                         <c:if test="${view == 'orders'}">
-                                            <a href="${pageContext.request.contextPath}/admin/orders?action=view&id=${item.id}" class="edit-link" style="margin-right: 0.5rem; font-size: 1.1rem;" title="View Detail">&#128065;</a>
+                                            <a href="${pageContext.request.contextPath}/admin/orders?action=view&id=${item.id}" class="edit-link" style="margin-right: 0.5rem; font-size: 1.1rem;" title="View Detail"><i class="fa-solid fa-eye"></i></a>
                                         </c:if>
                                         <c:if test="${view != 'orders'}">
                                             <form action="${pageContext.request.contextPath}/admin/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
                                                 <input type="hidden" name="type" value="${view == 'artworks' ? 'artwork' : (view == 'artists' ? 'artist' : (view == 'users' ? 'user' : 'category'))}">
                                                 <input type="hidden" name="id" value="${item.id}">
-                                                <button type="submit" class="delete-btn">&#128465;</button>
+                                                <button type="submit" class="delete-btn"><i class="fa-solid fa-trash-can"></i></button>
                                             </form>
                                         </c:if>
                                     </td>

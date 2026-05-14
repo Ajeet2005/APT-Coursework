@@ -143,7 +143,7 @@ public class UserDAO {
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    private User findById(int id) throws SQLException {
+    public User findById(int id) throws SQLException {
         String sql = "SELECT id, full_name, email, password_hash, role, created_at " +
                      "FROM users WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -218,6 +218,57 @@ public class UserDAO {
             ps.setInt(4, u.getId());
             ps.executeUpdate();
         }
+    }
+
+    /**
+     * Updates only name and email (used by the profile-edit page).
+     * Does NOT touch the role or password columns.
+     */
+    public void updateProfile(User u) throws SQLException {
+        String sql = "UPDATE users SET full_name=?, email=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, u.getFullName());
+            ps.setString(2, u.getEmail().toLowerCase().trim());
+            ps.setInt(3, u.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Changes the user's password after verifying the current one.
+     *
+     * @return true if the password was changed, false if currentPassword was wrong
+     */
+    public boolean updatePassword(int userId, String currentPassword, String newPassword)
+            throws SQLException {
+        // 1. Fetch the stored hash
+        String selectSql = "SELECT password_hash FROM users WHERE id = ?";
+        String storedHash;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(selectSql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return false;
+                storedHash = rs.getString("password_hash");
+            }
+        }
+
+        // 2. Verify current password
+        if (!BCrypt.checkpw(currentPassword, storedHash)) {
+            return false;
+        }
+
+        // 3. Hash the new password and update
+        String newHash = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+        String updateSql = "UPDATE users SET password_hash=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(updateSql)) {
+            ps.setString(1, newHash);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+        return true;
     }
 
     public void delete(int id) throws SQLException {
