@@ -26,6 +26,15 @@
         <small>&copy; 2026 Gallery Artisan&rsquo;s. All rights reserved.</small>
     </div>
 </footer>
+
+<%-- Scroll-to-top button — shown when user scrolls past the fold --%>
+<button type="button" class="scroll-top" id="scrollTop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6 14l6-6 6 6" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</button>
+
 <script src="<%= ctx %>/assets/js/main.js"></script>
 </body>
 </html>

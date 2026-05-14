@@ -32,6 +32,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <c:set var="_defaultTitle">Gallery Artisan's</c:set>
     <title><c:out value="${not empty pageTitle ? pageTitle : _defaultTitle}" /></title>
+    <%-- Inline SVG favicon — gallery columns mark in purple --%>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%237a3bff'/><path d='M5 12L16 6l11 6v2H5z' fill='%23f4f1fb'/><rect x='7' y='14' width='2.5' height='9' fill='%23f4f1fb'/><rect x='12' y='14' width='2.5' height='9' fill='%23f4f1fb'/><rect x='17.5' y='14' width='2.5' height='9' fill='%23f4f1fb'/><rect x='22.5' y='14' width='2.5' height='9' fill='%23f4f1fb'/><rect x='5' y='24' width='22' height='2.5' fill='%23f4f1fb'/></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">

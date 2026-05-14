@@ -114,3 +114,60 @@
         initSlideshow();
     }
 })();
+
+/* ============================================================
+   Scroll-to-top button — appears after the user scrolls down.
+   ============================================================ */
+(function () {
+    var btn = document.getElementById('scrollTop');
+    if (!btn) return;
+
+    var THRESHOLD = 400; // px from top before button appears
+
+    function update() {
+        if (window.scrollY > THRESHOLD) btn.classList.add('visible');
+        else                            btn.classList.remove('visible');
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+
+    btn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+})();
+
+/* ============================================================
+   Reveal-on-scroll — auto-applies the .reveal class to top-level
+   page sections and fades them in as they enter the viewport.
+   No data-attributes needed in the HTML.
+   ============================================================ */
+(function () {
+    if (!('IntersectionObserver' in window)) return;
+
+    // Target the obvious top-level sections on every page.
+    var selectors = [
+        '.hero',
+        '.highlight-section',
+        '.mini-gallery',
+        '.section-head',
+        '.page-hero',
+        '.about-wrap',
+        '.cart-wrap'
+    ];
+    var nodes = document.querySelectorAll(selectors.join(','));
+    if (!nodes.length) return;
+
+    nodes.forEach(function (n) { n.classList.add('reveal'); });
+
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                io.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    nodes.forEach(function (n) { io.observe(n); });
+})();

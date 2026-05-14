@@ -126,6 +126,7 @@
             if (!artworkId) return;
 
             btn.disabled = true;
+            btn.classList.add('loading');
 
             var body = new URLSearchParams();
             body.append('action', 'add');
@@ -166,6 +167,7 @@
                 showToast('Network error — try again');
             })
             .finally(function () {
+                btn.classList.remove('loading');
                 setTimeout(function () {
                     btn.classList.remove('added');
                     var span = btn.querySelector('span');
