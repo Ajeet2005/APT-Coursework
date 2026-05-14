@@ -18,6 +18,12 @@
         initials += Character.toUpperCase(parts[0].charAt(0));
         if (parts.length > 1) initials += Character.toUpperCase(parts[parts.length - 1].charAt(0));
     }
+
+    // Cart count for badge
+    int cartCount = 0;
+    try {
+        cartCount = new com.artgallery.dao.CartDAO().countItems(session.getId());
+    } catch (Exception ignore) { /* fall back to 0 */ }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,6 +67,20 @@
         </nav>
 
         <div class="nav-actions">
+
+            <%-- ─── Cart icon with badge ────────────────────────────────────── --%>
+            <a href="<%= ctx %>/cart" class="nav-cart" aria-label="View cart">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M3 4 L6 4 L8 7 L21 7 L19 15 L9 15 L8 7"
+                          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 7 L12 15 M16 7 L16 15 M8.5 11 L20 11"
+                          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
+                    <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
+                </svg>
+                <span class="nav-cart-badge<%= cartCount > 0 ? " has-items" : "" %>"
+                      data-cart-badge><%= cartCount %></span>
+            </a>
 
             <%-- ─── Person / Auth icon ──────────────────────────────────────── --%>
             <div class="auth-avatar-wrap" id="authAvatarWrap">

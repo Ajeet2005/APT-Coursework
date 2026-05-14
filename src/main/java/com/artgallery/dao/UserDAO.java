@@ -271,6 +271,28 @@ public class UserDAO {
         return true;
     }
 
+    /**
+     * Reset a user's password using only their email — used by the
+     * "Forgot password" flow. Returns true if a matching user was found and
+     * the password was updated, false if no user with that email exists.
+     *
+     * NOTE: A production system would email a one-time reset token instead
+     * of trusting whoever has the email address. For this learning project
+     * we trust the form submission directly.
+     */
+    public boolean resetPasswordByEmail(String email, String newPassword)
+            throws SQLException {
+
+        String newHash = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+        String sql = "UPDATE users SET password_hash = ? WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newHash);
+            ps.setString(2, email.toLowerCase().trim());
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public void delete(int id) throws SQLException {
         String sql = "DELETE FROM users WHERE id=?";
         try (Connection conn = DBConnection.getConnection();

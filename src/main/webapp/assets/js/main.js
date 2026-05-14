@@ -5,97 +5,112 @@
    ============================================================ */
 
 (function () {
-    const root = document.querySelector('[data-slideshow]');
-    if (!root) return;
+    function initSlideshow() {
+        var root = document.querySelector('[data-slideshow]');
+        if (!root) return;
 
-    const track  = root.querySelector('.slide-track');
-    const slides = Array.from(root.querySelectorAll('.slide'));
-    const prev   = root.querySelector('.slide-arrow.prev');
-    const next   = root.querySelector('.slide-arrow.next');
-    if (!slides.length || !track) return;
+        var track  = root.querySelector('.slide-track');
+        var slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
+        var prev   = root.querySelector('.slide-arrow.prev');
+        var next   = root.querySelector('.slide-arrow.next');
+        if (!slides.length || !track) return;
 
-    let active = Math.floor(slides.length / 2); // start in the middle
-    let autoplay;
-    let currentX = 0;
+        var active = Math.floor(slides.length / 2); // start in the middle
+        var autoplay = null;
+        var INTERVAL = 4500;
 
-    function update() {
-        // Reset transform first so we measure the un-shifted layout positions.
-        // Using offsetLeft + offsetWidth avoids the scaled bounding box from
-        // .is-active { transform: scale(1.05) } and gives consistent math.
-        slides.forEach(s => s.classList.remove('is-active'));
-        const current = slides[active];
+        function update() {
+            slides.forEach(function (s) { s.classList.remove('is-active'); });
+            var current = slides[active];
+            if (!current) return;
 
-        const slideCenter = current.offsetLeft + (current.offsetWidth / 2);
-        const viewportCenter = root.clientWidth / 2;
-        currentX = viewportCenter - slideCenter;
+            // Use offsetLeft/offsetWidth so the scale(1.05) transform on the
+            // active slide doesn't inflate our math.
+            var slideCenter    = current.offsetLeft + (current.offsetWidth / 2);
+            var viewportCenter = root.clientWidth / 2;
+            var x              = viewportCenter - slideCenter;
 
-        track.style.transform = `translateX(${currentX}px)`;
+            track.style.transform = 'translateX(' + x + 'px)';
+            current.classList.add('is-active');
+        }
 
-        // Apply active class AFTER the transform update so the scale animation
-        // runs in parallel with the slide.
-        current.classList.add('is-active');
-    }
+        function goTo(i) {
+            active = (i + slides.length) % slides.length;
+            update();
+        }
+        function nextSlide() { goTo(active + 1); }
+        function prevSlide() { goTo(active - 1); }
 
-    function goTo(i) {
-        active = (i + slides.length) % slides.length;
-        update();
-    }
-    function nextSlide() { goTo(active + 1); }
-    function prevSlide() { goTo(active - 1); }
+        function startAutoplay() {
+            stopAutoplay();
+            autoplay = setInterval(nextSlide, INTERVAL);
+        }
+        function stopAutoplay() {
+            if (autoplay) { clearInterval(autoplay); autoplay = null; }
+        }
+        function restartAutoplay() {
+            stopAutoplay();
+            startAutoplay();
+        }
 
-    if (prev) prev.addEventListener('click', (e) => { e.preventDefault(); prevSlide(); restartAutoplay(); });
-    if (next) next.addEventListener('click', (e) => { e.preventDefault(); nextSlide(); restartAutoplay(); });
+        // Arrow + slide clicks
+        if (prev) prev.addEventListener('click', function (e) { e.preventDefault(); prevSlide(); restartAutoplay(); });
+        if (next) next.addEventListener('click', function (e) { e.preventDefault(); nextSlide(); restartAutoplay(); });
 
-    // Click a non-active slide to bring it to center.
-    slides.forEach((slide, idx) => {
-        slide.addEventListener('click', () => { goTo(idx); restartAutoplay(); });
-    });
-
-    // Keyboard support
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') { nextSlide(); restartAutoplay(); }
-        if (e.key === 'ArrowLeft')  { prevSlide(); restartAutoplay(); }
-    });
-
-    function startAutoplay() {
-        autoplay = setInterval(nextSlide, 4500);
-    }
-    function restartAutoplay() {
-        clearInterval(autoplay);
-        startAutoplay();
-    }
-
-    // Pause autoplay on hover.
-    root.addEventListener('mouseenter', () => clearInterval(autoplay));
-    root.addEventListener('mouseleave', () => startAutoplay());
-
-    // Recompute on resize (slide widths change responsively).
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(update, 80);
-    });
-
-    // Initial layout — wait for images so widths are correct.
-    function init() {
-        update();
-        startAutoplay();
-    }
-
-    const imgs = root.querySelectorAll('img');
-    let pending = imgs.length;
-    if (pending === 0) {
-        requestAnimationFrame(init);
-    } else {
-        imgs.forEach(img => {
-            if (img.complete) {
-                if (--pending === 0) requestAnimationFrame(init);
-            } else {
-                img.addEventListener('load',  () => { if (--pending === 0) requestAnimationFrame(init); });
-                img.addEventListener('error', () => { if (--pending === 0) requestAnimationFrame(init); });
-            }
+        slides.forEach(function (slide, idx) {
+            slide.addEventListener('click', function () { goTo(idx); restartAutoplay(); });
         });
-        // Fallback in case load events never fire.
-        setTimeout(() => { if (pending > 0) { pending = 0; requestAnimationFrame(init); } }, 1500);
+
+        // Keyboard
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowRight') { nextSlide(); restartAutoplay(); }
+            if (e.key === 'ArrowLeft')  { prevSlide(); restartAutoplay(); }
+        });
+
+        // Pause on hover, resume on leave
+        root.addEventListener('mouseenter', stopAutoplay);
+        root.addEventListener('mouseleave', startAutoplay);
+
+        // Pause when the tab is hidden (saves CPU + battery) and resume on return
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) stopAutoplay();
+            else                 startAutoplay();
+        });
+
+        // Recompute on resize
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(update, 80);
+        });
+
+        // ── Kick things off immediately ─────────────────────────────────────
+        // Don't wait for every image — start autoplay right away so the user
+        // sees movement. We'll re-run update() when each image finishes loading
+        // so the centering stays accurate as widths firm up.
+        update();
+        startAutoplay();
+
+        // Re-run update() whenever an image finishes loading (or fails).
+        // This keeps the active slide centered even if image dimensions only
+        // arrive after the initial paint.
+        var imgs = root.querySelectorAll('img');
+        imgs.forEach(function (img) {
+            if (img.complete) return;
+            img.addEventListener('load',  update, { once: true });
+            img.addEventListener('error', update, { once: true });
+        });
+
+        // Also re-center once everything is fully loaded as a final safety net.
+        if (document.readyState !== 'complete') {
+            window.addEventListener('load', update, { once: true });
+        }
+    }
+
+    // Run as soon as the DOM is ready (don't wait for images).
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlideshow);
+    } else {
+        initSlideshow();
     }
 })();
