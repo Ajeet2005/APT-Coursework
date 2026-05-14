@@ -1,563 +1,790 @@
-# Art Gallery — A Plain-English Walkthrough
+# Gallery Artisan's — A Beginner's Walkthrough
 
-A complete guide to understanding every file in this project, written for someone learning Java web development for the first time. Read it top to bottom and by the end you'll understand how a real Java website is built.
-
----
-
-## 1. The big picture — what this project actually is
-
-Imagine a website like Amazon, but for paintings. A user opens their browser, types `http://localhost:8081/art-gallery/categories`, and a page loads showing categories of art (Acrylic, Botanical, Gesture, etc.). They click one and see paintings to buy.
-
-That's this project. The whole thing has four moving pieces:
-
-```
-Browser  ───►  Tomcat (web server)  ───►  Java code  ───►  MySQL (database)
-   ▲                                                              │
-   └──────────────── HTML page comes back ◄───────────────────────┘
-```
-
-1. **Browser** — sends a request like "show me /categories"
-2. **Tomcat** — receives the request, finds the right Java code to handle it
-3. **Java code** — asks the database for data, prepares a page
-4. **MySQL** — stores the actual paintings, artists, categories
-5. **Page returns** — Tomcat sends the finished HTML back to the browser
+A complete, plain-English guide to **how this art gallery website is built**, written for someone learning Java web development for the first time. Read it top to bottom and by the end you will understand every file in the project.
 
 ---
 
-## 2. The MVC pattern — the most important idea in the whole project
+## Table of contents
 
-**MVC = Model, View, Controller.** Every modern web app uses this pattern. Once you understand it, you understand the whole project.
+1. [What is this project?](#1-what-is-this-project)
+2. [The technologies — what each tool does](#2-the-technologies--what-each-tool-does)
+3. [The big picture — how a web request flows](#3-the-big-picture--how-a-web-request-flows)
+4. [The MVC pattern — the most important idea](#4-the-mvc-pattern--the-most-important-idea)
+5. [The folder structure, explained](#5-the-folder-structure-explained)
+6. [The database — what's stored and how](#6-the-database--whats-stored-and-how)
+7. [Models — Java objects that mirror database tables](#7-models--java-objects-that-mirror-database-tables)
+8. [DAOs — the database talkers](#8-daos--the-database-talkers)
+9. [Servlets — the brain of every page](#9-servlets--the-brain-of-every-page)
+10. [JSPs — the HTML factories](#10-jsps--the-html-factories)
+11. [The AuthFilter — the security guard](#11-the-authfilter--the-security-guard)
+12. [Authentication — how login/register actually works](#12-authentication--how-loginregister-actually-works)
+13. [Admin vs regular user](#13-admin-vs-regular-user)
+14. [Static assets — CSS, JS, images](#14-static-assets--css-js-images)
+15. [How the project boots up](#15-how-the-project-boots-up)
+16. [Running it yourself](#16-running-it-yourself)
+17. [Adding a new feature — a step-by-step example](#17-adding-a-new-feature--a-step-by-step-example)
+18. [Glossary](#18-glossary)
 
-| Letter | Name | Job | Real example in this project |
+---
+
+## 1. What is this project?
+
+**Gallery Artisan's** is a website that displays and sells paintings online. Think of it as a tiny Amazon, but for art.
+
+A visitor can:
+
+- Browse paintings on the home page, with a featured slideshow and a mosaic of recent works
+- Click through to specific categories (Portrait, Landscape, Still Life, Botanical, Gesture)
+- View an artwork's full detail page (image, title, artist, price)
+- Read about the artists
+- Register an account, log in, edit their profile
+- Sign up as an **admin** to manage the gallery — add/edit/delete artworks, artists, categories, view users and orders
+
+The site has two kinds of users: **regular members** (browse + buy) and **admins** (manage everything).
+
+---
+
+## 2. The technologies — what each tool does
+
+This stack might feel intimidating, but each tool has a single, simple job. Here is the whole list:
+
+| Tool | What it actually does | Plain analogy |
+|---|---|---|
+| **Java 17** | The programming language we write our code in | The language we speak |
+| **Maven** | Downloads libraries we need, compiles the code, packages it for deployment | A grocery delivery + chef rolled into one |
+| **Apache Tomcat 10.1** | The web server that runs our Java code | The kitchen that cooks the meal a customer ordered |
+| **Jakarta Servlets** | Java classes that handle HTTP requests | A waiter who takes the order and brings the food |
+| **JSP (Jakarta Server Pages)** | Files that mix HTML + Java to generate web pages | A template with blanks the chef fills in |
+| **JSTL (Jakarta Standard Tag Library)** | Cleaner tags inside JSP for loops/conditionals (`<c:forEach>`, `<c:if>`) | Shortcuts inside the template language |
+| **MySQL 8** | The database that stores users, artworks, orders | A filing cabinet |
+| **JDBC** | Java's API for talking to a database | The phone line between Java and MySQL |
+| **MySQL Connector/J** | The actual JDBC driver — Java's plug for the MySQL socket | The specific phone cable that fits MySQL's port |
+| **BCrypt (jbcrypt 0.4)** | Hashes passwords so they're not stored in plain text | A shredder for sensitive info |
+| **HTML/CSS/JavaScript** | What the browser actually sees and renders | The plate the customer eats from |
+
+You don't have to memorize all of this. Just remember:
+
+- **Java** does the thinking
+- **Tomcat** runs the Java when someone visits a URL
+- **MySQL** remembers things
+- **JSP** generates the HTML the browser sees
+
+---
+
+## 3. The big picture — how a web request flows
+
+When you type `http://localhost:8081/art-gallery/home` into your browser and press Enter, here is what happens, step by step:
+
+```
+   ┌──────────┐   1. GET /home               ┌──────────────┐
+   │ Browser  ├─────────────────────────────►│  Tomcat       │
+   └────▲─────┘                              │ (web server)  │
+        │                                    └───────┬───────┘
+        │                                            │ 2. routes /home
+        │                                            ▼
+        │                                    ┌──────────────┐
+        │                                    │ HomeServlet  │  ← Controller
+        │                                    │ .java        │
+        │                                    └───────┬──────┘
+        │                                            │ 3. fetch data
+        │                                            ▼
+        │                                    ┌──────────────┐
+        │                                    │ ArtworkDAO   │  ← talks to DB
+        │                                    └───────┬──────┘
+        │                                            │ 4. SELECT ...
+        │                                            ▼
+        │                                    ┌──────────────┐
+        │                                    │   MySQL      │
+        │                                    └───────┬──────┘
+        │                                            │ 5. rows back
+        │                                            ▼
+        │                                    ┌──────────────┐
+        │                                    │ HomeServlet  │ 6. put data on request,
+        │                                    │              │    forward to JSP
+        │                                    └───────┬──────┘
+        │                                            ▼
+        │                                    ┌──────────────┐
+        │                                    │ home.jsp     │ 7. generates HTML
+        │                                    └───────┬──────┘
+        │                                            │
+        │           8. HTML response                 │
+        └────────────────────────────────────────────┘
+```
+
+That's it. Every page in the app follows this same pattern. Once you understand it, you understand the whole thing.
+
+---
+
+## 4. The MVC pattern — the most important idea
+
+**MVC = Model, View, Controller.** It's not a Java thing, it's not a Tomcat thing — it's just a way of organizing code so different jobs live in different files.
+
+| Letter | Name | Job | Example in this project |
 |---|---|---|---|
-| **M** | Model | Holds data | `Artwork.java` — has fields like `title`, `price` |
-| **V** | View | Shows data to user | `botanical.jsp` — the HTML page |
-| **C** | Controller | Connects them | `BotanicalServlet.java` — receives clicks, fetches data, picks a view |
+| **M** | **Model** | Holds data only — no logic | `Artwork.java` has fields like `title`, `price` |
+| **V** | **View** | Shows data to the user — no logic | `botanical.jsp` is the HTML page |
+| **C** | **Controller** | The glue — receives the click, asks for data, picks a view | `BotanicalServlet.java` |
 
-**Why split it up?** So you can change one piece without breaking the others. Want to redesign the page? Edit only the View. Want to change how prices are stored? Edit only the Model.
+**Why bother splitting?** So changing one piece doesn't break the others.
 
-### A request walked through MVC
+- Want to redesign the page? Edit only the **View** (the `.jsp`).
+- Want to change how prices are stored? Edit only the **Model** (the `.java` POJO) and the **DAO**.
+- Want a page to fetch new data? Edit only the **Controller** (the servlet).
 
-When a user visits **`/botanical`** (the Botanical page):
+There's a fourth layer that isn't part of the MVC name but is just as important:
 
-1. **Tomcat** sees the URL `/botanical` and looks for a servlet (Controller) that handles it.
-2. **`BotanicalServlet.java`** runs — it's the Controller.
-3. The Controller asks **`CategoryDAO`** and **`ArtworkDAO`** (helpers that talk to the database) for data.
-4. Those return **`Category` and `Artwork` objects** — these are the Models (just data containers).
-5. The Controller hands the Models to **`botanical.jsp`** — the View.
-6. The JSP loops over the artworks, generates HTML, and Tomcat sends it back to the browser.
+- **DAO** (Data Access Object) — the file that actually runs SQL queries. Sits between the Controller and the database.
+
+So really, the data path is:
+
+```
+JSP (View)  ◄──  Servlet (Controller)  ◄──  DAO  ◄──  MySQL
+```
 
 ---
 
-## 3. Folder map — everything in this project
+## 5. The folder structure, explained
 
 ```
-art-gallery/                              ← Project root
-│
-├── pom.xml                               ← Maven config: lists dependencies (libraries)
-├── README.md                             ← Original project notes
-├── LEARN.md                              ← This file
-│
+APT-Coursework/
+├── pom.xml                       ← Maven config — lists every library we use
+├── README.md                     ← Quick install instructions
+├── LEARN.md                      ← THIS file — the deep-dive
 └── src/
     └── main/
-        │
-        ├── java/                         ← All Java source code lives here
-        │   └── com/artgallery/
-        │       │
-        │       ├── model/                ← (M) Data containers (POJOs)
-        │       │   ├── Artist.java       ← Just holds: name, bio, country
-        │       │   ├── Artwork.java      ← Just holds: title, price, image URL
-        │       │   ├── Category.java     ← Just holds: id, name, description
-        │       │   └── Subscriber.java   ← Just holds: name, email
-        │       │
-        │       ├── dao/                  ← Database helpers (Data Access Objects)
-        │       │   ├── ArtistDAO.java    ← Gets artists from MySQL
-        │       │   ├── ArtworkDAO.java   ← Gets artworks from MySQL (with search!)
-        │       │   ├── CategoryDAO.java  ← Gets categories from MySQL
-        │       │   └── SubscriberDAO.java← Saves newsletter signups
-        │       │
-        │       ├── servlet/              ← (C) Controllers — handle URLs
-        │       │   ├── HomeServlet.java       ← URL: /home
-        │       │   ├── CategoryServlet.java   ← URL: /categories
-        │       │   ├── BotanicalServlet.java  ← URL: /botanical
-        │       │   ├── GestureServlet.java    ← URL: /gesture
-        │       │   ├── ArtServlet.java        ← URL: /art (with search/filter)
-        │       │   ├── ArtistServlet.java     ← URL: /artist
-        │       │   ├── GalleryServlet.java    ← URL: /gallery
-        │       │   └── NewsletterServlet.java ← URL: /newsletter (form POST)
-        │       │
-        │       └── util/                 ← Utilities
-        │           └── DBConnection.java ← Opens connections to MySQL
-        │
+        ├── java/com/artgallery/  ← All Java code lives here
+        │   ├── model/            ← Plain-Old Java Objects (POJOs)
+        │   │   ├── User.java
+        │   │   ├── Artwork.java
+        │   │   ├── Artist.java
+        │   │   ├── Category.java
+        │   │   ├── Order.java
+        │   │   └── OrderItem.java
+        │   ├── dao/              ← Database access — runs SQL queries
+        │   │   ├── UserDAO.java
+        │   │   ├── ArtworkDAO.java
+        │   │   ├── ArtistDAO.java
+        │   │   ├── CategoryDAO.java
+        │   │   └── OrderDAO.java
+        │   ├── servlet/          ← Controllers — one per URL
+        │   │   ├── HomeServlet.java       → /home
+        │   │   ├── CategoryServlet.java   → /categories
+        │   │   ├── ArtServlet.java        → /art
+        │   │   ├── ArtistServlet.java     → /artist
+        │   │   ├── GalleryServlet.java    → /gallery
+        │   │   ├── BotanicalServlet.java  → /botanical
+        │   │   ├── PortraitServlet.java   → /portrait
+        │   │   ├── LandscapeServlet.java  → /landscape
+        │   │   ├── StillLifeServlet.java  → /stilllife
+        │   │   ├── GestureServlet.java    → /gesture
+        │   │   ├── LoginServlet.java      → /login
+        │   │   ├── RegisterServlet.java   → /register
+        │   │   ├── LogoutServlet.java     → /logout
+        │   │   ├── ProfileServlet.java    → /profile
+        │   │   └── AdminServlet.java      → /admin and /admin/*
+        │   ├── filter/           ← Code that runs BEFORE every request
+        │   │   └── AuthFilter.java        ← blocks non-admins from /admin
+        │   └── util/             ← Helpers
+        │       └── DBConnection.java      ← single source for DB connections
         ├── resources/
-        │   └── schema.sql                ← Creates DB tables + inserts sample data
-        │
-        └── webapp/                       ← Everything served to the browser
-            ├── index.jsp                 ← Tomcat's welcome file
-            │
+        │   └── schema.sql        ← Database schema + sample seed data
+        └── webapp/
+            ├── index.jsp         ← Redirects "/" to "/home"
             ├── WEB-INF/
-            │   ├── web.xml               ← Tomcat config (welcome page, errors)
-            │   └── views/                ← (V) JSP pages — the actual HTML templates
-            │       ├── 404.jsp
+            │   ├── web.xml       ← Tomcat deployment config (welcome file, 404 page)
+            │   └── views/        ← All JSP files — the Views
+            │       ├── includes/
+            │       │   ├── header.jsp     ← site navbar (included on every page)
+            │       │   └── footer.jsp
             │       ├── home.jsp
             │       ├── categories.jsp
-            │       ├── botanical.jsp     ← Botanical e-commerce page
-            │       ├── gesture.jsp
-            │       ├── art.jsp           ← All artworks + search bar
-            │       ├── art-detail.jsp
+            │       ├── art.jsp, art-detail.jsp
             │       ├── artist.jsp
             │       ├── gallery.jsp
-            │       └── includes/
-            │           ├── header.jsp    ← Top nav (shared by every page)
-            │           └── footer.jsp    ← Footer (shared by every page)
-            │
-            └── assets/                   ← Static files
-                ├── css/style.css         ← All the styling
-                ├── js/main.js            ← Slideshow JavaScript
-                ├── images/               ← All painting images
-                │   ├── botanical/        ← Botanical category images
-                │   └── gesture/          ← Gesture category images
-                └── videos/               ← Hero video
+            │       ├── botanical.jsp, portrait.jsp, landscape.jsp,
+            │       ├── stilllife.jsp, gesture.jsp
+            │       ├── login.jsp, register.jsp, profile.jsp
+            │       ├── admin.jsp
+            │       └── 404.jsp
+            └── assets/           ← Static files served directly to the browser
+                ├── css/style.css
+                ├── js/main.js
+                ├── images/...     ← Paintings, artists, hero, etc.
+                └── videos/hero.mp4
 ```
+
+**Key rule:** files inside `WEB-INF/` are *not* reachable directly from the browser. A visitor can never type `/views/home.jsp` and get the file — they must go through a servlet, which then forwards to the JSP. This is a security guarantee from the Servlet spec.
 
 ---
 
-## 4. The technologies — one paragraph each
+## 6. The database — what's stored and how
 
-### Java
-The programming language. Files end in `.java`. They get compiled into `.class` files, which Tomcat runs.
+The database is called **`art_gallery`** and has **7 tables**. Here is what each one holds and how they connect:
 
-### Maven
-Java's package manager. Like npm for JavaScript or pip for Python. The file `pom.xml` lists all the libraries this project needs (Servlet API, JSTL, MySQL driver). When you run "Build", Maven downloads them automatically.
+```
+┌──────────────┐         ┌──────────────┐         ┌──────────────┐
+│   users      │         │ categories   │         │   artists    │
+│──────────────│         │──────────────│         │──────────────│
+│ id           │         │ id           │         │ id           │
+│ full_name    │         │ name         │         │ name         │
+│ email (uniq) │         │ description  │         │ bio          │
+│ password_hash│         │ cover_image  │         │ portrait_url │
+│ role         │         └──────┬───────┘         └──────┬───────┘
+│ created_at   │                │ 1                      │ 1
+└──────┬───────┘                │                        │
+       │ 1                      │ *                      │ *
+       │                ┌───────▼────────────────────────▼───────┐
+       │                │            artworks                    │
+       │                │────────────────────────────────────────│
+       │                │ id, title, description, image_url      │
+       │                │ price, category_id (FK), artist_id (FK)│
+       │                │ featured                               │
+       │                └───────┬────────────────────────────────┘
+       │                        │ 1
+       │                        │
+       │ 1                      │ *
+       ▼                ┌───────▼───────┐
+┌──────────┐            │  order_items  │
+│  carts   │            │───────────────│
+│──────────│            │ id            │
+│ id       │            │ order_id (FK) │
+│ user_id  │            │ artwork_id    │
+│ artwork_id            │ quantity      │
+│ added_at │            │ price         │
+└──────────┘            └───────▲───────┘
+                                │ *
+                                │
+                                │ 1
+                        ┌───────┴───────┐
+                        │     orders    │
+                        │───────────────│
+                        │ id            │
+                        │ user_id (FK)  │
+                        │ total_amount  │
+                        │ status        │
+                        │ created_at    │
+                        └───────────────┘
+```
 
-### Tomcat
-The web server. It accepts HTTP requests from browsers and runs your Java servlets. You install Tomcat once on your machine; it runs all your Java web apps.
+**Relationships in words:**
 
-### MySQL
-The database. Stores the actual painting data, artist names, prices, etc. We use XAMPP, which bundles MySQL with a control panel.
+- One **user** can have many **carts** entries (items in their shopping cart).
+- One **user** can have many **orders** (their order history).
+- One **category** (e.g. "Portrait") has many **artworks**.
+- One **artist** has many **artworks**.
+- One **order** has many **order_items** (the lines on the receipt).
+- Each **order_item** references exactly one **artwork**.
 
-### Servlet
-A Java class that handles a URL. When the browser requests `/botanical`, Tomcat calls `BotanicalServlet.doGet(...)`. The servlet is the "Controller" in MVC.
+**Seed data** is included in `schema.sql` — when you run it, you get a starter admin account and a regular user account:
 
-### JSP (JavaServer Pages)
-HTML files with special tags that let you mix Java/JSTL into them. JSPs are the "View" in MVC. When the browser requests a JSP, Tomcat compiles it into a servlet behind the scenes and runs it.
+| Role  | Email                  | Password |
+|-------|------------------------|----------|
+| admin | admin@artgallery.com   | password |
+| user  | user@artgallery.com    | password |
 
-### JSTL (JSP Standard Tag Library)
-A set of tags like `<c:forEach>`, `<c:if>`, `<c:choose>` that let you loop, branch, and output dynamic data inside JSPs without writing raw Java. Cleaner than the old `<% %>` scriptlets.
-
-### JDBC (Java Database Connectivity)
-The standard way Java talks to databases. We use it inside the DAOs to send SQL queries to MySQL.
-
-### MVC
-A pattern, not a technology. Already explained in section 2.
+Passwords are stored as **BCrypt hashes** — 60-character strings that can't be reversed. When you log in, the entered password is hashed and compared to the stored hash.
 
 ---
 
-## 5. Walking through a real request — what happens when you click "Botanical"
+## 7. Models — Java objects that mirror database tables
 
-This is the most important section. If you understand this flow, you understand the project.
+A **Model** (also called a POJO — Plain Old Java Object) is a Java class with private fields and getters/setters. Nothing fancy — no logic, no database, just a bucket of data.
 
-### Step 1 — User clicks the Botanical card
+**Example: [`User.java`](src/main/java/com/artgallery/model/User.java)**
 
-In `categories.jsp` line 22:
-```jsp
-<a class="category-card" href="${catHref}">
-```
-
-`${catHref}` is set just above to `/art-gallery/botanical` for the Botanical card specifically. So clicking it sends an HTTP GET to that URL.
-
-### Step 2 — Tomcat finds the right servlet
-
-Tomcat scans every Java class with the `@WebServlet(...)` annotation. It finds `BotanicalServlet.java`:
 ```java
-@WebServlet("/botanical")
-public class BotanicalServlet extends HttpServlet {
-```
+public class User {
+    private int id;
+    private String fullName;
+    private String email;
+    private String passwordHash;   // BCrypt 60-char hash
+    private String role;           // "user" or "admin"
+    private LocalDateTime createdAt;
 
-Match! Tomcat calls `BotanicalServlet.doGet(request, response)`.
+    // getters and setters for each field...
 
-### Step 3 — The servlet asks the database
-
-Inside `doGet`:
-```java
-Category botanical = categoryDAO.findById(BOTANICAL_CATEGORY_ID);
-List<Artwork> artworks = artworkDAO.findByCategory(BOTANICAL_CATEGORY_ID);
-```
-
-Two database calls. The DAOs hide the SQL from us.
-
-### Step 4 — The DAO runs SQL
-
-Inside `ArtworkDAO.java`:
-```java
-public List<Artwork> findByCategory(int categoryId) {
-    return query(BASE_SQL + "WHERE a.category_id = ? ORDER BY a.id DESC", categoryId);
+    public boolean isAdmin() {
+        return "admin".equalsIgnoreCase(this.role);
+    }
 }
 ```
 
-It builds a SQL query, the `query(...)` helper opens a connection, runs it, and converts each row to an `Artwork` object.
+Notice the **fields match the columns** in the `users` table from `schema.sql`. That's the whole point — one row in the database becomes one `User` object in Java.
 
-### Step 5 — The servlet attaches data to the request
+Same for `Artwork`, `Artist`, `Category`, `Order`, `OrderItem`. Each one is a mirror of its database table.
+
+`Artwork` is slightly special — it has two extra fields, `categoryName` and `artistName`, which come from **JOINing** the related tables. So when the DAO fetches an artwork, it pulls in the artist's name in one go.
+
+---
+
+## 8. DAOs — the database talkers
+
+A **DAO** (Data Access Object) is a Java class that wraps SQL. The rest of the code never writes SQL directly — it calls DAO methods.
+
+**Example: [`CategoryDAO.java`](src/main/java/com/artgallery/dao/CategoryDAO.java)**
 
 ```java
-req.setAttribute("category", botanical);
-req.setAttribute("artworks", artworks);
+public List<Category> findAll() {
+    List<Category> list = new ArrayList<>();
+    String sql = "SELECT id, name, description, cover_image " +
+                 "FROM categories ORDER BY name";
+
+    try (Connection c = DBConnection.getConnection();
+         PreparedStatement ps = c.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            list.add(map(rs));     // converts a row → Category object
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
 ```
 
-Think of `setAttribute` as putting a labeled box into the request that the JSP can pick up later.
+Breaking this down:
 
-### Step 6 — The servlet hands off to the JSP
+1. **`DBConnection.getConnection()`** — get a fresh database connection (more on this below).
+2. **`PreparedStatement`** — a safe way to send SQL. Always use this instead of building SQL strings with `+`, because it prevents SQL injection attacks.
+3. **`ResultSet`** — what comes back from a `SELECT`. Loop over its rows with `rs.next()`.
+4. **`map(rs)`** — a small helper that turns a row's columns into a fresh `Category` object.
+5. **try-with-resources `try (...)`** — automatically closes the connection, statement, and resultset when the block ends. Critical, because if you don't close them, you leak DB connections and the server eventually grinds to a halt.
+
+The DAOs in this project:
+
+| DAO | What it does |
+|---|---|
+| `UserDAO` | `register`, `login`, `findById`, `updateProfile`, `updatePassword`, `emailExists` |
+| `ArtworkDAO` | `findAll`, `findFeatured`, `findByCategory`, `findByArtist`, `findById`, `search`, `insert`, `update`, `delete` |
+| `ArtistDAO` | List, find, insert, update, delete artists |
+| `CategoryDAO` | List, find, insert, update, delete categories |
+| `OrderDAO` | List, find, create orders + order items |
+
+**The single source of truth for database connections** is [`DBConnection.java`](src/main/java/com/artgallery/util/DBConnection.java):
 
 ```java
-req.getRequestDispatcher("/WEB-INF/views/botanical.jsp").forward(req, resp);
+public static Connection getConnection() throws SQLException {
+    String url  = System.getenv().getOrDefault("DB_URL",  DEFAULT_URL);
+    String user = System.getenv().getOrDefault("DB_USER", DEFAULT_USER);
+    String pass = System.getenv().getOrDefault("DB_PASSWORD", DEFAULT_PASSWORD);
+    return DriverManager.getConnection(url, user, pass);
+}
 ```
 
-This tells Tomcat: "compile and run `botanical.jsp` using this request, and send the result back to the browser."
+It first looks for environment variables (`DB_URL`, `DB_USER`, `DB_PASSWORD`). If they're not set, it falls back to defaults (`localhost`, `root`, empty password). This means you don't have to edit Java code to change DB credentials in production.
 
-### Step 7 — The JSP builds the HTML
+---
 
-Inside `botanical.jsp`:
+## 9. Servlets — the brain of every page
+
+A **Servlet** is a Java class that handles one URL pattern. It extends `HttpServlet` and overrides `doGet` (for GET requests) and/or `doPost` (for POST requests, like form submissions).
+
+**Example: [`BotanicalServlet.java`](src/main/java/com/artgallery/servlet/BotanicalServlet.java)** — the controller for the `/botanical` page.
+
+```java
+@WebServlet("/botanical")
+public class BotanicalServlet extends HttpServlet {
+
+    private static final int BOTANICAL_CATEGORY_ID = 5;
+
+    private final CategoryDAO categoryDAO = new CategoryDAO();
+    private final ArtworkDAO  artworkDAO  = new ArtworkDAO();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        Category botanical    = categoryDAO.findById(BOTANICAL_CATEGORY_ID);
+        List<Artwork> artworks = artworkDAO.findByCategory(BOTANICAL_CATEGORY_ID);
+
+        req.setAttribute("category",   botanical);
+        req.setAttribute("artworks",   artworks);
+        req.setAttribute("activePage", "botanical");
+
+        req.getRequestDispatcher("/WEB-INF/views/botanical.jsp")
+           .forward(req, resp);
+    }
+}
+```
+
+Reading this top to bottom:
+
+- **`@WebServlet("/botanical")`** — tells Tomcat "this servlet handles the URL `/botanical`". No web.xml registration needed; the annotation is enough.
+- The servlet creates two DAOs as fields (one per database area).
+- `doGet` runs on every GET request.
+- It fetches the Category and the Artworks belonging to that category.
+- **`req.setAttribute(name, value)`** — stuffs the data onto the request so the JSP can read it.
+- **`req.getRequestDispatcher(...).forward(...)`** — hands the request off to a JSP. The JSP renders HTML using the attributes we just set, and Tomcat sends that HTML to the browser.
+
+That's the entire pattern. Every servlet in this project does roughly the same thing: fetch data via DAOs, stuff it on the request, forward to a JSP.
+
+**URL → Servlet map** (the actual routes the app exposes):
+
+| URL                  | Servlet               | What it does |
+|----------------------|-----------------------|--------------|
+| `/`                  | (index.jsp)           | Redirects to `/home` |
+| `/home`              | `HomeServlet`         | Featured slideshow + mosaic |
+| `/categories`        | `CategoryServlet`     | Grid of all categories |
+| `/categories?id=N`   | `CategoryServlet`     | Single category + its artworks |
+| `/art`               | `ArtServlet`          | All artworks (search + filter) |
+| `/art?id=N`          | `ArtServlet`          | Detail page for one artwork |
+| `/artist`            | `ArtistServlet`       | All artists |
+| `/artist?id=N`       | `ArtistServlet`       | One artist + their works |
+| `/gallery`           | `GalleryServlet`      | Full-wall image mosaic |
+| `/botanical`         | `BotanicalServlet`    | Category-specific page |
+| `/portrait`          | `PortraitServlet`     | Category-specific page |
+| `/landscape`         | `LandscapeServlet`    | Category-specific page |
+| `/stilllife`         | `StillLifeServlet`    | Category-specific page |
+| `/gesture`           | `GestureServlet`      | Category-specific page |
+| `/login`             | `LoginServlet`        | GET: form. POST: verify + session |
+| `/register`          | `RegisterServlet`     | GET: form. POST: create user + session |
+| `/logout`            | `LogoutServlet`       | Invalidate session, redirect to /home |
+| `/profile`           | `ProfileServlet`      | GET: view + edit. POST: save changes |
+| `/admin`             | `AdminServlet`        | Admin dashboard (admins only) |
+| `/admin/artworks`    | `AdminServlet`        | Manage artworks |
+| `/admin/artists`     | `AdminServlet`        | Manage artists |
+| `/admin/categories`  | `AdminServlet`        | Manage categories |
+| `/admin/users`       | `AdminServlet`        | View users |
+| `/admin/orders`      | `AdminServlet`        | View orders |
+
+---
+
+## 10. JSPs — the HTML factories
+
+A **JSP** (Jakarta Server Page) is a file that looks like HTML but has Java/EL/JSTL sprinkled in. When Tomcat serves it, the Java parts get evaluated and the file becomes pure HTML.
+
+**Example slice from [`botanical.jsp`](src/main/webapp/WEB-INF/views/botanical.jsp):**
+
 ```jsp
-<c:forEach var="art" items="${artworks}">
-    <article class="product-card">
-        <img src="${art.imageUrl}" alt="${art.title}">
-        <h3>${art.title}</h3>
-        <p>Rs. <fmt:formatNumber value="${art.price}" .../></p>
-        ...
-    </article>
-</c:forEach>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+<h1>${category.name}</h1>
+<p>${category.description}</p>
+
+<div class="grid">
+    <c:forEach var="art" items="${artworks}">
+        <a href="${pageContext.request.contextPath}/art?id=${art.id}">
+            <img src="${pageContext.request.contextPath}/${art.imageUrl}"
+                 alt="${art.title}">
+            <h3>${art.title}</h3>
+            <p>${art.artistName}</p>
+        </a>
+    </c:forEach>
+</div>
 ```
 
-`<c:forEach>` is JSTL: loops over the artworks list. Each `${art.title}` reads the `title` field from the current artwork.
+What's happening:
 
-### Step 8 — The browser receives plain HTML
+- **`${category.name}`** — Expression Language (EL). Pulls the `category` attribute the servlet set, then calls `.getName()`. EL is just a shortcut for getter calls.
+- **`<c:forEach>`** — a JSTL tag that loops over a list. `var="art"` names each item, `items="${artworks}"` is the list to iterate.
+- **`${pageContext.request.contextPath}`** — the app's deployment path (e.g., `/art-gallery`). Always prepend this to internal URLs so links work whether the app is deployed at `/` or `/something`.
 
-The browser sees `<img>`, `<h3>`, `<p>` — no Java, no JSP. Just normal HTML. The browser draws the page.
+**Shared layout via includes**: both `header.jsp` (navbar) and `footer.jsp` live in `WEB-INF/views/includes/`. Each page starts with:
 
-That's the whole cycle. Every page in this project follows this exact pattern.
-
----
-
-## 6. The Java files — what each one does
-
-### Models (`src/main/java/com/artgallery/model/`)
-
-These are POJOs — Plain Old Java Objects. They have private fields and public getters/setters. That's it. No logic.
-
-#### `Category.java`
-Holds info about a category like Botanical:
-- `id` (int) — primary key in DB
-- `name` (String) — "Botanical"
-- `description` (String) — short blurb
-- `coverImage` (String) — URL of the cover photo
-
-#### `Artwork.java`
-Holds info about a single painting:
-- `id`, `title`, `description`, `imageUrl`
-- `price` (BigDecimal — Java's exact-decimal type for money)
-- `categoryId`, `artistId` — foreign keys
-- `categoryName`, `artistName` — joined from related tables (set by the DAO)
-- `featured` (boolean) — show the "Featured" badge?
-
-#### `Artist.java`
-Holds artist info: name, bio, country, profile image.
-
-#### `Subscriber.java`
-Holds newsletter signups: first name, last name, email, created timestamp.
-
-### DAOs (`src/main/java/com/artgallery/dao/`)
-
-DAO = Data Access Object. The only place that talks to MySQL. Every database query lives in a DAO. Servlets never write SQL directly — they always call a DAO method.
-
-#### `CategoryDAO.java`
-Two methods: `findAll()` (returns all categories) and `findById(int)` (one by id).
-
-#### `ArtworkDAO.java`
-The most useful DAO. Methods:
-- `findAll()` — every artwork
-- `findFeatured()` — only ones with `featured = 1`
-- `findByCategory(int)` — all artworks in a category
-- `findByArtist(int)` — all artworks by an artist
-- `findById(int)` — one artwork
-- `search(q, categoryId, sort)` — runs a flexible search with optional filters (used by the search bar on `/art`)
-
-The class shares a `BASE_SQL` constant — a SQL `SELECT` with `LEFT JOIN`s on category and artist so each artwork comes back with its category name and artist name pre-filled.
-
-#### `ArtistDAO.java`
-`findAll()` and `findById(int)`.
-
-#### `SubscriberDAO.java`
-`save(Subscriber)` — inserts a newsletter signup.
-
-### Servlets (`src/main/java/com/artgallery/servlet/`)
-
-The Controllers. Each one handles ONE URL.
-
-#### `HomeServlet.java` — `/home`
-Loads featured artworks for the slideshow and recent ones for the mini gallery, then forwards to `home.jsp`.
-
-#### `CategoryServlet.java` — `/categories`
-Lists all categories. If `?id=X` is passed, also loads the artworks in that category (used for non-Botanical/Gesture categories that don't have their own dedicated page).
-
-#### `BotanicalServlet.java` — `/botanical`
-Loads category id 5 and its artworks, forwards to `botanical.jsp`.
-
-#### `GestureServlet.java` — `/gesture`
-Same idea — category id 6 → `gesture.jsp`.
-
-#### `ArtServlet.java` — `/art`
-The most complex servlet. Handles three cases:
-1. `?id=X` → show one artwork detail page
-2. `?q=...&categoryId=...&sort=...` → run a search and show results
-3. No params → show all artworks
-
-#### `ArtistServlet.java` — `/artist`
-Lists all artists, or shows one artist's works if `?id=X` passed.
-
-#### `GalleryServlet.java` — `/gallery`
-Shows the full mosaic gallery wall.
-
-#### `NewsletterServlet.java` — `/newsletter` (POST)
-Handles the newsletter form submission. Validates email, saves to DB.
-
-### Utility (`src/main/java/com/artgallery/util/`)
-
-#### `DBConnection.java`
-A single class with one job: open a JDBC connection to MySQL. Reads URL/user/password from environment variables, falls back to defaults (`localhost:3306`, `root`, no password — matches XAMPP).
-
-The `static { ... }` block at the top loads the MySQL JDBC driver class once at startup.
-
----
-
-## 7. The JSPs — what each one does
-
-JSPs are HTML files with special tags. Lines starting with `<%@ page` and `<%@ taglib` are setup. `${something}` reads a request attribute. `<c:something>` is a JSTL tag.
-
-#### `home.jsp`
-The landing page. Has the hero section with a video background, a slideshow of featured artworks (driven by `main.js`), a mosaic of recent works, and the newsletter form.
-
-#### `categories.jsp`
-Grid of all categories pulled from the DB. Each card links to its category page. Botanical and Gesture cards are special-cased to link to `/botanical` and `/gesture` instead of `/categories?id=X`.
-
-#### `botanical.jsp`
-E-commerce style listing for the Botanical category:
-- Hero with trust badges (free shipping, 30-day returns)
-- Product count + sort dropdown
-- Grid of product cards: image, badges (Featured / Bestseller), title, artist, rating, description, price (Rs. format), Add to Cart button, Quick View link
-- Toast notification when adding to cart (handled by inline `<script>`)
-
-#### `gesture.jsp`
-Same template as `botanical.jsp` but for Gesture category. Identical structure.
-
-#### `art.jsp`
-The main art listing with **search and filter**:
-- Search bar (free-text across title, description, artist, category)
-- Category filter dropdown
-- Sort dropdown (Featured, Newest, Price low→high, Price high→low)
-- Reset button (only shown when filters are active)
-- Result count line
-- Grid of art cards
-
-When the form submits, it sends GET parameters (`?q=...&categoryId=...&sort=...`) which `ArtServlet` reads and forwards to `ArtworkDAO.search(...)`.
-
-#### `art-detail.jsp`
-Shows one painting. Big image, title, artist, description, price.
-
-#### `artist.jsp`
-Lists all artists or shows one artist's works.
-
-#### `gallery.jsp`
-Full gallery wall — every artwork as a tile in a mosaic.
-
-#### `404.jsp`
-Shown for missing pages. Configured in `web.xml`.
-
-#### `index.jsp`
-The welcome file. Tomcat hits this when you visit `/art-gallery/` with no path. It just redirects to `/home`.
-
-#### `includes/header.jsp`
-The top nav (Home, Categories, Art, Artist, Gallery). Included by every page via `<%@ include file="..." %>`. Highlights the active link based on the `activePage` request attribute (set by the servlet).
-
-#### `includes/footer.jsp`
-The bottom of every page. Brand, footer links, contact info. Includes `<script src="...main.js">` at the bottom.
-
----
-
-## 8. The database — `schema.sql`
-
-This file does two things:
-1. Creates the database `art_gallery` and 4 tables: `categories`, `artists`, `artworks`, `subscribers`.
-2. Inserts seed data — 6 categories, 14 artists, 22+ artworks.
-
-### Tables
-
-#### `categories`
-| Column | Type | Notes |
-|---|---|---|
-| id | INT, PK, AUTO_INCREMENT | unique number |
-| name | VARCHAR(80) | "Botanical" |
-| description | VARCHAR(400) | shown on cards |
-| cover_image | VARCHAR(300) | image URL |
-
-#### `artists`
-Similar — id, name, bio, profile_image, country.
-
-#### `artworks`
-| Column | Type | Notes |
-|---|---|---|
-| id | INT, PK | |
-| title | VARCHAR(160) | painting name |
-| description | TEXT | longer text |
-| image_url | VARCHAR(300) | required |
-| price | DECIMAL(10,2) | exact decimal money |
-| category_id | INT (FK) | links to categories.id |
-| artist_id | INT (FK) | links to artists.id |
-| featured | TINYINT(1) | 1 = show "Featured" badge |
-
-The `FOREIGN KEY` constraints mean: if you delete a category, the `category_id` in any related artwork is set to NULL (`ON DELETE SET NULL`).
-
-#### `subscribers`
-Newsletter signups: first_name, last_name, email (unique), created_at.
-
-### Why `DROP TABLE IF EXISTS ... CREATE TABLE ...` at the top?
-
-So you can run `schema.sql` over and over. Each run wipes the tables clean and re-inserts the seed. That's "re-seeding". Useful when you change seed data and want it reflected.
-
-### To re-seed manually
-
-```powershell
-cmd /c '"C:\xampp\mysql\bin\mysql.exe" -u root --default-character-set=utf8mb4 < src\main\resources\schema.sql'
+```jsp
+<%@ include file="/WEB-INF/views/includes/header.jsp" %>
 ```
 
----
+…and ends with:
 
-## 9. Configuration files
+```jsp
+<%@ include file="/WEB-INF/views/includes/footer.jsp" %>
+```
 
-### `pom.xml` (Maven)
-Tells Maven:
-- Project name + version (`art-gallery 1.0-SNAPSHOT`)
-- Package as a `.war` file (web archive — what you deploy to Tomcat)
-- Java 17, source encoding UTF-8
-- Dependencies:
-  - `jakarta.servlet-api` — Servlet API (provided by Tomcat at runtime)
-  - `jakarta.servlet.jsp-api` — JSP API
-  - `jakarta.servlet.jsp.jstl-api` + impl — JSTL tags
-  - `mysql-connector-j` — JDBC driver for MySQL
-
-### `web.xml` (Tomcat)
-- Sets the welcome file to `index.jsp`
-- Sets session timeout to 30 minutes
-- Configures the 404 error page to render `404.jsp`
-
-Most servlet wiring is done via `@WebServlet("/path")` annotations directly on the Java classes — `web.xml` doesn't need to list them.
+The header reads `currentUser` from the session to decide whether to show the "Sign In" icon or the user's avatar dropdown.
 
 ---
 
-## 10. How a typical change works
+## 11. The AuthFilter — the security guard
 
-### "I want to add a new category called Watercolor"
+A **Filter** runs *before* a servlet on every matching request. Think of it as a doorman who checks who is allowed in.
 
-1. **Database** — open `schema.sql`, add a row to `INSERT INTO categories` block. Re-seed.
-2. **Image** — drop a cover image into `webapp/assets/images/` and update the path in the new INSERT row.
-3. **Refresh page** — visit `/categories`, the new card appears automatically (the JSP loops over all DB categories — no code change needed).
+**Our [`AuthFilter.java`](src/main/java/com/artgallery/filter/AuthFilter.java)** is registered for `/*` (all URLs) and enforces two rules:
 
-### "I want a dedicated page for Watercolor like Botanical"
+1. **`/admin/*` requires admin role** — non-admins get redirected to `/home`, unauthenticated visitors to `/login`.
+2. **`/profile` requires being logged in** — anyone not logged in goes to `/login`.
 
-1. **Servlet** — copy `BotanicalServlet.java` → `WatercolorServlet.java`, change `@WebServlet("/watercolor")`, change category id, change forward path.
-2. **JSP** — copy `botanical.jsp` → `watercolor.jsp`, edit the title and copy text.
-3. **Categories card link** — in `categories.jsp`, add another `<c:if>` mapping the Watercolor card to `/watercolor`.
-4. **Restart Tomcat** — needed because we added new Java code.
+Everything else is public. Static assets (`/assets/*`, `/favicon`) skip filter logic entirely so images and CSS load fast.
 
-### "I want to change a price"
+```java
+if (path.startsWith("/admin")) {
+    if (!loggedIn) {
+        saveRedirectTarget(session, req, requestURI);
+        resp.sendRedirect(contextPath + "/login");
+        return;
+    }
+    if (!user.isAdmin()) {
+        resp.sendRedirect(contextPath + "/home");
+        return;
+    }
+    chain.doFilter(request, response);   // allow through
+    return;
+}
+```
 
-1. Open `schema.sql`, find the row, change the price number.
-2. Re-seed MySQL.
-3. Hard refresh the browser (`Ctrl+F5`).
-
-No Java change needed — the JSP reads price live from the DB.
+The filter is annotated with `@WebFilter(urlPatterns = "/*")`, so Tomcat picks it up automatically — no XML registration needed.
 
 ---
 
-## 11. How to run the project
+## 12. Authentication — how login/register actually works
 
-1. **Start MySQL** — open XAMPP Control Panel → MySQL → Start.
-2. **Seed the DB** (first time, or after schema changes):
-   ```powershell
-   cmd /c '"C:\xampp\mysql\bin\mysql.exe" -u root --default-character-set=utf8mb4 < src\main\resources\schema.sql'
+Logging a user in is a four-step dance:
+
+### Step 1 — Register a new account
+
+User submits `/register` with name, email, password. **`RegisterServlet`** validates fields, then calls **`UserDAO.registerWithRole(...)`**.
+
+Inside `UserDAO`:
+
+```java
+String hash = BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
+```
+
+The plaintext password is hashed with **BCrypt** (cost factor 12 — takes ~250ms, deliberately slow to thwart brute-force attacks). Only the hash is stored. Even if someone steals the database, they cannot recover the original password.
+
+A row is INSERTed into `users` with the hash and role (`user` or `admin`).
+
+### Step 2 — Auto-login after register, or visit `/login`
+
+`RegisterServlet` creates a fresh session and stuffs the new `User` object into it:
+
+```java
+session.setAttribute("loggedInUser", newUser);
+```
+
+For `/login`, **`LoginServlet`** does the same after verifying credentials via `UserDAO.login(email, password)`, which does:
+
+```java
+BCrypt.checkpw(plainPassword, storedHash)
+```
+
+`checkpw` re-hashes the plaintext with the salt embedded in the stored hash and compares — in constant time, so attackers can't measure timing differences to leak info.
+
+### Step 3 — Session lives in HTTP cookies
+
+Tomcat hands the browser a `JSESSIONID` cookie. On every subsequent request, the browser sends it back, and Tomcat looks up the matching session. Our session holds the `loggedInUser` attribute, which the header.jsp and the AuthFilter both read.
+
+Session timeout is 30 minutes (set in `web.xml` and reaffirmed in code).
+
+### Step 4 — Logout
+
+`/logout` is handled by **`LogoutServlet`**, which simply calls `session.invalidate()` and redirects to `/home`. The JSESSIONID cookie is now meaningless — the user is anonymous again.
+
+**Bonus: "Remember me"** — the login form has a checkbox. If checked, the LoginServlet sets a `rememberedEmail` cookie that lives 30 days, so the email field pre-fills next time. (Note: this remembers only the email, not the password.)
+
+---
+
+## 13. Admin vs regular user
+
+The difference is one column: `users.role` is either `'user'` or `'admin'`.
+
+In Java, `User.isAdmin()` returns `true` when the role is `"admin"`.
+
+**Where admin status changes behavior:**
+
+| Place | Behavior for admin |
+|---|---|
+| `AuthFilter` | Can access `/admin/*` (regular users are bounced to `/home`) |
+| `header.jsp` navbar | Shows the purple "Admin Dashboard" pill in the nav |
+| `header.jsp` avatar | Avatar has the `auth-avatar--admin` class (different colour) |
+| Avatar dropdown | Shows both "Edit Profile" and "Admin Dashboard" entries |
+| `LoginServlet` | After successful login, admins go to `/admin`; users go to `/home` |
+| `RegisterServlet` | Has a role selector tab (user/admin) — anyone can self-register as admin in this learning project |
+
+The admin dashboard lives in **`AdminServlet`** and handles many subroutes (`/admin/artworks`, `/admin/artists`, `/admin/categories`, `/admin/users`, `/admin/orders`) — all of them re-dispatch to the same `admin.jsp` with a `view` attribute that tells the JSP which section to render. So `admin.jsp` is one big switch-case rendering different forms/tables.
+
+---
+
+## 14. Static assets — CSS, JS, images
+
+Anything inside `src/main/webapp/assets/` is served directly by Tomcat with no Java involvement. URLs look like:
+
+- `/art-gallery/assets/css/style.css` — the entire site's stylesheet
+- `/art-gallery/assets/js/main.js` — the slideshow JavaScript on the home page
+- `/art-gallery/assets/images/portraits/foo.jpg` — paintings
+- `/art-gallery/assets/videos/hero.mp4` — the home-page hero video
+
+**`style.css`** holds the whole design system — colour variables (`--purple`, `--bg`, `--ink`), typography (Cormorant Garamond display + Inter sans), buttons, nav, slideshow, mosaic, admin dashboard tables, etc.
+
+**`main.js`** powers the highlight slideshow on `/home` — the central slide stays in colour, the neighbours fade to grayscale, arrow buttons cycle, autoplay pauses on hover.
+
+---
+
+## 15. How the project boots up
+
+When Tomcat starts up with this WAR deployed, here is the order of events:
+
+1. **Tomcat reads `WEB-INF/web.xml`** — finds the welcome file (`index.jsp`), session timeout (30 min), and 404 page (`WEB-INF/views/404.jsp`).
+2. **Tomcat scans annotated classes** — finds every `@WebServlet` and `@WebFilter` and registers them.
+3. **Tomcat warms up** — JSPs are *not* compiled until the first request that touches them. The first hit to `/home` will be slightly slow because `home.jsp` compiles into a real servlet (`home_jsp.java` behind the scenes).
+4. **First request arrives** — the browser hits `/art-gallery/`. `index.jsp` redirects to `/home`. `AuthFilter.doFilter` runs (allows public traffic). `HomeServlet.doGet` runs, fetches data, forwards to `home.jsp`. JSP renders HTML. Browser receives it. Done.
+
+No bootstrap class, no Spring container, no manual wiring. The Servlet API does everything.
+
+---
+
+## 16. Running it yourself
+
+**Prerequisites:**
+
+- JDK 17+
+- Apache Maven 3.8+
+- MySQL 8.x
+- Apache Tomcat 10.1.x
+- An IDE (IntelliJ IDEA Ultimate has built-in Tomcat support; Community + Smart Tomcat plugin works too)
+
+**Steps:**
+
+1. **Create the database:**
+   ```bash
+   mysql -u root -p < src/main/resources/schema.sql
    ```
-3. **In IntelliJ** — start Tomcat (green play button on the Tomcat run config).
-4. Wait for "Artifact is deployed successfully".
-5. Open browser → **http://localhost:8081/art-gallery/home**
+   This creates the `art_gallery` schema, all 7 tables, and seed data including the admin and user accounts.
 
-Default URLs:
-- `/art-gallery/home` — landing page
-- `/art-gallery/categories` — all categories
-- `/art-gallery/botanical` — Botanical e-commerce page
-- `/art-gallery/gesture` — Gesture e-commerce page
-- `/art-gallery/art` — all art with search + filter
-- `/art-gallery/art?id=5` — single artwork detail
+2. **Configure DB credentials** (optional — defaults are `root` / no password). Either edit `DBConnection.java` or export env vars before starting Tomcat:
+   ```
+   DB_URL=jdbc:mysql://localhost:3306/art_gallery?useSSL=false&serverTimezone=UTC
+   DB_USER=root
+   DB_PASSWORD=yourpassword
+   ```
 
----
+3. **Build the WAR:**
+   ```bash
+   mvn clean package
+   ```
+   Produces `target/art-gallery.war`. Maven also creates an "exploded" deployment under `target/art-gallery/` which IntelliJ uses for hot deployment.
 
-## 12. Key Java concepts you've now seen
+4. **Run via IntelliJ:**
+   - File → Open → select the project folder
+   - Run → Edit Configurations → + → Tomcat Server → Local
+   - Application server: point to your Tomcat 10.1
+   - Deployment tab: + → Artifact → `art-gallery:war exploded`, context `/art-gallery`
+   - Server tab: URL `http://localhost:8080/art-gallery/`
+   - Click the green play button
 
-| Concept | Where you saw it | What it means |
-|---|---|---|
-| Class | Every `.java` file | Blueprint for an object |
-| Field | `private int id;` | A variable inside a class |
-| Constructor | `public Category(int id, ...)` | Special method to create an object |
-| Getter/setter | `getName()`, `setName(...)` | Methods to read/write fields |
-| `static` | `DBConnection.getConnection()` | Belongs to the class, not an instance |
-| Inheritance | `extends HttpServlet` | Servlet inherits behavior from HttpServlet |
-| Annotation | `@WebServlet("/...")` | Metadata Tomcat reads at startup |
-| Exception | `throws SQLException` | Signals something can fail |
-| try-with-resources | `try (Connection c = ...)` | Auto-closes the connection |
-| Generics | `List<Artwork>` | A typed list — only Artworks allowed |
-| Interface | `List`, `Connection` | Contract that classes implement |
-| Lambda (in JSP `<c:forEach>`) | n/a here, but JSTL is similar | Anonymous mini-function |
-| Stream / loop | `<c:forEach>` in JSP, `while (rs.next())` in DAO | Process each item |
+5. **Or run manually:**
+   - Copy `target/art-gallery.war` into Tomcat's `webapps/`
+   - Start Tomcat (`bin/startup.sh` or `bin/startup.bat`)
+   - Visit `http://localhost:8080/art-gallery/`
 
----
-
-## 13. Things to learn next
-
-Once you're comfortable with this project:
-
-1. **Add a real shopping cart** — store cart in `HttpSession`, create `CartServlet`.
-2. **Add user login** — sessions, password hashing, login/register forms.
-3. **Switch JDBC for an ORM** — try Hibernate or JPA instead of raw SQL.
-4. **Use a connection pool** — HikariCP. Faster than opening a fresh connection per request.
-5. **Add unit tests** — JUnit 5 + Mockito. Test the DAOs first.
-6. **Move from JSP to Thymeleaf or React** — JSP is older; modern Java apps usually use Thymeleaf (Spring Boot) or a separate React frontend.
-7. **Try Spring Boot** — the modern Java framework. Same ideas (MVC, controllers, models), but way less boilerplate.
+6. **Test logins:**
+   - User: `user@artgallery.com` / `password`
+   - Admin: `admin@artgallery.com` / `password`
 
 ---
 
-## 14. Glossary — quick reference
+## 17. Adding a new feature — a step-by-step example
+
+Let's say you want to add an **"About Us"** page. Here is what you do, end to end:
+
+### Step 1 — Decide on a URL and a JSP name
+
+URL: `/about`. JSP: `about.jsp`.
+
+### Step 2 — Create the servlet (Controller)
+
+`src/main/java/com/artgallery/servlet/AboutServlet.java`:
+
+```java
+package com.artgallery.servlet;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+
+@WebServlet("/about")
+public class AboutServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        req.setAttribute("activePage", "about");
+        req.getRequestDispatcher("/WEB-INF/views/about.jsp").forward(req, resp);
+    }
+}
+```
+
+(For static content you could skip the servlet and place the JSP outside `WEB-INF/`, but routing through a servlet is the consistent pattern.)
+
+### Step 3 — Create the JSP (View)
+
+`src/main/webapp/WEB-INF/views/about.jsp`:
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<c:set var="pageTitle" value="About — Gallery Artisan's" scope="request"/>
+<%@ include file="/WEB-INF/views/includes/header.jsp" %>
+
+<section class="about-wrap">
+    <h1>About Gallery Artisan's</h1>
+    <p>We curate vivid acrylic artworks from emerging artists worldwide.</p>
+</section>
+
+<%@ include file="/WEB-INF/views/includes/footer.jsp" %>
+```
+
+### Step 4 — Add a navbar link
+
+In `src/main/webapp/WEB-INF/views/includes/header.jsp`, add:
+
+```jsp
+<a href="<%= ctx %>/about" class="<%= "about".equals(active) ? "active" : "" %>">About</a>
+```
+
+### Step 5 — Add styling (optional)
+
+In `src/main/webapp/assets/css/style.css`, add an `.about-wrap` rule.
+
+### Step 6 — Rebuild + reload
+
+If running via IntelliJ, save the files and Tomcat auto-redeploys. If using a built WAR, `mvn package` again and replace the file in `webapps/`.
+
+Visit `http://localhost:8080/art-gallery/about` — the page should appear.
+
+**That's the same recipe for every feature**: servlet for the controller, JSP for the view, optional DAO if you need data, optional CSS for styling.
+
+---
+
+## 18. Glossary
 
 | Term | Meaning |
 |---|---|
-| **HTTP request** | A message from the browser to the server, like "GET /home" |
-| **HTTP response** | The reply — usually HTML |
-| **Servlet** | Java class that handles a URL |
-| **JSP** | HTML template with Java/JSTL tags |
-| **JSTL** | Tags like `<c:forEach>` for use inside JSPs |
-| **MVC** | Model-View-Controller separation |
-| **POJO** | Plain Old Java Object — just fields + getters/setters |
-| **DAO** | Data Access Object — talks to the database |
-| **JDBC** | Java's standard database API |
-| **PreparedStatement** | A SQL query with `?` placeholders — safe from SQL injection |
-| **ResultSet** | Cursor over the rows returned by a query |
-| **Connection** | An open link to the database |
-| **WAR** | Web Archive — the `.war` file Tomcat deploys |
-| **Maven** | Java's build tool / package manager |
-| **`pom.xml`** | Maven config |
-| **`@WebServlet`** | Annotation that maps a servlet to a URL |
-| **`@Override`** | Says "this method overrides a parent method" |
-| **`request.setAttribute(name, val)`** | Servlet hands data to JSP |
-| **`request.getRequestDispatcher(path).forward(req, resp)`** | Servlet renders a JSP |
-| **Context path** | The URL prefix Tomcat adds — for us: `/art-gallery` |
+| **Servlet** | A Java class handling HTTP requests; lives at a URL pattern |
+| **JSP** | Jakarta Server Page — HTML file with Java/EL/JSTL mixed in |
+| **DAO** | Data Access Object — wraps SQL into Java methods |
+| **POJO** | Plain Old Java Object — a model class with just fields + getters/setters |
+| **JDBC** | Java's API for talking to relational databases |
+| **MVC** | Model-View-Controller — the pattern this app uses |
+| **EL** | Expression Language — the `${...}` syntax in JSPs |
+| **JSTL** | Jakarta Standard Tag Library — the `<c:forEach>`, `<c:if>` tags |
+| **Filter** | Code that runs before/after servlets, for cross-cutting concerns like auth |
+| **Session** | Per-user state stored on the server, keyed by a JSESSIONID cookie |
+| **BCrypt** | A password-hashing algorithm — slow and salted by design |
+| **WAR** | Web Application Archive — a `.zip` of compiled Java + web resources |
+| **Context path** | The URL prefix where the app is deployed (e.g., `/art-gallery`) |
+| **PreparedStatement** | A safe way to send parameterized SQL; prevents injection |
+| **`@WebServlet`** | Annotation that registers a class as a servlet at a URL |
+| **`request.setAttribute`** | Stuff data on the request so the JSP can read it |
+| **`request.getParameter`** | Read a query string or form field |
+| **`request.getRequestDispatcher(...).forward(...)`** | Hand control of the request to a JSP |
+| **`response.sendRedirect(...)`** | Send the browser a 302 to a new URL |
 
 ---
 
-That's the entire project. Read this top to bottom once, then open any single file and you'll know exactly where it fits in the puzzle. Good luck!
+## You did it
+
+If you read this from top to bottom and understood it, you now know:
+
+- How a Java web app is structured
+- How the MVC pattern keeps code organized
+- How servlets, JSPs, and DAOs cooperate
+- How sessions and password hashing secure logins
+- How filters guard restricted areas
+- How to add your own features
+
+The same patterns scale up to enormous real-world Java applications. Frameworks like Spring add convenience and conventions on top, but underneath every Spring Boot app, the same servlet/filter/JSP machinery is running. Master the basics here and Spring will feel like a luxury car instead of a foreign language.
+
+Happy building.
