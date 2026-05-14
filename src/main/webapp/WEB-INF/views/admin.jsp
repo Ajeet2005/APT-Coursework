@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <c:set var="pageTitle" value="Admin Dashboard &mdash; Gallery Artisan&rsquo;s" scope="request"/>
+<% request.setAttribute("activePage", "admin"); %>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 
 <section class="page-hero botanical-hero">

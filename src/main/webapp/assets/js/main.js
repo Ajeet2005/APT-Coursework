@@ -12,28 +12,28 @@
     const slides = Array.from(root.querySelectorAll('.slide'));
     const prev   = root.querySelector('.slide-arrow.prev');
     const next   = root.querySelector('.slide-arrow.next');
-    if (!slides.length) return;
+    if (!slides.length || !track) return;
 
     let active = Math.floor(slides.length / 2); // start in the middle
     let autoplay;
+    let currentX = 0;
 
     function update() {
+        // Reset transform first so we measure the un-shifted layout positions.
+        // Using offsetLeft + offsetWidth avoids the scaled bounding box from
+        // .is-active { transform: scale(1.05) } and gives consistent math.
         slides.forEach(s => s.classList.remove('is-active'));
         const current = slides[active];
+
+        const slideCenter = current.offsetLeft + (current.offsetWidth / 2);
+        const viewportCenter = root.clientWidth / 2;
+        currentX = viewportCenter - slideCenter;
+
+        track.style.transform = `translateX(${currentX}px)`;
+
+        // Apply active class AFTER the transform update so the scale animation
+        // runs in parallel with the slide.
         current.classList.add('is-active');
-
-        // Slide the track so the active slide sits in the centre of the viewport.
-        const containerRect = root.getBoundingClientRect();
-        const slideRect = current.getBoundingClientRect();
-        const currentCenter = (slideRect.left - containerRect.left) + (slideRect.width / 2);
-        const viewportCenter = containerRect.width / 2;
-        const delta = currentCenter - viewportCenter;
-
-        // Read existing transform, add delta.
-        const style = window.getComputedStyle(track);
-        const matrix = new DOMMatrixReadOnly(style.transform);
-        const currentX = matrix.m41 || 0;
-        track.style.transform = `translateX(${currentX - delta}px)`;
     }
 
     function goTo(i) {
@@ -43,8 +43,8 @@
     function nextSlide() { goTo(active + 1); }
     function prevSlide() { goTo(active - 1); }
 
-    prev && prev.addEventListener('click', () => { prevSlide(); restartAutoplay(); });
-    next && next.addEventListener('click', () => { nextSlide(); restartAutoplay(); });
+    if (prev) prev.addEventListener('click', (e) => { e.preventDefault(); prevSlide(); restartAutoplay(); });
+    if (next) next.addEventListener('click', (e) => { e.preventDefault(); nextSlide(); restartAutoplay(); });
 
     // Click a non-active slide to bring it to center.
     slides.forEach((slide, idx) => {
@@ -58,12 +58,16 @@
     });
 
     function startAutoplay() {
-        autoplay = setInterval(nextSlide, 4000);
+        autoplay = setInterval(nextSlide, 4500);
     }
     function restartAutoplay() {
         clearInterval(autoplay);
         startAutoplay();
     }
+
+    // Pause autoplay on hover.
+    root.addEventListener('mouseenter', () => clearInterval(autoplay));
+    root.addEventListener('mouseleave', () => startAutoplay());
 
     // Recompute on resize (slide widths change responsively).
     let resizeTimer;
@@ -72,9 +76,26 @@
         resizeTimer = setTimeout(update, 80);
     });
 
-    // Initial layout — wait a frame so images can lay out.
-    requestAnimationFrame(() => {
+    // Initial layout — wait for images so widths are correct.
+    function init() {
         update();
         startAutoplay();
-    });
+    }
+
+    const imgs = root.querySelectorAll('img');
+    let pending = imgs.length;
+    if (pending === 0) {
+        requestAnimationFrame(init);
+    } else {
+        imgs.forEach(img => {
+            if (img.complete) {
+                if (--pending === 0) requestAnimationFrame(init);
+            } else {
+                img.addEventListener('load',  () => { if (--pending === 0) requestAnimationFrame(init); });
+                img.addEventListener('error', () => { if (--pending === 0) requestAnimationFrame(init); });
+            }
+        });
+        // Fallback in case load events never fire.
+        setTimeout(() => { if (pending > 0) { pending = 0; requestAnimationFrame(init); } }, 1500);
+    }
 })();

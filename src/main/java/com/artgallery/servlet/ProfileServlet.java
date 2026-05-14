@@ -38,11 +38,6 @@ public class ProfileServlet extends HttpServlet {
             return;
         }
 
-        // Only regular members can edit their profile
-        if (user.isAdmin()) {
-            resp.sendRedirect(req.getContextPath() + "/admin");
-            return;
-        }
         req.getRequestDispatcher("/WEB-INF/views/profile.jsp").forward(req, resp);
     }
 
@@ -55,12 +50,6 @@ public class ProfileServlet extends HttpServlet {
 
         if (user == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-
-        // Only regular members can edit their profile
-        if (user.isAdmin()) {
-            resp.sendRedirect(req.getContextPath() + "/admin");
             return;
         }
 

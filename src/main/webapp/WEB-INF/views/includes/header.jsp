@@ -46,6 +46,18 @@
             <a href="<%= ctx %>/art"        class="<%= "art".equals(active)        ? "active" : "" %>">Art</a>
             <a href="<%= ctx %>/artist"     class="<%= "artist".equals(active)     ? "active" : "" %>">Artist</a>
             <a href="<%= ctx %>/gallery"    class="<%= "gallery".equals(active)    ? "active" : "" %>">Gallery</a>
+            <% if (isAdmin) { %>
+            <a href="<%= ctx %>/admin"
+               class="nav-admin <%= "admin".equals(active) ? "active" : "" %>">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M8 1.5l5.5 2.2v3.8c0 3.2-2.3 6.1-5.5 6.6-3.2-.5-5.5-3.4-5.5-6.6V3.7L8 1.5z"
+                          stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+                    <path d="M5.8 8.1l1.5 1.5L10.3 6.6"
+                          stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Admin Dashboard
+            </a>
+            <% } %>
         </nav>
 
         <div class="nav-actions">
@@ -82,14 +94,12 @@
                             <span class="auth-dropdown-role"><%= isAdmin ? "Administrator" : "Member" %></span>
                         </div>
                         <div class="auth-dropdown-divider"></div>
-                        <% if (!isAdmin) { %>
                         <a href="<%= ctx %>/profile" class="auth-dropdown-item" role="menuitem">
                             <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
                                 <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-8.793 8.793-3.536.707.707-3.536 8.793-8.793z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                             Edit Profile
                         </a>
-                        <% } %>
                         <% if (isAdmin) { %>
                         <a href="<%= ctx %>/admin" class="auth-dropdown-item" role="menuitem">
                             <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">

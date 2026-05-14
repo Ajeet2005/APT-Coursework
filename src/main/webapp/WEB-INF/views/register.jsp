@@ -12,32 +12,37 @@
     <meta name="description" content="Join Gallery Artisan's — create your free account to collect, purchase, and enjoy original acrylic artworks.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --clr-bg:        #0d0b14;
-            --clr-panel:     #13101e;
-            --clr-border:    rgba(255,255,255,0.08);
-            --clr-accent:    #b89a6f;
-            --clr-accent2:   #d4b896;
-            --clr-purple:    #9b59b6;
-            --clr-text:      #e8e0d5;
-            --clr-muted:     #7a7086;
-            --clr-error:     #e07070;
-            --clr-success:   #7abf7a;
-            --clr-purple:    #9b59b6;
-            --clr-purple2:   #c39bd3;
-            --clr-input-bg:  rgba(255,255,255,0.04);
-            --transition:    0.35s cubic-bezier(.4,0,.2,1);
+            --bg:           #0b0910;
+            --bg-alt:       #120d1c;
+            --surface:      #1a1326;
+            --surface-2:    #241a36;
+            --purple:       #7a3bff;
+            --purple-deep:  #4b1d9f;
+            --purple-soft:  #c9b6ff;
+            --pink:         #ff6ec4;
+            --ink:          #f4f1fb;
+            --muted:        #a89ebe;
+            --line:         rgba(255, 255, 255, 0.08);
+            --error:        #e07070;
+            --success:      #7abf7a;
+            --input-bg:     rgba(255, 255, 255, 0.04);
+
+            --font-display: "Cormorant Garamond", "Times New Roman", serif;
+            --font-sans:    "Inter", system-ui, -apple-system, sans-serif;
+            --transition:   0.35s cubic-bezier(.4,0,.2,1);
         }
 
         html, body {
-            font-family: 'Inter', sans-serif;
-            background: var(--clr-bg);
-            color: var(--clr-text);
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--ink);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* ── Layout ─────────────────────────────────────────────── */
@@ -81,7 +86,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(13,11,20,.65) 0%, rgba(13,11,20,.15) 45%, rgba(13,11,20,.75) 100%);
+            background: linear-gradient(135deg, rgba(11,9,16,.7) 0%, rgba(53,21,95,.25) 45%, rgba(11,9,16,.85) 100%);
             z-index: 1;
         }
 
@@ -95,22 +100,30 @@
         .slide.active .slide-caption { opacity: 1; transform: translateY(0); }
 
         .slide-caption h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(1.7rem, 2.8vw, 2.6rem);
-            font-weight: 300; font-style: italic; color: #fff;
-            text-shadow: 0 2px 24px rgba(0,0,0,0.6); line-height: 1.2;
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 2.8vw, 2.6rem);
+            font-weight: 500; color: #fff;
+            text-shadow: 0 2px 24px rgba(0,0,0,0.6); line-height: 1.15;
+            letter-spacing: -0.01em;
+        }
+        .slide-caption h2 em {
+            font-style: italic;
+            color: var(--purple-soft);
+            font-weight: 400;
         }
         .slide-caption p {
-            font-size: 0.78rem; color: var(--clr-accent2);
-            letter-spacing: 0.14em; text-transform: uppercase; margin-top: 8px;
+            font-size: 0.72rem; color: var(--purple-soft);
+            letter-spacing: 0.25em; text-transform: uppercase; margin-top: 10px;
+            font-family: var(--font-sans);
         }
 
         .visual-brand {
             position: absolute; top: 36px; left: 48px; z-index: 3;
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--font-display);
             font-size: 1.5rem; font-weight: 600; color: #fff;
-            text-decoration: none; letter-spacing: 0.04em;
+            text-decoration: none; letter-spacing: 0.01em;
             text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+            display: flex; align-items: center; gap: 8px;
         }
 
         /* Progress bar */
@@ -118,8 +131,8 @@
             position: absolute; top: 0; left: 0; right: 0; height: 2px;
             z-index: 4; display: flex; gap: 3px;
         }
-        .progress-seg { flex: 1; height: 100%; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden; }
-        .progress-seg-fill { height: 100%; background: var(--clr-accent); width: 0%; border-radius: 2px; transition: width 5s linear; }
+        .progress-seg { flex: 1; height: 100%; background: rgba(255,255,255,0.18); border-radius: 2px; overflow: hidden; }
+        .progress-seg-fill { height: 100%; background: var(--purple-soft); width: 0%; border-radius: 2px; transition: width 5s linear; }
         .progress-seg.active .progress-seg-fill { width: 100%; }
 
         /* Dots */
@@ -133,14 +146,15 @@
             transition: background var(--transition), transform var(--transition);
             border: none; padding: 0;
         }
-        .dot.active { background: var(--clr-accent); transform: scale(1.5); }
+        .dot.active { background: var(--purple-soft); transform: scale(1.5); }
         .dot:hover:not(.active) { background: rgba(255,255,255,0.6); }
 
         .drag-hint {
             position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
             z-index: 3; font-size: 0.65rem; color: rgba(255,255,255,0.3);
-            letter-spacing: 0.12em; text-transform: uppercase; pointer-events: none;
+            letter-spacing: 0.18em; text-transform: uppercase; pointer-events: none;
             display: flex; align-items: center; gap: 6px;
+            font-family: var(--font-sans);
         }
         .drag-hint::before, .drag-hint::after {
             content: ''; display: inline-block; width: 20px; height: 1px;
@@ -156,53 +170,90 @@
             align-items: center;
             justify-content: center;
             padding: 48px 44px;
-            background: var(--clr-panel);
+            background: var(--bg-alt);
             overflow-y: auto;
             position: relative;
             flex-shrink: 0;
+            animation: fadeInUp 0.7s cubic-bezier(.4,0,.2,1);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         .mobile-brand {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.7rem; font-weight: 600;
-            color: var(--clr-accent); text-align: center; margin-bottom: 36px;
+            font-family: var(--font-display);
+            font-size: 1.8rem; font-weight: 600;
+            color: var(--ink); text-align: center; margin-bottom: 36px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         @media (min-width: 860px) { .mobile-brand { display: none; } }
 
         .form-header { text-align: center; margin-bottom: 28px; }
         .form-header h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.4rem; font-weight: 300; color: var(--clr-text);
+            font-family: var(--font-display);
+            font-size: 2.6rem; font-weight: 500; color: var(--ink);
+            line-height: 1.05;
+            letter-spacing: -0.01em;
         }
-        .form-header p { color: var(--clr-muted); font-size: 0.875rem; margin-top: 8px; }
+        .form-header h1 em {
+            font-style: italic;
+            color: var(--purple-soft);
+            font-weight: 400;
+        }
+        .form-header p {
+            color: var(--muted); font-size: 0.9rem; margin-top: 12px;
+            font-family: var(--font-sans);
+        }
 
         .ornament {
             width: 40px; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--clr-accent), transparent);
+            background: linear-gradient(90deg, transparent, var(--purple-soft), transparent);
             margin: 0 auto 24px;
         }
 
-        .field { margin-bottom: 18px; width: 100%; }
+        .field { margin-bottom: 18px; width: 100%; position: relative; }
         .field label {
-            display: block; font-size: 0.72rem; letter-spacing: 0.1em;
-            text-transform: uppercase; color: var(--clr-muted); margin-bottom: 8px;
+            display: block; font-size: 0.7rem; letter-spacing: 0.18em;
+            text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
             font-weight: 500;
+            font-family: var(--font-sans);
         }
         .field input {
-            width: 100%; background: var(--clr-input-bg);
-            border: 1px solid var(--clr-border); border-radius: 8px;
-            padding: 13px 16px; font-size: 0.95rem; color: var(--clr-text);
-            font-family: 'Inter', sans-serif; outline: none;
-            transition: border-color var(--transition), box-shadow var(--transition);
+            width: 100%; background: var(--input-bg);
+            border: 1px solid var(--line); border-radius: 8px;
+            padding: 13px 16px; font-size: 0.95rem; color: var(--ink);
+            font-family: var(--font-sans); outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
         }
         .field input:focus {
-            border-color: var(--clr-accent);
-            box-shadow: 0 0 0 3px rgba(184,154,111,0.15);
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(122, 59, 255, 0.18);
+            background: rgba(255,255,255,0.06);
         }
-        .field input.invalid { border-color: var(--clr-error); box-shadow: 0 0 0 3px rgba(224,112,112,0.12); }
+        .field input.invalid { border-color: var(--error); box-shadow: 0 0 0 3px rgba(224,112,112,0.12); }
         .field input::placeholder { color: rgba(255,255,255,0.2); }
 
-        .field-hint { font-size: 0.72rem; color: var(--clr-muted); margin-top: 5px; }
+        .field-with-icon input { padding-right: 44px; }
+        .pw-toggle {
+            position: absolute;
+            right: 12px;
+            top: 34px;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color var(--transition);
+        }
+        .pw-toggle:hover { color: var(--purple-soft); }
+        .pw-toggle svg { width: 18px; height: 18px; }
+
+        .field-hint { font-size: 0.72rem; color: var(--muted); margin-top: 5px; font-family: var(--font-sans); }
 
         /* Password strength */
         .password-strength { margin-top: 7px; display: flex; gap: 4px; }
@@ -217,9 +268,10 @@
             background: rgba(224,112,112,0.1);
             border: 1px solid rgba(224,112,112,0.3);
             border-radius: 8px; padding: 12px 16px;
-            font-size: 0.875rem; color: var(--clr-error);
+            font-size: 0.875rem; color: var(--error);
             margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
             animation: shake 0.4s ease;
+            font-family: var(--font-sans);
         }
         @keyframes shake {
             0%,100% { transform: translateX(0); }
@@ -229,27 +281,31 @@
 
         .btn-primary {
             width: 100%; padding: 14px;
-            background: var(--clr-accent); color: var(--clr-bg);
-            border: none; border-radius: 8px;
-            font-family: 'Inter', sans-serif; font-size: 0.875rem;
-            font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+            background: var(--ink); color: #120819;
+            border: none; border-radius: 999px;
+            font-family: var(--font-sans); font-size: 0.85rem;
+            font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
             cursor: pointer;
-            transition: background var(--transition), transform 0.15s, box-shadow var(--transition);
+            transition: background var(--transition), transform 0.15s, box-shadow var(--transition), color var(--transition);
             margin-top: 6px;
         }
         .btn-primary:hover {
-            background: var(--clr-accent2);
-            box-shadow: 0 4px 20px rgba(184,154,111,0.3);
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 8px 28px rgba(122, 59, 255, 0.4);
+            transform: translateY(-1px);
         }
-        .btn-primary:active { transform: scale(0.985); }
+        .btn-primary:active { transform: translateY(0) scale(0.985); }
 
-        /* Admin submit uses purple */
+        /* Admin submit uses a pink/magenta accent on purple */
         .btn-primary.admin-mode {
-            background: var(--clr-purple);
+            background: var(--purple-deep);
+            color: #fff;
         }
         .btn-primary.admin-mode:hover {
-            background: var(--clr-purple2);
-            box-shadow: 0 4px 20px rgba(155,89,182,0.35);
+            background: var(--pink);
+            color: #fff;
+            box-shadow: 0 8px 28px rgba(255, 110, 196, 0.4);
         }
 
         /* Role selector tabs */
@@ -257,58 +313,61 @@
             display: flex;
             gap: 0;
             margin-bottom: 24px;
-            border: 1px solid var(--clr-border);
-            border-radius: 10px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
             overflow: hidden;
             width: 100%;
+            background: var(--input-bg);
+            padding: 4px;
         }
         .role-tab {
             flex: 1;
-            padding: 11px 16px;
+            padding: 9px 16px;
             text-align: center;
-            font-size: 0.78rem;
-            letter-spacing: 0.1em;
+            font-size: 0.75rem;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
             cursor: pointer;
-            color: var(--clr-muted);
+            color: var(--muted);
             background: transparent;
             border: none;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             font-weight: 500;
+            border-radius: 999px;
             transition: background var(--transition), color var(--transition);
         }
         .role-tab.selected {
-            background: var(--clr-accent);
-            color: var(--clr-bg);
+            background: var(--purple);
+            color: #fff;
         }
         .role-tab:not(.selected):hover {
-            background: rgba(255,255,255,0.04);
-            color: var(--clr-text);
+            color: var(--ink);
         }
-        /* Admin tab uses purple when selected */
         #tabAdmin.selected {
-            background: var(--clr-purple);
+            background: var(--pink);
             color: #fff;
         }
 
         .form-footer {
             margin-top: 24px; text-align: center;
-            font-size: 0.85rem; color: var(--clr-muted);
+            font-size: 0.88rem; color: var(--muted);
+            font-family: var(--font-sans);
         }
         .form-footer a {
-            color: var(--clr-accent); text-decoration: none;
+            color: var(--purple-soft); text-decoration: none;
             font-weight: 600; transition: color var(--transition);
         }
-        .form-footer a:hover { color: var(--clr-accent2); }
+        .form-footer a:hover { color: #fff; }
 
         /* Back link */
         .back-home {
             position: absolute; top: 24px; left: 24px;
-            font-size: 0.75rem; color: var(--clr-muted);
+            font-size: 0.75rem; color: var(--muted);
             text-decoration: none; display: flex; align-items: center; gap: 6px;
             transition: color var(--transition);
+            font-family: var(--font-sans);
         }
-        .back-home:hover { color: var(--clr-accent); }
+        .back-home:hover { color: var(--purple-soft); }
         .back-home svg { width: 14px; height: 14px; }
 
         /* Security badge */
@@ -317,8 +376,9 @@
             align-items: center;
             gap: 8px;
             font-size: 0.72rem;
-            color: rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.3);
             margin-top: 18px;
+            font-family: var(--font-sans);
         }
         .security-note svg { flex-shrink: 0; opacity: 0.5; }
     </style>
@@ -327,57 +387,55 @@
 
 <div class="auth-shell">
 
-    <!-- LEFT PANEL — same slideshow with different art images for register -->
+    <!-- LEFT PANEL — slideshow -->
     <div class="auth-visual" id="slideshow">
         <div class="slide-progress" id="slideProgress"></div>
-        <a class="visual-brand" href="<%= ctx %>/home">Gallery Artisan's</a>
+        <a class="visual-brand" href="<%= ctx %>/home">
+            <span class="brand-mark">&#127963;</span>
+            <span>Gallery Artisan's</span>
+        </a>
 
-        <!-- Slide 1: Portrait — Mona Lisa -->
         <div class="slide active">
             <img src="<%= ctx %>/assets/images/portraits/Mona-Lisa-oil-painting-on-poplar-wood-by-Leonardo-da-Vinci.webp"
                  alt="Mona Lisa — Leonardo da Vinci" draggable="false">
             <div class="slide-caption">
-                <h2>Every great collection<br>begins with one step</h2>
+                <h2>Every great collection<br><em>begins with one step</em></h2>
                 <p>Portrait Masters · Renaissance</p>
             </div>
         </div>
 
-        <!-- Slide 2: Still Life -->
         <div class="slide">
             <img src="<%= ctx %>/assets/images/stilllife/Still-Life-with-Glass-Cheese-Butter-and-Cake-Floris-Gerritsz-Van-Schooten-Oil-Painting.jpg"
                  alt="Still Life — Floris Gerritsz Van Schooten" draggable="false">
             <div class="slide-caption">
-                <h2>Colour speaks where<br>words fall silent</h2>
+                <h2>Colour speaks where<br><em>words fall silent</em></h2>
                 <p>Still Life · Golden Age Masters</p>
             </div>
         </div>
 
-        <!-- Slide 3: Botanical -->
         <div class="slide">
             <img src="<%= ctx %>/assets/images/botanical/Still-Life-of-Flowers-on-Woodland-Ground-by-Rachel-Ruysch-Famous-Flower-Painting.webp"
                  alt="Still Life of Flowers — Rachel Ruysch" draggable="false">
             <div class="slide-caption">
-                <h2>Own a piece of<br>someone's soul</h2>
+                <h2>Own a piece of<br><em>someone's soul</em></h2>
                 <p>Botanical Collection · Featured Works</p>
             </div>
         </div>
 
-        <!-- Slide 4: Gesture -->
         <div class="slide">
             <img src="<%= ctx %>/assets/images/gesture/fa0afd5cd201b416416d21cae52f58ae.jpg"
                  alt="Gesture painting" draggable="false">
             <div class="slide-caption">
-                <h2>Art is the shorthand<br>of emotion</h2>
+                <h2>Art is the shorthand<br><em>of emotion</em></h2>
                 <p>Gesture Series · Expressive Works</p>
             </div>
         </div>
 
-        <!-- Slide 5: Landscape -->
         <div class="slide">
             <img src="<%= ctx %>/assets/images/landscape/Van-Gogh.-Starry-Night-469x376_480x480.jpg"
                  alt="Starry Night — Van Gogh" draggable="false">
             <div class="slide-caption">
-                <h2>The universe whispers<br>through the brushstroke</h2>
+                <h2>The universe whispers<br><em>through the brushstroke</em></h2>
                 <p>Landscape · Van Gogh Collection</p>
             </div>
         </div>
@@ -396,10 +454,13 @@
             Back to Gallery
         </a>
 
-        <div class="mobile-brand">Gallery Artisan's</div>
+        <div class="mobile-brand">
+            <span>&#127963;</span>
+            <span>Gallery Artisan's</span>
+        </div>
 
         <div class="form-header">
-            <h1>Create account</h1>
+            <h1>Create <em>account</em></h1>
             <p>Join the gallery — it's completely free</p>
         </div>
 
@@ -448,13 +509,19 @@
                        required autocomplete="email">
             </div>
 
-            <div class="field">
+            <div class="field field-with-icon">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password"
                        placeholder="Min. 8 characters"
                        required minlength="8"
                        autocomplete="new-password"
                        oninput="updateStrength(this.value)">
+                <button type="button" class="pw-toggle" data-toggle="password" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                </button>
                 <div class="password-strength">
                     <div class="strength-bar" id="bar1"></div>
                     <div class="strength-bar" id="bar2"></div>
@@ -464,11 +531,17 @@
                 <div class="field-hint" id="strengthLabel" style="min-height:1.2em;"></div>
             </div>
 
-            <div class="field">
+            <div class="field field-with-icon">
                 <label for="confirmPassword">Confirm Password</label>
                 <input type="password" id="confirmPassword" name="confirmPassword"
                        placeholder="••••••••"
                        required autocomplete="new-password">
+                <button type="button" class="pw-toggle" data-toggle="confirmPassword" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                </button>
             </div>
 
             <button type="submit" class="btn-primary" id="submitBtn">Sign Up</button>
@@ -517,7 +590,6 @@
         }
     }
 
-    // Pre-select role if preserved from a validation error
     (function() {
         var roleVal = document.getElementById('roleInput').value;
         if (roleVal === 'admin') selectRole('admin');
@@ -595,7 +667,7 @@
     });
 
     // ── Password strength ────────────────────────────────────────────────────
-    var strengthColors = ['#e07070', '#e0a070', '#b89a6f', '#7abf7a'];
+    var strengthColors = ['#e07070', '#e0a070', '#c9b6ff', '#7abf7a'];
     var strengthLabels = ['Too short', 'Fair', 'Good', 'Strong'];
 
     function updateStrength(pw) {
@@ -635,6 +707,26 @@
         this.classList.remove('invalid');
         this.setCustomValidity('');
     });
+
+    // ── Password visibility toggles ──────────────────────────────────────────
+    (function() {
+        var eyeOpen = '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>';
+        var eyeOff  = '<path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.4 5.2A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.9 3.6M6.1 6.1A17 17 0 0 0 2 12s3.5 7 10 7c1.7 0 3.2-.4 4.5-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+
+        var toggles = document.querySelectorAll('.pw-toggle');
+        toggles.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var targetId = btn.getAttribute('data-toggle');
+                var input = document.getElementById(targetId);
+                var svg = btn.querySelector('svg');
+                if (!input || !svg) return;
+                var isPw = input.type === 'password';
+                input.type = isPw ? 'text' : 'password';
+                svg.innerHTML = isPw ? eyeOff : eyeOpen;
+                btn.setAttribute('aria-label', isPw ? 'Hide password' : 'Show password');
+            });
+        });
+    })();
 </script>
 
 </body>
