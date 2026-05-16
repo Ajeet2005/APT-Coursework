@@ -132,4 +132,17 @@
     </div>
 </section>
 
+<!-- ========== NEWSLETTER CTA ========== -->
+<section class="newsletter-cta">
+    <div class="section-head">
+        <span class="eyebrow">Stay Inspired</span>
+        <h2>Join the Gallery Circle</h2>
+        <p>Get early access to new arrivals, artist features, and exclusive invites to gallery openings.</p>
+    </div>
+    <form class="newsletter-form-inline" onsubmit="return handleNewsletter(event)">
+        <input type="email" placeholder="your@email.com" required aria-label="Email address">
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+</section>
+
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>

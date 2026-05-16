@@ -138,6 +138,68 @@
 })();
 
 /* ============================================================
+   Global Toast Notifications
+   ============================================================ */
+(function () {
+    var toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+
+    var hideTimer;
+    window.showToast = function (message, type) {
+        type = type || 'success';
+        toast.className = 'toast toast--' + type;
+        var iconSvg = type === 'success'
+            ? '<svg class="toast-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            : '<svg class="toast-icon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="14" r=".8" fill="currentColor"/></svg>';
+        toast.innerHTML = iconSvg + '<span>' + message + '</span>';
+        clearTimeout(hideTimer);
+        requestAnimationFrame(function () {
+            toast.classList.add('show');
+        });
+        hideTimer = setTimeout(function () {
+            toast.classList.remove('show');
+        }, 3000);
+    };
+})();
+
+/* ============================================================
+   Page Loading Bar — subtle top indicator on link clicks
+   ============================================================ */
+(function () {
+    var loader = document.createElement('div');
+    loader.className = 'page-loader';
+    document.body.appendChild(loader);
+
+    document.addEventListener('click', function (e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript') || link.target === '_blank') return;
+        loader.className = 'page-loader loading';
+    });
+
+    window.addEventListener('pageshow', function () {
+        loader.className = 'page-loader done';
+    });
+})();
+
+/* ============================================================
+   Newsletter form handler
+   ============================================================ */
+window.handleNewsletter = function (e) {
+    e.preventDefault();
+    var input = e.target.querySelector('input[type="email"]');
+    if (input && input.value) {
+        window.showToast('Thanks for subscribing! We’ll be in touch.', 'success');
+        input.value = '';
+    }
+    return false;
+};
+
+/* ============================================================
    Reveal-on-scroll — auto-applies the .reveal class to top-level
    page sections and fades them in as they enter the viewport.
    No data-attributes needed in the HTML.
@@ -150,10 +212,12 @@
         '.hero',
         '.highlight-section',
         '.mini-gallery',
+        '.newsletter-cta',
         '.section-head',
         '.page-hero',
         '.about-wrap',
-        '.cart-wrap'
+        '.cart-wrap',
+        '.error-404'
     ];
     var nodes = document.querySelectorAll(selectors.join(','));
     if (!nodes.length) return;

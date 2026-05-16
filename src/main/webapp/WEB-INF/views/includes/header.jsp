@@ -38,6 +38,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta name="theme-color" content="#0b0910">
     <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css">
 </head>
 <body>
@@ -185,5 +186,17 @@
     });
 
     drop.addEventListener('click', function(e) { e.stopPropagation(); });
+})();
+
+// Auto-dismiss flash banner after 4 seconds
+(function() {
+    var flash = document.getElementById('flashBanner');
+    if (!flash) return;
+    setTimeout(function() {
+        flash.style.transition = 'opacity .4s ease, transform .4s ease';
+        flash.style.opacity = '0';
+        flash.style.transform = 'translateY(-10px)';
+        setTimeout(function() { flash.remove(); }, 400);
+    }, 4000);
 })();
 </script>

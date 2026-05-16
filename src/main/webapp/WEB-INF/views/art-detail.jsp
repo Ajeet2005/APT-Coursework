@@ -15,9 +15,17 @@
                 <p class="muted">By <a href="<%= ctx %>/artist?id=${artwork.artistId}">${artwork.artistName}</a></p>
                 <p>${artwork.description}</p>
                 <c:if test="${artwork.price != null}">
-                    <p class="price">Rs.&nbsp;<fmt:formatNumber value="${artwork.price}" type="number" maxFractionDigits="0" groupingUsed="true"/></p>
+                    <p class="price" style="font-size:1.6rem;margin:1rem 0;">Rs.&nbsp;<fmt:formatNumber value="${artwork.price}" type="number" maxFractionDigits="0" groupingUsed="true"/></p>
                 </c:if>
-                <a class="btn btn-primary" href="<%= ctx %>/gallery">Back to Gallery</a>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+                    <button type="button" class="btn btn-primary btn-cart" onclick="addToCart(${artwork.id}, this)">
+                        <svg class="btn-cart-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px">
+                            <path d="M3 4L6 4L8 7L21 7L19 15L9 15L8 7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>
+                        </svg>
+                        Add to Cart
+                    </button>
+                    <a class="btn btn-ghost" href="<%= ctx %>/gallery">Back to Gallery</a>
+                </div>
             </div>
         </section>
     </c:when>
@@ -25,5 +33,41 @@
         <section class="page-hero"><h1>Artwork not found</h1></section>
     </c:otherwise>
 </c:choose>
+
+<script>
+function addToCart(artworkId, btn) {
+    btn.classList.add('loading');
+    var body = new URLSearchParams();
+    body.append('action', 'add');
+    body.append('artworkId', artworkId);
+    body.append('quantity', '1');
+    fetch('<%= ctx %>/cart', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        btn.classList.remove('loading');
+        if (data.ok) {
+            btn.classList.add('added');
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M5 10l4 4 6-8"/></svg> Added!';
+            if (window.showToast) window.showToast('Added to your cart', 'success');
+            var badge = document.querySelector('[data-cart-badge]');
+            if (badge) {
+                var count = parseInt(badge.textContent || '0') + 1;
+                badge.textContent = count;
+                badge.classList.add('has-items');
+            }
+        } else {
+            if (window.showToast) window.showToast(data.message || 'Could not add to cart', 'error');
+        }
+    })
+    .catch(function() {
+        btn.classList.remove('loading');
+        if (window.showToast) window.showToast('Something went wrong', 'error');
+    });
+}
+</script>
 
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>

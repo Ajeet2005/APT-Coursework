@@ -8,7 +8,7 @@ A complete, plain-English guide to **how this art gallery website is built**, wr
 
 1. [What is this project?](#1-what-is-this-project)
 2. [The technologies — what each tool does](#2-the-technologies--what-each-tool-does)
-3. [The big picture — how a web request flows](#3-the-big-picture--how-a-web-request-flows)
+3. [The big picture — how a web request flows](#3-the-big-picture--how-a-web-request-flow)
 4. [The MVC pattern — the most important idea](#4-the-mvc-pattern--the-most-important-idea)
 5. [The folder structure, explained](#5-the-folder-structure-explained)
 6. [The database — what's stored and how](#6-the-database--whats-stored-and-how)
@@ -19,11 +19,12 @@ A complete, plain-English guide to **how this art gallery website is built**, wr
 11. [The AuthFilter — the security guard](#11-the-authfilter--the-security-guard)
 12. [Authentication — how login/register actually works](#12-authentication--how-loginregister-actually-works)
 13. [Admin vs regular user](#13-admin-vs-regular-user)
-14. [Static assets — CSS, JS, images](#14-static-assets--css-js-images)
-15. [How the project boots up](#15-how-the-project-boots-up)
-16. [Running it yourself](#16-running-it-yourself)
-17. [Adding a new feature — a step-by-step example](#17-adding-a-new-feature--a-step-by-step-example)
-18. [Glossary](#18-glossary)
+14. [File uploads — how images get onto the server](#14-file-uploads--how-images-get-onto-the-server)
+15. [Static assets — CSS, JS, images](#15-static-assets--css-js-images)
+16. [How the project boots up](#16-how-the-project-boots-up)
+17. [Running it yourself](#17-running-it-yourself)
+18. [Adding a new feature — a step-by-step example](#18-adding-a-new-feature--a-step-by-step-example)
+19. [Glossary](#19-glossary)
 
 ---
 
@@ -596,7 +597,160 @@ The admin dashboard lives in **`AdminServlet`** and handles many subroutes (`/ad
 
 ---
 
-## 14. Static assets — CSS, JS, images
+## 14. File uploads — how images get onto the server
+
+Instead of pasting image URLs, admin users can upload image files directly from their computer. This section walks through how file uploads work in Jakarta Servlets.
+
+### The problem
+
+A normal HTML form sends data as text — field names and values. But a file is binary data (raw bytes of a JPEG, for example). Text encoding can't carry that. So HTML has a special form encoding: **`multipart/form-data`**, which packages each field as a separate "part" — text parts for regular fields, binary parts for files.
+
+### Step 1 — Tell the servlet to accept files
+
+Jakarta Servlets have built-in multipart support. You just add an annotation:
+
+```java
+@WebServlet({ "/admin", "/admin/*" })
+@MultipartConfig(
+    maxFileSize   = 5 * 1024 * 1024,   // 5 MB per file
+    maxRequestSize = 10 * 1024 * 1024   // 10 MB total
+)
+public class AdminServlet extends HttpServlet { ... }
+```
+
+**`@MultipartConfig`** tells Tomcat: "this servlet can receive file uploads." Without it, calling `req.getPart(...)` throws an exception. The size limits protect the server from someone uploading a 2 GB file.
+
+### Step 2 — Update the HTML form
+
+The form needs `enctype="multipart/form-data"` and a file input:
+
+```html
+<form action="/admin/artists" method="POST" enctype="multipart/form-data">
+    <input type="text" name="name" required>
+    <input type="file" name="profile_image_file" accept=".jpg,.jpeg,.png,.gif,.webp">
+    <button type="submit">Save</button>
+</form>
+```
+
+- **`enctype="multipart/form-data"`** — switches the form from text mode to multipart mode.
+- **`accept=".jpg,.jpeg,.png,.gif,.webp"`** — tells the browser's file picker to filter for image files (the server still validates too).
+
+### Step 3 — Read the file in the servlet
+
+In the `saveArtist` method, we extract the uploaded file using `req.getPart(...)`:
+
+```java
+private String handleImageUpload(HttpServletRequest req,
+                                  String partName,
+                                  String subfolder)
+        throws IOException, ServletException {
+
+    Part filePart = req.getPart(partName);
+    if (filePart == null || filePart.getSize() == 0)
+        return null;  // no file was selected
+
+    // Get the original filename safely
+    String originalName = Paths.get(filePart.getSubmittedFileName())
+                               .getFileName().toString();
+
+    // Validate the extension
+    String ext = "";
+    int dot = originalName.lastIndexOf('.');
+    if (dot >= 0) ext = originalName.substring(dot).toLowerCase();
+    if (!ext.matches("\\.(jpg|jpeg|png|gif|webp)"))
+        return null;  // reject non-image files
+
+    // Generate a unique filename to avoid collisions
+    String uniqueName = UUID.randomUUID().toString().substring(0, 8)
+                        + "_" + originalName;
+
+    // Build the destination path on disk
+    String uploadDir = getServletContext()
+                        .getRealPath("/assets/images/" + subfolder);
+    File dir = new File(uploadDir);
+    if (!dir.exists()) dir.mkdirs();
+
+    // Write the file
+    filePart.write(uploadDir + File.separator + uniqueName);
+
+    // Return the relative path to store in the database
+    return "assets/images/" + subfolder + "/" + uniqueName;
+}
+```
+
+Breaking this down:
+
+- **`req.getPart("profile_image_file")`** — retrieves the uploaded file part by its form field name.
+- **`filePart.getSubmittedFileName()`** — the original filename the user had on their computer (e.g., `photo.jpg`).
+- **`Paths.get(...).getFileName()`** — strips any directory path, as a security precaution (some browsers send the full path).
+- **Extension validation** — only allows known image formats. Never trust the browser's `accept` attribute alone — always validate server-side.
+- **`UUID.randomUUID()`** — generates a unique prefix so two users uploading `photo.jpg` don't overwrite each other.
+- **`getServletContext().getRealPath(...)`** — translates a web-app-relative path to an absolute filesystem path where Tomcat deployed the app.
+- **`filePart.write(...)`** — saves the bytes to disk. That's all it takes.
+
+The method returns the relative path (like `assets/images/Artists/a1b2c3d4_photo.jpg`), which gets stored in the `profile_image` column of the `artists` table — the same format existing artist images use.
+
+### Step 4 — Handle edits (keep old image if no new upload)
+
+When editing an existing artist, the admin might change the name but not upload a new image. The code handles this:
+
+```java
+String profileImagePath = handleImageUpload(req, "profile_image_file", "Artists");
+if (profileImagePath != null) {
+    a.setProfileImage(profileImagePath);     // new file uploaded
+} else if (a.getId() > 0) {
+    Artist existing = artistDAO.findById(a.getId());
+    if (existing != null)
+        a.setProfileImage(existing.getProfileImage());  // keep old
+}
+```
+
+### The drag-and-drop UI
+
+The form uses a custom **drop zone** instead of the browser's plain file input. It's built with:
+
+- A hidden `<input type="file">` — the actual form element that carries the file data.
+- A styled `<div class="drop-zone">` — the visible area the user interacts with.
+- JavaScript event listeners for `dragover`, `dragleave`, `drop`, and `click`.
+
+When a file is dragged onto the zone (or selected via the "Browse Files" button), JavaScript reads it with `FileReader` and shows an instant preview thumbnail — all client-side, before the form is even submitted.
+
+```
+┌─────────────────────────────────┐
+│                                 │
+│      ⬆ Drag & drop image here  │
+│              or                 │
+│        [ Browse Files ]         │
+│   JPG, PNG, GIF, WebP • Max 5MB│
+│                                 │
+└─────────────────────────────────┘
+         ↓  user drops a file
+┌─────────────────────────────────┐
+│ ┌──────┐                        │
+│ │ IMG  │  photo.jpg        ✕   │
+│ │      │  1.2 MB               │
+│ └──────┘                        │
+└─────────────────────────────────┘
+```
+
+The key JavaScript trick is setting the hidden input's files:
+
+```javascript
+zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    var files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+        input.files = files;   // links the dropped file to the form input
+        showPreview(files[0]); // reads + displays a thumbnail
+    }
+});
+```
+
+`input.files = files` is the critical line — it makes the dropped file behave exactly as if the user had clicked "Choose File" and picked it. When the form submits, the file travels to the server as a multipart part.
+
+---
+
+## 15. Static assets — CSS, JS, images
 
 Anything inside `src/main/webapp/assets/` is served directly by Tomcat with no Java involvement. URLs look like:
 
@@ -611,7 +765,7 @@ Anything inside `src/main/webapp/assets/` is served directly by Tomcat with no J
 
 ---
 
-## 15. How the project boots up
+## 16. How the project boots up
 
 When Tomcat starts up with this WAR deployed, here is the order of events:
 
@@ -624,7 +778,7 @@ No bootstrap class, no Spring container, no manual wiring. The Servlet API does 
 
 ---
 
-## 16. Running it yourself
+## 17. Running it yourself
 
 **Prerequisites:**
 
@@ -674,7 +828,7 @@ No bootstrap class, no Spring container, no manual wiring. The Servlet API does 
 
 ---
 
-## 17. Adding a new feature — a step-by-step example
+## 18. Adding a new feature — a step-by-step example
 
 Let's say you want to add an **"About Us"** page. Here is what you do, end to end:
 
@@ -748,7 +902,7 @@ Visit `http://localhost:8080/art-gallery/about` — the page should appear.
 
 ---
 
-## 18. Glossary
+## 19. Glossary
 
 | Term | Meaning |
 |---|---|
@@ -771,6 +925,10 @@ Visit `http://localhost:8080/art-gallery/about` — the page should appear.
 | **`request.getParameter`** | Read a query string or form field |
 | **`request.getRequestDispatcher(...).forward(...)`** | Hand control of the request to a JSP |
 | **`response.sendRedirect(...)`** | Send the browser a 302 to a new URL |
+| **`@MultipartConfig`** | Annotation that enables a servlet to accept file uploads |
+| **`Part`** | A Jakarta Servlet object representing one piece of a multipart request (a file or a form field) |
+| **`enctype="multipart/form-data"`** | HTML form attribute that switches encoding from text to multipart, required for file uploads |
+| **Drag and drop** | A browser API (`dragover`, `drop` events) that lets users drop files from their desktop onto a web page |
 
 ---
 

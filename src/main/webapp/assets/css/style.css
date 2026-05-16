@@ -625,6 +625,19 @@ p  { margin: 0 0 1em; color: var(--ink); }
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
 }
+.art-detail-body {
+    padding-top: 1rem;
+}
+.art-detail-body h1 {
+    margin-bottom: .5rem;
+}
+.art-detail-body .muted a {
+    color: var(--purple-soft);
+    transition: color .2s ease;
+}
+.art-detail-body .muted a:hover {
+    color: var(--ink);
+}
 
 /* ==================== GALLERY WALL ==================== */
 .gallery-wall {
@@ -731,114 +744,114 @@ p  { margin: 0 0 1em; color: var(--ink); }
     .slide-arrow.prev { left: .5rem; }
     .slide-arrow.next { right: .5rem; }
     .field-row { flex-direction: column; }
-    /* ============================================
-    PAGE TRANSITIONS — works in every browser
-    ============================================ */
+}
 
-    /* 1. Fade+slide in the whole page body on every load.
-          This runs in Chrome, Firefox, Safari, Edge — no API needed. */
-    @keyframes page-enter {
-        0%   { opacity: 0; transform: translateY(18px); }
-        100% { opacity: 1; transform: translateY(0);    }
-    }
+/* ============================================
+   PAGE TRANSITIONS — works in every browser
+   ============================================ */
 
-    body {
-        animation: page-enter 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
-    }
+/* 1. Fade+slide in the whole page body on every load. */
+@keyframes page-enter {
+    0%   { opacity: 0; transform: translateY(18px); }
+    100% { opacity: 1; transform: translateY(0);    }
+}
 
-    /* 2. Stagger the hero + first section so it feels layered */
+body {
+    animation: page-enter 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* 2. Stagger the hero + first section so it feels layered */
+.page-hero,
+.hero,
+.hero-video-wrap {
+    animation: page-enter 680ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation-delay: 80ms;
+}
+
+/* 3. Button press / hover lift */
+.btn,
+.btn-primary {
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+.btn:hover,
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(138, 79, 255, 0.35);
+}
+.btn:active,
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* 4. Nav link underline glide */
+.site-nav a,
+nav a {
+    position: relative;
+    transition: color 200ms ease;
+}
+.site-nav a::after,
+nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #b48bff, #8a4fff);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.site-nav a:hover::after,
+nav a:hover::after {
+    transform: scaleX(1);
+}
+
+/* 5. Card hover lift on art / artist / category cards */
+.art-card,
+.artist-card,
+.category-card,
+.wall-item {
+    transition: transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 320ms ease;
+}
+.art-card:hover,
+.artist-card:hover,
+.category-card:hover,
+.wall-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* 6. Cross-document View Transitions (Chrome 126+ bonus layer) */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) {
+    animation: page-fade-out 220ms ease both;
+}
+::view-transition-new(root) {
+    animation: page-enter 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes page-fade-out {
+    0%   { opacity: 1; transform: translateY(0);   }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+/* 7. Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    body,
     .page-hero,
     .hero,
-    .hero-video-wrap {
-        animation: page-enter 680ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
-        animation-delay: 80ms;
-    }
-
-    /* 3. Button press / hover lift */
-    .btn,
-    .btn-primary {
-        transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
-    }
-    .btn:hover,
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 24px rgba(138, 79, 255, 0.35);
-    }
-    .btn:active,
-    .btn-primary:active {
-        transform: translateY(0);
-    }
-
-    /* 4. Nav link underline glide */
-    .site-nav a,
-    nav a {
-        position: relative;
-        transition: color 200ms ease;
-    }
-    .site-nav a::after,
-    nav a::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: -4px;
-        width: 100%;
-        height: 2px;
-        background: linear-gradient(90deg, #b48bff, #8a4fff);
-        transform: scaleX(0);
-        transform-origin: left center;
-        transition: transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
-    }
-    .site-nav a:hover::after,
-    nav a:hover::after {
-        transform: scaleX(1);
-    }
-
-    /* 5. Card hover lift on art / artist / category cards */
+    .hero-video-wrap,
     .art-card,
     .artist-card,
     .category-card,
-    .wall-item {
-        transition: transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
-        box-shadow 320ms ease;
-    }
-    .art-card:hover,
-    .artist-card:hover,
-    .category-card:hover,
-    .wall-item:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-    }
-
-    /* 6. Cross-document View Transitions (Chrome 126+ bonus layer) */
-    @view-transition { navigation: auto; }
-
-    ::view-transition-old(root) {
-        animation: page-fade-out 220ms ease both;
-    }
-    ::view-transition-new(root) {
-        animation: page-enter 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
-    }
-
-    @keyframes page-fade-out {
-        0%   { opacity: 1; transform: translateY(0);   }
-        100% { opacity: 0; transform: translateY(-10px); }
-    }
-
-    /* 7. Respect user preference for reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-        body,
-        .page-hero,
-        .hero,
-        .hero-video-wrap,
-        .art-card,
-        .artist-card,
-        .category-card,
-        .wall-item,
-        .btn,
-        .btn-primary {
-            animation: none !important;
-            transition: none !important;
-        }
+    .wall-item,
+    .btn,
+    .btn-primary {
+        animation: none !important;
+        transition: none !important;
     }
 }
 
@@ -3484,4 +3497,189 @@ a.adm-card:hover {
 .btn-cart.added {
     background: var(--purple) !important;
     color: #fff !important;
+}
+
+/* =========================================================
+   Global Toast Notifications
+   ========================================================= */
+.toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translate(-50%, 40px);
+    background: var(--surface-2);
+    color: var(--ink);
+    padding: 14px 24px;
+    border-radius: var(--radius);
+    border: 1px solid rgba(201, 182, 255, 0.25);
+    font-size: .9rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(122, 59, 255, 0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+.toast-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.toast--success { border-color: rgba(126, 225, 154, 0.4); }
+.toast--success .toast-icon { color: #7ee19a; }
+.toast--error { border-color: rgba(224, 112, 112, 0.4); }
+.toast--error .toast-icon { color: #e07070; }
+
+/* =========================================================
+   Top Page Loading Bar
+   ========================================================= */
+.page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple), var(--purple-soft));
+    z-index: 9999;
+    transition: width .3s ease;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 10px rgba(122, 59, 255, 0.6);
+}
+.page-loader.loading {
+    width: 70%;
+    transition: width 2s cubic-bezier(.1, .5, .3, 1);
+}
+.page-loader.done {
+    width: 100%;
+    transition: width .2s ease;
+    opacity: 0;
+    transition: width .2s ease, opacity .3s ease .2s;
+}
+
+/* =========================================================
+   Footer Social Links
+   ========================================================= */
+.footer-social {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.25rem;
+}
+.footer-social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.footer-social a:hover {
+    color: var(--purple-soft);
+    border-color: var(--purple-soft);
+    background: rgba(122, 59, 255, 0.1);
+    transform: translateY(-2px);
+}
+.footer-social a svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* =========================================================
+   Newsletter CTA (home page)
+   ========================================================= */
+.newsletter-cta {
+    position: relative;
+    padding: 5rem 1.5rem;
+    text-align: center;
+    background: linear-gradient(180deg, var(--bg) 0%, #1a0f2e 50%, var(--bg) 100%);
+    overflow: hidden;
+}
+.newsletter-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(600px circle at 50% 40%, rgba(122, 59, 255, 0.15), transparent 70%);
+    pointer-events: none;
+}
+.newsletter-cta .section-head {
+    margin-top: 0;
+    position: relative;
+}
+.newsletter-form-inline {
+    max-width: 480px;
+    margin: 2rem auto 0;
+    display: flex;
+    gap: .75rem;
+    position: relative;
+}
+.newsletter-form-inline input[type="email"] {
+    flex: 1;
+    padding: .9rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: .95rem;
+    outline: none;
+    transition: border-color .2s ease, background .2s ease;
+}
+.newsletter-form-inline input[type="email"]:focus {
+    border-color: var(--purple-soft);
+    background: rgba(255, 255, 255, 0.08);
+}
+.newsletter-form-inline input[type="email"]::placeholder {
+    color: var(--muted);
+}
+.newsletter-form-inline .btn-primary {
+    flex-shrink: 0;
+    padding: .9rem 1.8rem;
+    width: auto;
+}
+
+/* =========================================================
+   Enhanced 404 Page
+   ========================================================= */
+.error-404 {
+    text-align: center;
+    padding: 8rem 1.5rem 6rem;
+    background: radial-gradient(70% 50% at 50% 20%, rgba(122, 59, 255, 0.18), transparent 70%);
+}
+.error-404-code {
+    font-family: var(--font-display);
+    font-size: clamp(6rem, 15vw, 12rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--purple-soft), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: .5rem;
+    opacity: .7;
+}
+.error-404 h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    margin-bottom: .75rem;
+}
+.error-404 p {
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto 2rem;
+}
+.error-404-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
