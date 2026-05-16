@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn compile *)",
+      "PowerShell(mvn compile 2>&1)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:8081/art-gallery/admin/artists?action=add\" -UseBasicParsing -SessionVariable s -MaximumRedirection 0 -ErrorAction Stop; \"Status: $\\($r.StatusCode\\)`nContent length: $\\($r.Content.Length\\)`nContains artist_form: $\\($r.Content -match 'artist_form'\\)`nContains adm-form: $\\($r.Content -match 'adm-form'\\)`nView attribute: $\\(if\\($r.Content -match 'Unknown view: \\(.+?\\)\\\\.'\\){ $Matches[1] } else { 'N/A' }\\)\" } catch { \"Error: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(try { $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession; $r = Invoke-WebRequest -Uri \"http://localhost:8081/art_gallery/admin/artists?action=add\" -UseBasicParsing -WebSession $session -MaximumRedirection 5 -ErrorAction Stop; \"Status: $\\($r.StatusCode\\), Length: $\\($r.Content.Length\\)\"; if\\($r.Content -match 'artist_form'\\) { \"Contains: artist_form\" }; if\\($r.Content -match 'adm-form'\\) { \"Contains: adm-form \\(the add form\\)\" }; if\\($r.Content -match 'Manage artists'\\) { \"Contains: Manage artists \\(the list view\\)\" }; if\\($r.Content -match 'Unknown view'\\) { \"Contains: Unknown view debug message\" }; if\\($r.Content -match 'login'\\) { \"Contains: login \\(redirected to login\\)\" } } catch [System.Net.WebException] { $resp = $_.Exception.Response; if\\($resp\\) { \"HTTP $\\([int]$resp.StatusCode\\)\" } else { \"No response\" } })",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\ACER NITRO\\\\OneDrive\\\\Desktop\\\\APT-Coursework\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)"
+    ]
+  }
+}

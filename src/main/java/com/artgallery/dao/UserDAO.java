@@ -41,7 +41,7 @@ public class UserDAO {
             throws SQLException {
         return registerWithRole(fullName, email, plainPassword, "user");
     }
-
+    
     /**
      * Creates a new user account with a specified role.
      *

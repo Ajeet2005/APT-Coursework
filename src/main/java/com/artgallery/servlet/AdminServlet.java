@@ -15,12 +15,18 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Handles GET /admin → render the admin dashboard.
@@ -29,6 +35,10 @@ import java.util.List;
  * but we do a double-check here for defence-in-depth.
  */
 @WebServlet({ "/admin", "/admin/*" })
+@MultipartConfig(
+    maxFileSize = 5 * 1024 * 1024,
+    maxRequestSize = 10 * 1024 * 1024
+)
 public class AdminServlet extends HttpServlet {
 
     private ArtworkDAO artworkDAO;
@@ -132,45 +142,53 @@ public class AdminServlet extends HttpServlet {
 
     private void handleArtworks(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        try {
-            String action = req.getParameter("action");
-            if ("add".equals(action) || "edit".equals(action)) {
+        String action = req.getParameter("action");
+        if ("add".equals(action) || "edit".equals(action)) {
+            try {
                 if ("edit".equals(action)) {
                     int id = Integer.parseInt(req.getParameter("id"));
                     req.setAttribute("item", artworkDAO.findById(id));
                 }
                 req.setAttribute("categories", categoryDAO.findAll());
                 req.setAttribute("artists", artistDAO.findAll());
-                req.setAttribute("view", "artwork_form");
-            } else {
-                req.setAttribute("items", artworkDAO.findAll());
-                req.setAttribute("view", "artworks");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            req.setAttribute("view", "artwork_form");
             req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.sendRedirect(req.getContextPath() + "/admin");
+        } else {
+            try {
+                req.setAttribute("items", artworkDAO.findAll());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            req.setAttribute("view", "artworks");
+            req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
         }
     }
 
     private void handleArtists(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        try {
-            String action = req.getParameter("action");
-            if ("add".equals(action) || "edit".equals(action)) {
+        String action = req.getParameter("action");
+        if ("add".equals(action) || "edit".equals(action)) {
+            try {
                 if ("edit".equals(action)) {
                     int id = Integer.parseInt(req.getParameter("id"));
                     req.setAttribute("item", artistDAO.findById(id));
                 }
-                req.setAttribute("view", "artist_form");
-            } else {
-                req.setAttribute("items", artistDAO.findAll());
-                req.setAttribute("view", "artists");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            req.setAttribute("view", "artist_form");
             req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.sendRedirect(req.getContextPath() + "/admin");
+        } else {
+            try {
+                req.setAttribute("items", artistDAO.findAll());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            req.setAttribute("view", "artists");
+            req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
         }
     }
 
@@ -188,22 +206,26 @@ public class AdminServlet extends HttpServlet {
 
     private void handleCategories(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        try {
-            String action = req.getParameter("action");
-            if ("add".equals(action) || "edit".equals(action)) {
+        String action = req.getParameter("action");
+        if ("add".equals(action) || "edit".equals(action)) {
+            try {
                 if ("edit".equals(action)) {
                     int id = Integer.parseInt(req.getParameter("id"));
                     req.setAttribute("item", categoryDAO.findById(id));
                 }
-                req.setAttribute("view", "category_form");
-            } else {
-                req.setAttribute("items", categoryDAO.findAll());
-                req.setAttribute("view", "categories");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            req.setAttribute("view", "category_form");
             req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.sendRedirect(req.getContextPath() + "/admin");
+        } else {
+            try {
+                req.setAttribute("items", categoryDAO.findAll());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            req.setAttribute("view", "categories");
+            req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
         }
     }
 
@@ -294,15 +316,22 @@ public class AdminServlet extends HttpServlet {
             artworkDAO.insert(a);
     }
 
-    private void saveArtist(HttpServletRequest req) throws SQLException {
+    private void saveArtist(HttpServletRequest req) throws SQLException, IOException, ServletException {
         String idStr = req.getParameter("id");
         Artist a = new Artist();
         if (idStr != null && !idStr.isEmpty())
             a.setId(Integer.parseInt(idStr));
         a.setName(req.getParameter("name"));
         a.setBio(req.getParameter("bio"));
-        a.setProfileImage(req.getParameter("profile_image"));
         a.setCountry(req.getParameter("country"));
+
+        String profileImagePath = handleImageUpload(req, "profile_image_file", "Artists");
+        if (profileImagePath != null) {
+            a.setProfileImage(profileImagePath);
+        } else if (a.getId() > 0) {
+            Artist existing = artistDAO.findById(a.getId());
+            if (existing != null) a.setProfileImage(existing.getProfileImage());
+        }
 
         if (a.getId() > 0)
             artistDAO.update(a);
@@ -323,6 +352,29 @@ public class AdminServlet extends HttpServlet {
             categoryDAO.update(c);
         else
             categoryDAO.insert(c);
+    }
+
+    private String handleImageUpload(HttpServletRequest req, String partName, String subfolder)
+            throws IOException, ServletException {
+        Part filePart = req.getPart(partName);
+        if (filePart == null || filePart.getSize() == 0) return null;
+
+        String originalName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        String ext = "";
+        int dot = originalName.lastIndexOf('.');
+        if (dot >= 0) ext = originalName.substring(dot).toLowerCase();
+
+        if (!ext.matches("\\.(jpg|jpeg|png|gif|webp)")) return null;
+
+        String uniqueName = UUID.randomUUID().toString().substring(0, 8) + "_" + originalName;
+        String relativePath = "assets/images/" + subfolder + "/" + uniqueName;
+
+        String uploadDir = getServletContext().getRealPath("/assets/images/" + subfolder);
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        filePart.write(uploadDir + File.separator + uniqueName);
+        return relativePath;
     }
 
     private void handleDelete(HttpServletRequest req) throws SQLException {

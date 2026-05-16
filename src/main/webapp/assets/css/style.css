@@ -2732,6 +2732,174 @@ button:disabled { cursor: not-allowed; opacity: 0.6; }
     resize: vertical;
 }
 
+/* ── Drop Zone ────────────────────────────────────────── */
+.drop-zone {
+    position: relative;
+    border: 2px dashed rgba(122, 59, 255, 0.35);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: rgba(122, 59, 255, 0.04);
+}
+
+.drop-zone:hover {
+    border-color: rgba(122, 59, 255, 0.6);
+    background: rgba(122, 59, 255, 0.08);
+}
+
+.drop-zone--over {
+    border-color: #7a3bff;
+    background: rgba(122, 59, 255, 0.14);
+    transform: scale(1.01);
+}
+
+.drop-zone--has-file {
+    border-style: solid;
+    border-color: rgba(122, 59, 255, 0.5);
+    padding: 0.75rem;
+}
+
+.drop-zone__input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.drop-zone__prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--muted);
+}
+
+.drop-zone__prompt svg {
+    color: rgba(122, 59, 255, 0.6);
+    margin-bottom: 0.25rem;
+}
+
+.drop-zone__title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink);
+}
+
+.drop-zone__or {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.drop-zone__btn {
+    display: inline-block;
+    padding: 0.5rem 1.4rem;
+    background: linear-gradient(135deg, #7a3bff 0%, #5b21b6 100%);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(122, 59, 255, 0.25);
+}
+
+.drop-zone:hover .drop-zone__btn {
+    box-shadow: 0 4px 14px rgba(122, 59, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.drop-zone__hint {
+    font-size: 0.72rem;
+    margin-top: 0.2rem;
+}
+
+.drop-zone__preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+}
+
+.drop-zone__preview img {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    flex-shrink: 0;
+}
+
+.drop-zone__preview-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.drop-zone__preview-info span:first-child {
+    font-size: 0.88rem;
+    color: var(--ink);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.drop-zone__preview-info span:last-child {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.drop-zone__remove {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.drop-zone__remove:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.drop-zone__current {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.drop-zone__current img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.drop-zone__current p {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0;
+}
+
 .form-group.checkbox {
     display: flex;
     align-items: center;

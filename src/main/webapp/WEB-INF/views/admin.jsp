@@ -196,7 +196,7 @@
         <c:when test="${view == 'artwork_form' || view == 'artist_form' || view == 'category_form'}">
             <div class="adm-panel">
                 <h3 class="adm-panel-title">${not empty item ? 'Edit' : 'Add'} ${view == 'artwork_form' ? 'Artwork' : (view == 'artist_form' ? 'Artist' : 'Category')}</h3>
-                <form action="${pageContext.request.contextPath}/admin/${view == 'artwork_form' ? 'artworks' : (view == 'artist_form' ? 'artists' : 'categories')}" method="POST" class="adm-form">
+                <form action="${pageContext.request.contextPath}/admin/${view == 'artwork_form' ? 'artworks' : (view == 'artist_form' ? 'artists' : 'categories')}" method="POST" class="adm-form" ${view == 'artist_form' ? 'enctype="multipart/form-data"' : ''}>
                     <input type="hidden" name="id" value="${item.id}">
                     
                     <c:if test="${view == 'artwork_form'}">
@@ -226,7 +226,37 @@
                     <c:if test="${view == 'artist_form'}">
                         <div class="form-group"><label>Name</label><input type="text" name="name" value="${item.name}" required></div>
                         <div class="form-group"><label>Bio</label><textarea name="bio" required>${item.bio}</textarea></div>
-                        <div class="form-group"><label>Profile Image URL</label><input type="text" name="profile_image" value="${item.profileImage}" required></div>
+                        <div class="form-group">
+                            <label>Profile Image</label>
+                            <div class="drop-zone" id="dropZone">
+                                <input type="file" name="profile_image_file" id="profileImageInput" accept=".jpg,.jpeg,.png,.gif,.webp"${empty item ? ' required' : ''} class="drop-zone__input">
+                                <div class="drop-zone__prompt" id="dropPrompt">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                    <span class="drop-zone__title">Drag & drop image here</span>
+                                    <span class="drop-zone__or">or</span>
+                                    <span class="drop-zone__btn">Browse Files</span>
+                                    <span class="drop-zone__hint">JPG, PNG, GIF, WebP &bull; Max 5 MB</span>
+                                </div>
+                                <div class="drop-zone__preview" id="dropPreview" style="display:none;">
+                                    <img id="previewImg" alt="Preview">
+                                    <div class="drop-zone__preview-info">
+                                        <span id="previewName"></span>
+                                        <span id="previewSize"></span>
+                                    </div>
+                                    <button type="button" class="drop-zone__remove" id="removeBtn" title="Remove">&times;</button>
+                                </div>
+                            </div>
+                            <c:if test="${not empty item.profileImage}">
+                                <div class="drop-zone__current">
+                                    <img src="${pageContext.request.contextPath}/${item.profileImage}" alt="Current image">
+                                    <p>Current image &mdash; upload a new file to replace it.</p>
+                                </div>
+                            </c:if>
+                        </div>
                         <div class="form-group"><label>Country</label><input type="text" name="country" value="${item.country}" required></div>
                     </c:if>
 
@@ -243,10 +273,16 @@
                 </form>
             </div>
         </c:when>
+        <c:otherwise>
+            <div class="adm-panel">
+                <p>Unknown view: <c:out value="${view}"/>. <a href="${pageContext.request.contextPath}/admin">Back to Dashboard</a></p>
+            </div>
+        </c:otherwise>
     </c:choose>
 
 </section>
 
+<c:if test="${view == 'dashboard'}">
 <%-- Chart.js --%>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -308,5 +344,81 @@
         }
     });
 </script>
+</c:if>
+
+<c:if test="${view == 'artist_form'}">
+<script>
+(function() {
+    var zone = document.getElementById('dropZone');
+    var input = document.getElementById('profileImageInput');
+    var prompt = document.getElementById('dropPrompt');
+    var preview = document.getElementById('dropPreview');
+    var previewImg = document.getElementById('previewImg');
+    var previewName = document.getElementById('previewName');
+    var previewSize = document.getElementById('previewSize');
+    var removeBtn = document.getElementById('removeBtn');
+    if (!zone || !input) return;
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function showPreview(file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewName.textContent = file.name;
+            previewSize.textContent = formatSize(file.size);
+            prompt.style.display = 'none';
+            preview.style.display = 'flex';
+            zone.classList.add('drop-zone--has-file');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearPreview() {
+        input.value = '';
+        prompt.style.display = '';
+        preview.style.display = 'none';
+        zone.classList.remove('drop-zone--has-file');
+    }
+
+    zone.addEventListener('click', function(e) {
+        if (e.target === removeBtn || e.target.closest('.drop-zone__remove')) return;
+        input.click();
+    });
+
+    input.addEventListener('change', function() {
+        if (input.files.length > 0) showPreview(input.files[0]);
+    });
+
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        zone.classList.add('drop-zone--over');
+    });
+
+    zone.addEventListener('dragleave', function() {
+        zone.classList.remove('drop-zone--over');
+    });
+
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('drop-zone--over');
+        var files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            input.files = files;
+            showPreview(files[0]);
+        }
+    });
+
+    removeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        clearPreview();
+    });
+})();
+</script>
+</c:if>
 
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>
