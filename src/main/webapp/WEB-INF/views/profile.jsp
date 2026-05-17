@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<c:set var="pageTitle" value="Edit Profile &mdash; Gallery Artisan&rsquo;s" scope="request"/>
+<c:set var="pageTitle" value="Edit Profile &mdash; Gallery Artisan's" scope="request"/>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 
 <%

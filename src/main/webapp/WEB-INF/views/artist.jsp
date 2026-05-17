@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<c:set var="pageTitle" value="Artists â€” Gallery Artisanâ€™s" scope="request"/>
+<c:set var="pageTitle" value="Artists ” Gallery Artisan's" scope="request"/>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 <c:choose>
     <%-- ============ DETAIL VIEW: a specific artist was clicked ============ --%>

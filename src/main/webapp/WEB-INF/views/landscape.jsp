@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<c:set var="pageTitle" value="Landscape Shop &mdash; Gallery Artisan&rsquo;s" scope="request"/>
+<c:set var="pageTitle" value="Landscape Shop &mdash; Gallery Artisan's" scope="request"/>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 
 <section class="page-hero botanical-hero">

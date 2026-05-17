@@ -73,20 +73,9 @@
 
             <%-- ─── Cart icon with badge ────────────────────────────────────── --%>
             <a href="<%= ctx %>/cart" class="nav-cart" aria-label="View cart">
-                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
-                     fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 2L4 6"/>
-                    <path d="M4 6h2.5L9 18h15.5l3.5-12H6.5"/>
-                    <line x1="9.5" y1="6" x2="8" y2="18"/>
-                    <line x1="14" y1="6" x2="13" y2="18"/>
-                    <line x1="18.5" y1="6" x2="17.5" y2="18"/>
-                    <line x1="23" y1="6" x2="22.5" y2="18"/>
-                    <line x1="7" y1="10" x2="27.5" y2="10"/>
-                    <line x1="7.8" y1="14" x2="26.5" y2="14"/>
-                    <path d="M9 18c-2 0-3.5 1.8-2.5 3.5h18"/>
-                    <circle cx="10" cy="26" r="2.5" fill="currentColor"/><circle cx="22" cy="26" r="2.5" fill="currentColor"/>
-                    <circle cx="10" cy="26" r="1" fill="none" stroke="var(--bg, #0b0910)" stroke-width="1.5"/>
-                    <circle cx="22" cy="26" r="1" fill="none" stroke="var(--bg, #0b0910)" stroke-width="1.5"/>
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="currentColor">
+                    <path d="M7.5 1C7 1 6.5 1.5 6.2 2L3.5 7H4h2l2.5 11H9l-2.8.1C4.5 18.1 3.5 19.5 3.8 21c.2.8.8 1.2 1.5 1.2H24c.6 0 1-.4 1-1s-.4-1-1-1H5.5c-.2 0-.3-.1-.3-.3 0-.2.2-.5.5-.6L25.5 19c.5 0 .9-.3 1-.8l3-11c.1-.4 0-.7-.2-1-.2-.3-.6-.4-1-.4H8.5L7.2 2.5C7.1 2.2 7 2 7 2c0-.5.2-1 .5-1zM10 7h4v4h-4V7zm5 0h4.5v4H15V7zm5.5 0H25l-1 4h-3.5V7zM9.5 7l.5 4H9l-1-4h1.5zM8.2 12H10v4H8.8l-.6-4zm2.8 0h4v4h-4v-4zm5 0h4.5v4H16v-4zm5.5 0h3.5l-1 4h-2.5v-4z"/>
+                    <circle cx="9" cy="26" r="3"/><circle cx="22" cy="26" r="3"/>
                 </svg>
                 <% if (cartCount > 0) { %>
                 <span class="nav-cart-badge has-items" data-cart-badge><%= cartCount %></span>

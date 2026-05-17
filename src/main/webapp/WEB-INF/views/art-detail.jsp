@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<c:set var="pageTitle" value="${artwork != null ? artwork.title : 'Artwork'} â€” Gallery Artisanâ€™s" scope="request"/>
+<c:set var="pageTitle" value="${artwork != null ? artwork.title : 'Artwork'} ” Gallery Artisan's" scope="request"/>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 <c:choose>
     <c:when test="${artwork != null}">

@@ -1,11 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<c:set var="pageTitle" value="Categories â€” Gallery Artisanâ€™s" scope="request"/>
+<c:set var="pageTitle" value="Categories” Gallery Artisan's" scope="request"/>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 <section class="page-hero">
     <span class="eyebrow">Browse</span>
     <h1>Categories</h1>
-    <p>From vibrant acrylic to quiet abstraction â€” pick a mood and step inside.</p>
+    <p>From vibrant acrylic to quiet abstraction. pick a mood and step inside.</p>
 </section>
 
 <section class="category-grid">

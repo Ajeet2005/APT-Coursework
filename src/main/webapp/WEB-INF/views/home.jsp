@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<c:set var="pageTitle" value="Gallery Artisanâ€™s â€” Home" scope="request"/>
+<c:set var="pageTitle" value="Gallery Artisan's ” Home" scope="request"/>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 <!-- ========== HERO WITH VIDEO ========== -->
 <section class="hero">
@@ -17,7 +17,7 @@
         <div class="hero-overlay"></div>
     </div>
     <div class="hero-content">
-        <span class="eyebrow">Acrylic Â· Colour Â· Craft</span>
+        <span class="eyebrow">Acrylic · Colour · Craft</span>
         <h1>Where every brushstroke <em>becomes a story.</em></h1>
         <p class="lede">
             Gallery Artisan&rsquo;s is a curated home for vivid acrylic paintings
@@ -36,7 +36,7 @@
     <div class="section-head">
         <span class="eyebrow">Featured This Month</span>
         <h2>Highlighted Works</h2>
-        <p>Only the centre piece stays in colour â€” step through to see each painting come alive.</p>
+        <p>Only the centre piece stays in colour. A step through to see each painting come alive.</p>
     </div>
 
     <div class="slideshow" data-slideshow>
