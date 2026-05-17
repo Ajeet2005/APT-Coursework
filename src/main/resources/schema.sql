@@ -1,7 +1,7 @@
 -- =======================================================================
 -- Gallery Artisan's — MySQL 8.x  Complete Schema + Seed Data
 -- =======================================================================
--- HOW TO RUN:
+-- HOW TO RUN :
 --   Option A (MySQL Workbench):  File → Open SQL Script → Execute (⚡)
 --   Option B (command line):     mysql -u root -p < schema.sql
 --   Option C (phpMyAdmin):       Import → choose this file → Go
