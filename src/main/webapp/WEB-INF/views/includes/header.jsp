@@ -55,6 +55,7 @@
             <a href="<%= ctx %>/art"        class="<%= "art".equals(active)        ? "active" : "" %>">Art</a>
             <a href="<%= ctx %>/artist"     class="<%= "artist".equals(active)     ? "active" : "" %>">Artist</a>
             <a href="<%= ctx %>/gallery"    class="<%= "gallery".equals(active)    ? "active" : "" %>">Gallery</a>
+            <a href="<%= ctx %>/about"      class="<%= "about".equals(active)      ? "active" : "" %>">About Us</a>
             <% if (isAdmin) { %>
             <a href="<%= ctx %>/admin"
                class="nav-admin <%= "admin".equals(active) ? "active" : "" %>">
