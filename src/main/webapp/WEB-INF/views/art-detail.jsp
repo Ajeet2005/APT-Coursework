@@ -19,10 +19,12 @@
                 </c:if>
                 <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
                     <button type="button" class="btn btn-primary btn-cart" onclick="addToCart(${artwork.id}, this)">
-                        <svg class="btn-cart-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px">
-                            <path d="M3 4L6 4L8 7L21 7L19 15L9 15L8 7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>
+                        <svg class="btn-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h2.5l1 2"/><path d="M5.5 5h16l-2.5 9H8z"/>
+                            <path d="M8.5 8.5h10M9 11.5h8.5"/><path d="M8 14l-1.5 3h13"/>
+                            <circle cx="9.5" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/>
                         </svg>
-                        Add to Cart
+                        <span>Add to Cart</span>
                     </button>
                     <a class="btn btn-ghost" href="<%= ctx %>/gallery">Back to Gallery</a>
                 </div>
@@ -51,7 +53,7 @@ function addToCart(artworkId, btn) {
         btn.classList.remove('loading');
         if (data.ok) {
             btn.classList.add('added');
-            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M5 10l4 4 6-8"/></svg> Added!';
+            btn.innerHTML = '<svg class="btn-cart-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10l4 4 6-8"/></svg><span>Added!</span>';
             if (window.showToast) window.showToast('Added to your cart', 'success');
             var badge = document.querySelector('[data-cart-badge]');
             if (badge) {

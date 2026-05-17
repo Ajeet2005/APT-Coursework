@@ -115,10 +115,10 @@
                                             <c:otherwise>${item.name}</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <c:if test="${view == 'artworks'}"><td>$${item.price}</td><td>${item.categoryName}</td></c:if>
+                                    <c:if test="${view == 'artworks'}"><td>Rs.&nbsp;${item.price}</td><td>${item.categoryName}</td></c:if>
                                     <c:if test="${view == 'users'}"><td>${item.email}</td><td>${item.role}</td></c:if>
                                     <c:if test="${view == 'orders'}">
-                                        <td>$${item.totalAmount}</td>
+                                        <td>Rs.&nbsp;${item.totalAmount}</td>
                                         <td><span class="status-badge ${item.status}">${item.status}</span></td>
                                         <td>${item.createdAt}</td>
                                     </c:if>
@@ -159,7 +159,7 @@
                         <p><strong>Date:</strong> ${order.createdAt}</p>
                     </div>
                     <div style="text-align: right;">
-                        <p><strong>Total Amount:</strong> <span style="font-size: 1.5rem; color: var(--purple-soft);">$${order.totalAmount}</span></p>
+                        <p><strong>Total Amount:</strong> <span style="font-size: 1.5rem; color: var(--purple-soft);">Rs.&nbsp;${order.totalAmount}</span></p>
                     </div>
                 </div>
                 
@@ -181,8 +181,8 @@
                                     <td>${oi.artworkId}</td>
                                     <td>${oi.artworkTitle}</td>
                                     <td>${oi.quantity}</td>
-                                    <td>$${oi.price}</td>
-                                    <td>$${oi.subtotal}</td>
+                                    <td>Rs.&nbsp;${oi.price}</td>
+                                    <td>Rs.&nbsp;${oi.subtotal}</td>
                                 </tr>
                             </c:forEach>
                         </tbody>

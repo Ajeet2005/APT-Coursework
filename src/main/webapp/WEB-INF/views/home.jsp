@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<c:set var="pageTitle" value="Gallery Artisan's — Home" scope="request"/>
+<c:set var="pageTitle" value="Gallery Artisanâ€™s â€” Home" scope="request"/>
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 <!-- ========== HERO WITH VIDEO ========== -->
 <section class="hero">
@@ -17,7 +17,7 @@
         <div class="hero-overlay"></div>
     </div>
     <div class="hero-content">
-        <span class="eyebrow">Acrylic · Colour · Craft</span>
+        <span class="eyebrow">Acrylic Â· Colour Â· Craft</span>
         <h1>Where every brushstroke <em>becomes a story.</em></h1>
         <p class="lede">
             Gallery Artisan&rsquo;s is a curated home for vivid acrylic paintings
@@ -36,15 +36,11 @@
     <div class="section-head">
         <span class="eyebrow">Featured This Month</span>
         <h2>Highlighted Works</h2>
-        <p>Only the centre piece stays in colour — step through to see each painting come alive.</p>
+        <p>Only the centre piece stays in colour â€” step through to see each painting come alive.</p>
     </div>
 
     <div class="slideshow" data-slideshow>
-        <button type="button" class="slide-arrow prev" aria-label="Previous slide">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </button>
+        <button class="slide-arrow prev" aria-label="Previous">&larr;</button>
         <div class="slide-track">
             <c:choose>
                 <c:when test="${not empty featured}">
@@ -79,15 +75,11 @@
                 </c:otherwise>
             </c:choose>
         </div>
-        <button type="button" class="slide-arrow next" aria-label="Next slide">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </button>
+        <button class="slide-arrow next" aria-label="Next">&rarr;</button>
     </div>
 </section>
 
-<!-- ========== SMALL GALLERY (yak-biergarten style mosaic) ========== -->
+<!-- ========== LITTLE GALLERY (mosaic grid) ========== -->
 <section class="mini-gallery">
     <div class="section-head">
         <span class="eyebrow">Little Gallery</span>
@@ -130,19 +122,6 @@
             </c:otherwise>
         </c:choose>
     </div>
-</section>
-
-<!-- ========== NEWSLETTER CTA ========== -->
-<section class="newsletter-cta">
-    <div class="section-head">
-        <span class="eyebrow">Stay Inspired</span>
-        <h2>Join the Gallery Circle</h2>
-        <p>Get early access to new arrivals, artist features, and exclusive invites to gallery openings.</p>
-    </div>
-    <form class="newsletter-form-inline" onsubmit="return handleNewsletter(event)">
-        <input type="email" placeholder="your@email.com" required aria-label="Email address">
-        <button type="submit" class="btn btn-primary">Subscribe</button>
-    </form>
 </section>
 
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>

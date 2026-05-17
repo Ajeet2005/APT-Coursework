@@ -91,13 +91,11 @@
                             <button type="button" class="btn btn-primary btn-cart"
                                     data-id="${art.id}" data-title="${art.title}"
                                     onclick="addToCart(this)">
-                                <svg class="btn-cart-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 4 L6 4 L8 7 L21 7 L19 15 L9 15 L8 7"/>
-                                    <path d="M12 7 L12 15 M16 7 L16 15 M8.5 11 L20 11"/>
-                                    <circle cx="10" cy="19" r="1.5" fill="currentColor" stroke="none"/>
-                                    <circle cx="17" cy="19" r="1.5" fill="currentColor" stroke="none"/>
+                                <svg class="btn-cart-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 3h2.5l1 2"/><path d="M5.5 5h16l-2.5 9H8z"/>
+                                    <path d="M8.5 8.5h10M9 11.5h8.5"/><path d="M8 14l-1.5 3h13"/>
+                                    <circle cx="9.5" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/>
                                 </svg>
                                 <span>Add to Cart</span>
                             </button>

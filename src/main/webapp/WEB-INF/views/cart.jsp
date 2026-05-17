@@ -172,7 +172,7 @@
                                 <div class="title">${item.title}</div>
                                 <div class="artist">${item.artistName}</div>
                                 <div class="price">
-                                    <fmt:formatNumber value="${item.price}" type="currency" currencySymbol="$"/>
+                                    <fmt:formatNumber value="${item.price}" type="currency" currencySymbol="Rs."/>
                                 </div>
                                 <div class="qty-controls">
                                     <button type="button" onclick="changeQty(${item.id}, ${item.quantity - 1})">−</button>
@@ -182,7 +182,7 @@
                             </div>
                             <div style="text-align:right">
                                 <div style="color:var(--ink);font-weight:500;margin-bottom:.5rem">
-                                    <fmt:formatNumber value="${item.lineTotal}" type="currency" currencySymbol="$"/>
+                                    <fmt:formatNumber value="${item.lineTotal}" type="currency" currencySymbol="Rs."/>
                                 </div>
                                 <button type="button" class="remove-btn" onclick="removeItem(${item.id})">Remove</button>
                             </div>
@@ -194,7 +194,7 @@
                     <h2>Order Summary</h2>
                     <div class="summary-row">
                         <span>Subtotal</span>
-                        <span><fmt:formatNumber value="${subtotal}" type="currency" currencySymbol="$"/></span>
+                        <span><fmt:formatNumber value="${subtotal}" type="currency" currencySymbol="Rs."/></span>
                     </div>
                     <div class="summary-row">
                         <span>Shipping</span>
@@ -202,7 +202,7 @@
                     </div>
                     <div class="summary-row total">
                         <span>Total</span>
-                        <span><fmt:formatNumber value="${subtotal}" type="currency" currencySymbol="$"/></span>
+                        <span><fmt:formatNumber value="${subtotal}" type="currency" currencySymbol="Rs."/></span>
                     </div>
                     <button type="button" class="checkout-btn" onclick="alert('Checkout coming soon!')">
                         Proceed to Checkout
